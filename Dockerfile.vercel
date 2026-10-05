@@ -1,0 +1,9 @@
+FROM dunglas/frankenphp:php8.3
+
+WORKDIR /app
+
+COPY . /app
+
+RUN docker-php-ext-install mysqli
+
+CMD ["sh", "-c", "frankenphp php-server --listen :${PORT:-80} --root /app"]

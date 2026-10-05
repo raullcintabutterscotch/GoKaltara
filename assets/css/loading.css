@@ -1,0 +1,548 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #4fa9df;
+    font-family:
+        "Lucida Sans",
+        Arial,
+        sans-serif;
+}
+
+.loader {
+    position: relative;
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.sky {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background:
+        linear-gradient(
+            180deg,
+            #449ed8 0%,
+            #6bbbe6 38%,
+            #9dd7ef 68%,
+            #ccecf7 100%
+        );
+}
+
+.cloud {
+    position: absolute;
+    width: 150px;
+    height: 48px;
+    opacity: .88;
+    pointer-events: none;
+}
+
+.cloud span {
+    position: absolute;
+    display: block;
+    background: rgba(
+        255,
+        255,
+        255,
+        .92
+    );
+    border-radius: 999px;
+}
+
+.cloud span:nth-child(1) {
+    left: 10px;
+    bottom: 0;
+    width: 58px;
+    height: 31px;
+}
+
+.cloud span:nth-child(2) {
+    left: 42px;
+    bottom: 0;
+    width: 73px;
+    height: 43px;
+}
+
+.cloud span:nth-child(3) {
+    right: 3px;
+    bottom: 0;
+    width: 54px;
+    height: 29px;
+}
+
+.cloud-1 {
+    top: 11%;
+    left: -180px;
+    animation:
+        cloudMove1
+        32s
+        linear
+        infinite;
+}
+
+.cloud-2 {
+    top: 22%;
+    left: -230px;
+    transform: scale(.75);
+    opacity: .68;
+    animation:
+        cloudMove2
+        39s
+        linear
+        infinite;
+}
+
+.cloud-3 {
+    top: 35%;
+    left: -190px;
+    transform: scale(.52);
+    opacity: .5;
+    animation:
+        cloudMove3
+        46s
+        linear
+        infinite;
+}
+
+@keyframes cloudMove1 {
+
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform:
+            translateX(
+                calc(100vw + 420px)
+            );
+    }
+
+}
+
+@keyframes cloudMove2 {
+
+    0% {
+        transform:
+            translateX(0)
+            scale(.75);
+    }
+
+    100% {
+        transform:
+            translateX(
+                calc(100vw + 430px)
+            )
+            scale(.75);
+    }
+
+}
+
+@keyframes cloudMove3 {
+
+    0% {
+        transform:
+            translateX(0)
+            scale(.52);
+    }
+
+    100% {
+        transform:
+            translateX(
+                calc(100vw + 420px)
+            )
+            scale(.52);
+    }
+
+}
+
+.hornbill-flight {
+    position: absolute;
+    top: 26%;
+    left: -300px;
+    width: 260px;
+    height: 165px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation:
+        hornbillFly
+        6.5s
+        cubic-bezier(.25,.1,.25,1)
+        infinite;
+}
+
+.hornbill {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    object-position: center;
+    animation:
+        hornbillFloat
+        1.15s
+        ease-in-out
+        infinite;
+}
+
+@keyframes hornbillFly {
+
+    0% {
+        left: -190px;
+        top: 31%;
+    }
+
+    14% {
+        top: 27%;
+    }
+
+    28% {
+        top: 31%;
+    }
+
+    42% {
+        top: 25%;
+    }
+
+    56% {
+        top: 30%;
+    }
+
+    70% {
+        top: 24%;
+    }
+
+    84% {
+        top: 28%;
+    }
+
+    100% {
+        left: calc(100vw + 45px);
+        top: 26%;
+    }
+
+}
+
+@keyframes hornbillFloat {
+
+    0% {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            )
+            rotate(-1deg);
+    }
+
+    50% {
+        transform:
+            translate3d(
+                0,
+                -6px,
+                0
+            )
+            rotate(1deg);
+    }
+
+    100% {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            )
+            rotate(-1deg);
+    }
+
+}
+
+.horizon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+}
+
+.hill {
+    position: absolute;
+    display: block;
+    border-radius: 50% 50% 0 0;
+}
+
+.hill-back {
+    left: -15%;
+    bottom: -77px;
+    width: 130%;
+    height: 185px;
+    background: #79b96f;
+}
+
+.hill-front {
+    left: -20%;
+    bottom: -65px;
+    width: 140%;
+    height: 145px;
+    background: #4f9759;
+}
+
+.loader-content {
+    position: absolute;
+    left: 50%;
+    bottom: 13%;
+    z-index: 20;
+    width: calc(100% - 40px);
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transform: translateX(-50%);
+}
+
+.loading-logo {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 16px;
+}
+
+.loading-logo img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    border-radius: 0;
+}
+
+.loader-content h1 {
+    margin: 0;
+    color: #123d32;
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.3px;
+    text-shadow:
+        0 1px 0
+        rgba(
+            255,
+            255,
+            255,
+            .45
+        );
+}
+
+.loader-content h1 strong {
+    margin-left: 3px;
+    color: #c65b09;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.loader-content p {
+    margin: 11px 0 16px;
+    color: #123d32;
+    font-size: 9px;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+.loading-progress {
+    width: 150px;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(
+        255,
+        255,
+        255,
+        .55
+    );
+}
+
+.loading-progress span {
+    display: block;
+    width: 45%;
+    height: 100%;
+    border-radius: inherit;
+    background: #123d32;
+    animation:
+        loadingProgress
+        1.8s
+        ease-in-out
+        infinite;
+}
+
+@keyframes loadingProgress {
+
+    0% {
+        transform: translateX(-130%);
+    }
+
+    100% {
+        transform: translateX(315%);
+    }
+
+}
+
+.loader-content small {
+    margin-top: 9px;
+    color: #123d32;
+    font-size: 7px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+@media (orientation: portrait) {
+
+    .hornbill-flight {
+        width: 155px;
+        height: 100px;
+        top: 25%;
+    }
+
+    .loader-content {
+        bottom: 14%;
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    .cloud {
+        width: 125px;
+        height: 42px;
+    }
+
+
+
+    .hornbill-flight {
+        width: 220px;
+        height: 140px;
+    }
+
+
+
+    .loader-content {
+        width: calc(100% - 32px);
+        bottom: 13%;
+    }
+
+    .loading-logo {
+        width: 76px;
+        height: 76px;
+        margin-bottom: 13px;
+    }
+
+    .loader-content h1 {
+        font-size: 24px;
+    }
+
+    .loader-content h1 strong {
+        font-size: 26px;
+    }
+
+    .loader-content p {
+        margin-top: 9px;
+        margin-bottom: 14px;
+        font-size: 8px;
+    }
+
+    .loading-progress {
+        width: 135px;
+        height: 3px;
+    }
+
+}
+
+@media (max-width: 360px) {
+
+    .hornbill-flight {
+        width: 125px;
+        height: 82px;
+    }
+
+    .loading-logo {
+        width: 68px;
+        height: 68px;
+    }
+
+    .loader-content h1 {
+        font-size: 22px;
+    }
+
+    .loader-content h1 strong {
+        font-size: 24px;
+    }
+
+    .loader-content p {
+        font-size: 7px;
+    }
+
+}
+
+@media (max-height: 700px) {
+
+    .hornbill-flight {
+        top: 22%;
+        transform: scale(.88);
+    }
+
+    .loader-content {
+        bottom: 9%;
+    }
+
+    .loading-logo {
+        width: 66px;
+        height: 66px;
+        margin-bottom: 9px;
+    }
+
+    .loader-content p {
+        margin-top: 7px;
+        margin-bottom: 10px;
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .hornbill-flight,
+    .hornbill,
+    .cloud,
+    .loading-progress span {
+        animation: none;
+    }
+
+    .hornbill-flight {
+        left: 50%;
+        top: 29%;
+        transform:
+            translateX(-50%);
+    }
+
+}
