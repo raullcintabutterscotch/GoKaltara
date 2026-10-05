@@ -1,0 +1,491 @@
+.page-action-button {
+    white-space: nowrap;
+}
+
+.page-alert {
+    border-radius: 14px;
+    border: 1px solid transparent;
+    font-size: 11px;
+}
+
+.page-card-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-box {
+    width: 270px;
+    min-height: 40px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: #ffffff;
+}
+
+.search-box i {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.search-box input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text);
+    font-size: 10px;
+}
+
+.search-box input::placeholder {
+    color: #a4ada8;
+}
+
+.search-reset {
+    min-height: 40px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    color: var(--muted);
+    background: #ffffff;
+    font-size: 10px;
+}
+
+.search-reset:hover {
+    color: var(--green);
+    background: var(--green-light);
+}
+
+.kuliner-table {
+    width: 100%;
+}
+
+.kuliner-table th,
+.kuliner-table td {
+    white-space: nowrap;
+}
+
+.table-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.table-actions form {
+    margin: 0;
+}
+
+.delete-button {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ecdede;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #a05d5d;
+    font-size: 13px;
+    transition: 0.2s ease;
+}
+
+.delete-button:hover {
+    border-color: #dfc2c2;
+    background: #fbf0f0;
+    color: #934747;
+}
+
+.empty-state {
+    height: 270px;
+    padding: 35px 20px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--muted) !important;
+    text-align: center;
+}
+
+.empty-state i {
+    margin-bottom: 5px;
+    color: #aab4af;
+    font-size: 30px;
+}
+
+.empty-state strong {
+    color: var(--text);
+    font-size: 12px;
+}
+
+.empty-state span {
+    font-size: 9px;
+}
+
+.empty-action {
+    margin-top: 6px;
+    color: var(--green);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.table-footer {
+    min-height: 45px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    color: var(--muted);
+    font-size: 9px;
+    border-top: 1px solid var(--border);
+}
+
+.form-card {
+    overflow: hidden;
+}
+
+.form-header {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.form-body {
+    padding: 25px 24px;
+}
+
+.form-label-custom {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.form-control-custom {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 13px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    outline: 0;
+    background: #ffffff;
+    color: var(--text);
+    font-size: 10px;
+    transition: 0.2s ease;
+}
+
+.form-control-custom:focus {
+    border-color: #b9d4c8;
+    box-shadow: 0 0 0 3px rgba(29, 98, 80, 0.08);
+}
+
+select.form-control-custom {
+    cursor: pointer;
+}
+
+.form-footer {
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+    background: #fbfcfb;
+}
+
+.btn-secondary-custom,
+.btn-primary-custom {
+    min-height: 42px;
+    padding: 0 17px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+
+.btn-secondary-custom {
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--muted);
+}
+
+.btn-secondary-custom:hover {
+    border-color: #cad7d1;
+    background: #f8faf9;
+    color: var(--text);
+}
+
+.btn-primary-custom {
+    border: 1px solid var(--green);
+    background: var(--green);
+    color: #ffffff;
+}
+
+.btn-primary-custom:hover {
+    border-color: var(--green-dark);
+    background: var(--green-dark);
+    color: #ffffff;
+}
+
+.image-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.image-upload-box {
+    width: 100%;
+    cursor: pointer;
+}
+
+.image-preview-wrapper {
+    position: relative;
+    min-height: 255px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px dashed #cbd9d3;
+    border-radius: 14px;
+    background: #f8faf9;
+}
+
+.image-preview {
+    width: 100%;
+    height: 255px;
+    display: none;
+    object-fit: cover;
+}
+
+.image-preview.show {
+    display: block;
+}
+
+.image-upload-placeholder {
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 7px;
+    color: var(--muted);
+    text-align: center;
+}
+
+.image-upload-placeholder.hide {
+    display: none;
+}
+
+.image-upload-placeholder i {
+    margin-bottom: 3px;
+    color: var(--green);
+    font-size: 31px;
+}
+
+.image-upload-placeholder strong {
+    color: var(--text);
+    font-size: 11px;
+}
+
+.image-upload-placeholder span {
+    max-width: 220px;
+    font-size: 8px;
+    line-height: 1.5;
+}
+
+@media (max-width: 991.98px) {
+    .page-card-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .search-form {
+        width: 100%;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .page-action-button {
+        width: 100%;
+    }
+
+    .page-card-header,
+    .form-header,
+    .form-body,
+    .form-footer {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .page-card-header {
+        gap: 12px;
+    }
+
+    .search-form {
+        align-items: stretch;
+    }
+
+    .search-box {
+        min-height: 40px;
+    }
+
+    .search-reset {
+        min-height: 40px;
+    }
+
+    .kuliner-table thead {
+        display: none;
+    }
+
+    .kuliner-table tbody,
+    .kuliner-table tbody tr {
+        display: block;
+        width: 100%;
+    }
+
+    .kuliner-table tbody tr {
+        position: relative;
+        padding: 13px 14px;
+        border-bottom: 1px solid #edf1ef;
+    }
+
+    .kuliner-table tbody tr:last-child {
+        border-bottom: 0;
+    }
+
+    .kuliner-table tbody td {
+        display: block;
+        width: 100%;
+        padding: 0 !important;
+        border: 0;
+        white-space: normal;
+    }
+
+    .kuliner-table tbody td:nth-child(1) {
+        padding-right: 72px !important;
+    }
+
+    .kuliner-table tbody td:nth-child(2),
+    .kuliner-table tbody td:nth-child(3) {
+        display: none;
+    }
+
+    .kuliner-table tbody td:nth-child(4) {
+        position: absolute;
+        top: 50%;
+        right: 14px;
+        width: auto;
+        transform: translateY(-50%);
+    }
+
+    .food-wrapper {
+        gap: 10px;
+    }
+
+    .food-image,
+    .food-placeholder {
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        border-radius: 9px;
+    }
+
+    .food-name {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 10px;
+    }
+
+    .food-id {
+        font-size: 7px;
+    }
+
+    .table-actions {
+        gap: 5px;
+    }
+
+    .delete-button,
+    .edit-button {
+        width: 30px;
+        height: 30px;
+        font-size: 11px;
+    }
+
+    .table-footer {
+        padding: 0 15px;
+    }
+
+    .form-body {
+        padding-top: 18px;
+        padding-bottom: 18px;
+    }
+
+    .image-preview-wrapper,
+    .image-preview {
+        min-height: 220px;
+        height: 220px;
+    }
+
+    .form-footer {
+        justify-content: stretch;
+    }
+
+    .btn-secondary-custom,
+    .btn-primary-custom {
+        flex: 1;
+    }
+}
+
+@media (max-width: 400px) {
+    .page-card-header,
+    .form-header,
+    .form-body,
+    .form-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .search-form {
+        gap: 6px;
+    }
+
+    .search-reset {
+        padding: 0 9px;
+    }
+
+    .kuliner-table tbody td:nth-child(1) {
+        padding-right: 68px !important;
+    }
+
+    .food-image,
+    .food-placeholder {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+    }
+}

@@ -1,0 +1,446 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+    padding: 30px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background:
+        radial-gradient(circle at top left, rgba(0, 128, 128, 0.08), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(0, 128, 128, 0.06), transparent 35%),
+        #f4f7f7;
+    font-family:
+        "Lucida Sans",
+        "Lucida Sans Regular",
+        "Lucida Grande",
+        "Lucida Sans Unicode",
+        Geneva,
+        Verdana,
+        sans-serif;
+}
+
+.form-container {
+    width: clamp(350px, 42vw, 520px);
+    min-height: 500px;
+    margin: 50px auto 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    box-shadow:
+        rgba(0, 0, 0, 0.12) 0px 8px 25px,
+        rgba(0, 128, 128, 0.08) 0px 2px 8px;
+    border-radius: 18px;
+    padding: 35px 40px;
+}
+
+.title {
+    margin: 5px 0 30px;
+    text-align: center;
+    color: #1f2929;
+    font-size: clamp(25px, 2.3vw, 32px);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+    margin-bottom: 15px;
+}
+
+.input {
+    width: 100%;
+    height: 46px;
+    padding: 0 16px;
+    border: 1px solid #d0d6d6;
+    border-radius: 23px;
+    outline: none;
+    background-color: #ffffff;
+    color: #252d2d;
+    font-family:
+        "Lucida Sans",
+        "Lucida Sans Regular",
+        "Lucida Grande",
+        sans-serif;
+    font-size: 13px;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.input::placeholder {
+    color: #949b9b;
+}
+
+.input:hover {
+    border-color: #aeb8b8;
+}
+
+.input:focus {
+    border-color: teal;
+    box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.1);
+}
+
+select.input {
+    cursor: pointer;
+}
+
+.page-link {
+    width: 100%;
+    margin: 0;
+    text-align: right;
+}
+
+.page-link-label {
+    color: #747474;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.page-link-label:hover {
+    color: teal;
+}
+
+.form-btn {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 15px;
+    border: none;
+    border-radius: 23px;
+    outline: none;
+    background: teal;
+    color: #ffffff;
+    font-family:
+        "Lucida Sans",
+        "Lucida Sans Regular",
+        "Lucida Grande",
+        sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: rgba(0, 128, 128, 0.18) 0px 5px 12px;
+    transition:
+        transform 0.15s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-btn:hover {
+    background: #007575;
+    box-shadow: rgba(0, 128, 128, 0.25) 0px 7px 16px;
+}
+
+.form-btn:active {
+    transform: scale(0.98);
+    box-shadow: none;
+}
+
+.sign-up-label {
+    margin: 2px 0 0;
+    text-align: center;
+    color: #747474;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.sign-up-link {
+    margin-left: 3px;
+    color: teal;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-color: teal;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.sign-up-link:hover {
+    color: #005f5f;
+}
+
+.back-login {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 14px;
+    padding: 10px 16px;
+    border: 1px solid #d4dada;
+    border-radius: 22px;
+    background: #f5f7f7;
+    color: #3f4848;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.back-login:hover {
+    background: #e9eeee;
+    border-color: #b8c3c3;
+    color: teal;
+}
+
+.back-login:active {
+    transform: scale(0.98);
+}
+
+.buttons-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.apple-login-button,
+.google-login-button {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 15px;
+    border-radius: 22px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.apple-login-button {
+    background: #000000;
+    color: #ffffff;
+    border: 2px solid #000000;
+}
+
+.google-login-button {
+    background: #ffffff;
+    color: #333333;
+    border: 2px solid #747474;
+}
+
+.apple-login-button:hover,
+.google-login-button:hover {
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 5px 15px;
+}
+
+.apple-login-button:active,
+.google-login-button:active {
+    transform: scale(0.98);
+}
+
+.apple-icon,
+.google-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.alert-error {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 11px 14px;
+    border: 1px solid #f1b9b9;
+    border-radius: 11px;
+    background: #fff0f0;
+    color: #b42318;
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.alert-success {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 11px 14px;
+    border: 1px solid #a7d8c2;
+    border-radius: 11px;
+    background: #edf9f3;
+    color: #176b47;
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.reset-box {
+    width: 100%;
+    margin-top: 5px;
+    padding: 13px;
+    border-radius: 11px;
+    background: #f4f7f7;
+    color: #5d6666;
+    font-size: 11px;
+    text-align: center;
+}
+
+.reset-box p {
+    margin: 0 0 8px;
+}
+
+.reset-box a {
+    color: teal;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+@media (min-width: 1024px) {
+    .form-container {
+        width: 460px;
+        min-height: 560px;
+        margin-top: 65px;
+        padding: 40px 45px;
+    }
+
+    .form {
+        gap: 18px;
+    }
+
+    .buttons-container {
+        margin-top: 22px;
+    }
+}
+
+@media (max-width: 1023px) {
+    .form-container {
+        width: min(440px, calc(100vw - 50px));
+        min-height: 520px;
+        margin-top: 55px;
+        padding: 32px 30px;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 20px 12px;
+        align-items: center;
+    }
+
+    .form-container {
+        width: calc(100vw - 24px);
+        max-width: 390px;
+        min-height: auto;
+        margin-top: 45px;
+        padding: 27px 20px;
+        border-radius: 16px;
+    }
+
+    .title {
+        margin-bottom: 25px;
+        font-size: 24px;
+    }
+
+    .form {
+        gap: 15px;
+    }
+
+    .input {
+        height: 44px;
+        padding: 0 14px;
+        font-size: 12px;
+    }
+
+    .form-btn {
+        min-height: 44px;
+    }
+
+    .buttons-container {
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .apple-login-button,
+    .google-login-button {
+        min-height: 43px;
+    }
+
+    .sign-up-label {
+        font-size: 9px;
+    }
+
+    .sign-up-link {
+        font-size: 10px;
+    }
+
+    .back-login {
+        min-height: 43px;
+    }
+}
+
+@media (max-width: 380px) {
+    body {
+        padding: 16px 8px;
+    }
+
+    .form-container {
+        width: calc(100vw - 16px);
+        margin-top: 35px;
+        padding: 23px 16px;
+        border-radius: 14px;
+    }
+
+    .title {
+        margin-bottom: 22px;
+        font-size: 22px;
+    }
+
+    .form {
+        gap: 13px;
+    }
+
+    .input {
+        height: 42px;
+        font-size: 11px;
+    }
+
+    .form-btn {
+        min-height: 42px;
+        font-size: 11px;
+    }
+
+    .buttons-container {
+        margin-top: 15px;
+    }
+}
+
+@media (max-width: 320px) {
+    .form-container {
+        padding: 20px 13px;
+        margin-top: 25px;
+    }
+
+    .title {
+        font-size: 20px;
+    }
+
+    .input {
+        height: 40px;
+    }
+}

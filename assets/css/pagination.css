@@ -1,0 +1,104 @@
+:root {
+    --pagination-green-dark: #123d32;
+    --pagination-green: #1d6250;
+    --pagination-green-light: #eaf4f0;
+    --pagination-gold: #c59a4a;
+    --pagination-muted: #7d8883;
+    --pagination-border: #e4ebe8;
+    --pagination-white: #ffffff;
+}
+
+.catalog-pagination {
+    width: 100%;
+    margin-top: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.pagination-number,
+.pagination-arrow {
+    width: 33px;
+    height: 33px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--pagination-border);
+    border-radius: 9px;
+    background: var(--pagination-white);
+    color: var(--pagination-muted);
+    font-family:
+        "Lucida Sans",
+        "Lucida Sans Regular",
+        "Lucida Grande",
+        "Lucida Sans Unicode",
+        Geneva,
+        Verdana,
+        sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+.pagination-number:hover,
+.pagination-arrow:hover {
+    border-color: #bfd4ca;
+    background: var(--pagination-green-light);
+    color: var(--pagination-green);
+    transform: translateY(-1px);
+}
+
+.pagination-number.active {
+    border-color: var(--pagination-green-dark);
+    background: var(--pagination-green-dark);
+    color: #ffffff;
+}
+
+.pagination-arrow i {
+    font-size: 9px;
+}
+
+.pagination-dots {
+    width: 25px;
+    height: 33px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pagination-muted);
+    font-size: 9px;
+    font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+
+    .catalog-pagination {
+        margin-top: 25px;
+        gap: 4px;
+    }
+
+    .pagination-number,
+    .pagination-arrow {
+        width: 29px;
+        height: 29px;
+        border-radius: 8px;
+        font-size: 8px;
+    }
+
+    .pagination-arrow i {
+        font-size: 8px;
+    }
+
+    .pagination-dots {
+        width: 21px;
+        height: 29px;
+        font-size: 8px;
+    }
+
+}
