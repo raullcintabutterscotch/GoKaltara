@@ -907,19 +907,39 @@ select {
         font-size: 17px;
     }
 }
-@media (max-width: 991.98px) {
-    .mobile-bottom-nav {
-        grid-template-columns: repeat(6, minmax(0, 1fr));
-    }
-    .mobile-nav-link {
-        min-width: 0;
-    }
-    .mobile-nav-logout {
-        color: #b42318 !important;
-    }
-    .mobile-nav-logout:hover,
-    .mobile-nav-logout:focus-visible {
-        color: #8d2119 !important;
-        background: #fff2f0;
-    }
+
+
+.profile-account-action {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.profile-logout-button {
+    min-height: 42px;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid #ead5d1;
+    border-radius: 10px;
+    background: #fff8f7;
+    color: #a53a2f;
+    font-size: 10px;
+    font-weight: 800;
+    transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.profile-logout-button:hover,
+.profile-logout-button:focus-visible {
+    background: #fff0ee;
+    border-color: #e2bbb5;
+    color: #8f2d24;
+}
+
+.profile-logout-button:focus-visible {
+    outline: 3px solid rgba(165, 58, 47, .15);
+    outline-offset: 2px;
 }

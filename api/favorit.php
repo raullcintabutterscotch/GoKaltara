@@ -5,10 +5,21 @@ declare(strict_types=1);
 require_once "_auth.php";
 
 $id_user = requireLogin($koneksi);
+
 $id_kuliner = (int) ($_POST["id_kuliner"] ?? 0);
 
+if ($id_user <= 0 || $id_kuliner <= 0) {
+    jsonResponse(
+        false,
+        "Data tidak valid."
+    );
+}
+
 if (!validKuliner($koneksi, $id_kuliner)) {
-    jsonResponse(false, "Kuliner tidak ditemukan.");
+    jsonResponse(
+        false,
+        "Kuliner tidak ditemukan."
+    );
 }
 
 $cek = $koneksi->prepare("
@@ -20,18 +31,31 @@ $cek = $koneksi->prepare("
 ");
 
 if (!$cek) {
-    jsonResponse(false, "Favorit gagal diproses.");
+    jsonResponse(
+        false,
+        "Favorit gagal diproses."
+    );
 }
 
-$cek->bind_param("ii", $id_user, $id_kuliner);
+$cek->bind_param(
+    "ii",
+    $id_user,
+    $id_kuliner
+);
+
 $cek->execute();
+
 $result = $cek->get_result();
 
 $status = false;
 $success = false;
 
-if ($result && $result->num_rows > 0) {
+if (
+    $result &&
+    $result->num_rows > 0
+) {
     $favorit = $result->fetch_assoc();
+
     $cek->close();
 
     $hapus = $koneksi->prepare("
@@ -42,10 +66,15 @@ if ($result && $result->num_rows > 0) {
     ");
 
     if (!$hapus) {
-        jsonResponse(false, "Favorit gagal dihapus.");
+        jsonResponse(
+            false,
+            "Favorit gagal dihapus."
+        );
     }
 
-    $id_favorit = (int) ($favorit["id_favorit"] ?? 0);
+    $id_favorit = (int) (
+        $favorit["id_favorit"] ?? 0
+    );
 
     $hapus->bind_param(
         "iii",
@@ -55,9 +84,13 @@ if ($result && $result->num_rows > 0) {
     );
 
     $success = $hapus->execute();
+
     $hapus->close();
+
     $status = false;
+
 } else {
+
     $cek->close();
 
     $tambah = $koneksi->prepare("
@@ -74,7 +107,10 @@ if ($result && $result->num_rows > 0) {
     ");
 
     if (!$tambah) {
-        jsonResponse(false, "Favorit gagal disiapkan.");
+        jsonResponse(
+            false,
+            "Favorit gagal disiapkan."
+        );
     }
 
     $tambah->bind_param(
@@ -84,21 +120,30 @@ if ($result && $result->num_rows > 0) {
     );
 
     $success = $tambah->execute();
-    $tambah_error = $tambah->error;
+
+    $error = $tambah->error;
+
     $tambah->close();
 
     $status = true;
 
-    if (!$success && $tambah_error !== "") {
-        if (str_contains($tambah_error, "Duplicate entry")) {
-            $status = true;
-            $success = true;
-        }
+    if (
+        !$success &&
+        str_contains(
+            $error,
+            "Duplicate entry"
+        )
+    ) {
+        $success = true;
+        $status = true;
     }
 }
 
 if (!$success) {
-    jsonResponse(false, "Favorit gagal diperbarui.");
+    jsonResponse(
+        false,
+        "Favorit gagal diperbarui."
+    );
 }
 
 $count = $koneksi->prepare("
@@ -108,12 +153,24 @@ $count = $koneksi->prepare("
 ");
 
 if (!$count) {
-    jsonResponse(false, "Jumlah favorit gagal diperbarui.");
+    jsonResponse(
+        false,
+        "Jumlah favorit gagal diperbarui."
+    );
 }
 
-$count->bind_param("i", $id_kuliner);
+$count->bind_param(
+    "i",
+    $id_kuliner
+);
+
 $count->execute();
-$data_count = $count->get_result()->fetch_assoc();
+
+$data_count =
+    $count
+        ->get_result()
+        ->fetch_assoc();
+
 $count->close();
 
 jsonResponse(
@@ -123,6 +180,8 @@ jsonResponse(
         : "Kuliner dihapus dari favorit.",
     [
         "favorit" => $status,
-        "total" => (int) ($data_count["total"] ?? 0)
+        "total" => (int) (
+            $data_count["total"] ?? 0
+        )
     ]
 );

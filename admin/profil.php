@@ -1,101 +1,168 @@
 <?php
 
-require_once "../api/_auth.php";
-require_once "../config/image_optimizer.php";
+session_start();
 
-if (
-    !isset($_SESSION["login"]) ||
-    $_SESSION["login"] !== true ||
-    !isset($_SESSION["level"]) ||
-    $_SESSION["level"] !== "admin"
-) {
+require_once "../config/koneksi.php";
+
+$id_user = (int) ($_SESSION['id_user'] ?? 0);
+$username_session = trim($_SESSION['username'] ?? '');
+
+if ($id_user <= 0 && $username_session !== '') {
+
+    $stmt_session = $koneksi->prepare("
+        SELECT id_user
+        FROM user
+        WHERE username = ?
+        LIMIT 1
+    ");
+
+    $stmt_session->bind_param(
+        "s",
+        $username_session
+    );
+
+    $stmt_session->execute();
+
+    $result_session = $stmt_session->get_result();
+    $data_session = $result_session->fetch_assoc();
+
+    if ($data_session) {
+
+        $id_user = (int) $data_session['id_user'];
+
+        $_SESSION['id_user'] = $id_user;
+    }
+
+    $stmt_session->close();
+}
+
+if ($id_user <= 0) {
+
     header("Location: ../login.php");
+
     exit;
 }
 
-$id_user = $_SESSION["id_user"] ?? 0;
-
-$stmt = $koneksi->prepare("
+$stmt_user = $koneksi->prepare("
     SELECT
         id_user,
         username,
         nama_lengkap,
-        foto_profil,
-        level
+        level,
+        foto_profil
     FROM user
     WHERE id_user = ?
     LIMIT 1
 ");
 
-$stmt->bind_param("i", $id_user);
-$stmt->execute();
+$stmt_user->bind_param(
+    "i",
+    $id_user
+);
 
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$stmt_user->execute();
 
-$stmt->close();
+$result_user = $stmt_user->get_result();
+$user = $result_user->fetch_assoc();
+
+$stmt_user->close();
 
 if (!$user) {
+
     session_unset();
     session_destroy();
 
     header("Location: ../login.php");
+
     exit;
 }
 
-$nama_admin = $user["nama_lengkap"];
-$username_admin = $user["username"];
-$foto_profil = $user["foto_profil"] ?? "";
-$level_admin = $user["level"];
+if ($user['level'] !== 'admin') {
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    header("Content-Type: application/json; charset=UTF-8");
+    header("Location: ../profil-user.php");
 
-    $nama_lengkap = trim($_POST["nama_lengkap"] ?? "");
-    $username = trim($_POST["username"] ?? "");
-    $level = trim($_POST["level"] ?? "");
+    exit;
+}
 
-    if ($nama_lengkap === "") {
+$_SESSION['login'] = true;
+$_SESSION['id_user'] = $user['id_user'];
+$_SESSION['username'] = $user['username'];
+$_SESSION['nama_lengkap'] = $user['nama_lengkap'];
+$_SESSION['level'] = $user['level'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    header(
+        "Content-Type: application/json; charset=UTF-8"
+    );
+
+    $nama_lengkap = trim(
+        $_POST['nama_lengkap'] ?? ''
+    );
+
+    $username = trim(
+        $_POST['username'] ?? ''
+    );
+
+    $level = trim(
+        $_POST['level'] ?? 'admin'
+    );
+
+    if ($nama_lengkap === '') {
+
         echo json_encode([
-            "success" => false,
-            "message" => "Nama lengkap wajib diisi."
+            'success' => false,
+            'message' => 'Nama lengkap wajib diisi.'
         ]);
+
         exit;
     }
 
-    if (strlen($nama_lengkap) < 3) {
+    if (mb_strlen($nama_lengkap) < 3) {
+
         echo json_encode([
-            "success" => false,
-            "message" => "Nama lengkap minimal 3 karakter."
+            'success' => false,
+            'message' => 'Nama lengkap minimal 3 karakter.'
         ]);
+
         exit;
     }
 
-    if ($username === "") {
+    if ($username === '') {
+
         echo json_encode([
-            "success" => false,
-            "message" => "Username wajib diisi."
+            'success' => false,
+            'message' => 'Username wajib diisi.'
         ]);
+
         exit;
     }
 
-    if (strlen($username) < 4) {
+    if (mb_strlen($username) < 3) {
+
         echo json_encode([
-            "success" => false,
-            "message" => "Username minimal 4 karakter."
+            'success' => false,
+            'message' => 'Username minimal 3 karakter.'
         ]);
+
         exit;
     }
 
-    if (!in_array($level, ["admin", "user"], true)) {
+    if (!in_array(
+        $level,
+        ['admin', 'user'],
+        true
+    )) {
+
         echo json_encode([
-            "success" => false,
-            "message" => "Role tidak valid."
+            'success' => false,
+            'message' => 'Role tidak valid.'
         ]);
+
         exit;
     }
 
-    $cek_username = $koneksi->prepare("
+    $stmt_cek = $koneksi->prepare("
         SELECT id_user
         FROM user
         WHERE username = ?
@@ -103,68 +170,152 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         LIMIT 1
     ");
 
-    $cek_username->bind_param(
+    $stmt_cek->bind_param(
         "si",
         $username,
         $id_user
     );
 
-    $cek_username->execute();
+    $stmt_cek->execute();
 
-    $hasil_username = $cek_username->get_result();
+    $result_cek = $stmt_cek->get_result();
 
-    if ($hasil_username->num_rows > 0) {
-        $cek_username->close();
+    if ($result_cek->num_rows > 0) {
+
+        $stmt_cek->close();
 
         echo json_encode([
-            "success" => false,
-            "message" => "Username sudah digunakan."
+            'success' => false,
+            'message' => 'Username sudah digunakan.'
         ]);
+
         exit;
     }
 
-    $cek_username->close();
+    $stmt_cek->close();
 
-    $nama_file_baru = $foto_profil;
-    $folder = "../assets/images/profil/";
-    $ada_foto_baru = false;
+    $foto_lama = $user['foto_profil'] ?? '';
+    $foto_baru = $foto_lama;
+    $foto_upload_baru = false;
 
-    if (!is_dir($folder) && !mkdir($folder, 0777, true)) {
-        echo json_encode([
-            "success" => false,
-            "message" => "Folder foto profil tidak dapat dibuat."
-        ]);
-        exit;
+    $folder = dirname(__DIR__) .
+        "/assets/images/profil/";
+
+    if (!is_dir($folder)) {
+
+        if (!mkdir(
+            $folder,
+            0755,
+            true
+        )) {
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Folder foto profil tidak dapat dibuat.'
+            ]);
+
+            exit;
+        }
     }
 
     if (
-        isset($_FILES["foto_profil"]) &&
-        $_FILES["foto_profil"]["error"] !== UPLOAD_ERR_NO_FILE
+        isset($_FILES['foto_profil']) &&
+        $_FILES['foto_profil']['error'] !== UPLOAD_ERR_NO_FILE
     ) {
-        $processed = gokaltara_process_upload(
-            $_FILES["foto_profil"],
-            __DIR__ . "/../assets/images/profil",
-            "profil_" . $id_user,
-            3 * 1024 * 1024,
-            600,
-            240,
-            80,
-            78
-        );
 
-        if (!$processed["success"]) {
+        if (
+            $_FILES['foto_profil']['error'] !==
+            UPLOAD_ERR_OK
+        ) {
+
             echo json_encode([
-                "success" => false,
-                "message" => $processed["message"] ?? "Foto gagal diproses."
+                'success' => false,
+                'message' => 'Foto profil gagal diupload.'
             ]);
+
             exit;
         }
 
-        $nama_file_baru = $processed["filename"];
-        $ada_foto_baru = true;
+        $tmp_name = $_FILES['foto_profil']['tmp_name'];
+
+        $file_size = (int) $_FILES['foto_profil']['size'];
+
+        if ($file_size > 3 * 1024 * 1024) {
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Ukuran foto maksimal 3 MB.'
+            ]);
+
+            exit;
+        }
+
+        $image_info = @getimagesize(
+            $tmp_name
+        );
+
+        if (!$image_info) {
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'File yang dipilih bukan gambar.'
+            ]);
+
+            exit;
+        }
+
+        $mime = $image_info['mime'] ?? '';
+
+        $allowed = [
+            'image/jpeg',
+            'image/png',
+            'image/webp'
+        ];
+
+        if (!in_array(
+            $mime,
+            $allowed,
+            true
+        )) {
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Format foto harus JPG, PNG, atau WEBP.'
+            ]);
+
+            exit;
+        }
+
+        $foto_baru =
+            'profil_' .
+            $id_user .
+            '_' .
+            time() .
+            '_' .
+            bin2hex(
+                random_bytes(4)
+            ) .
+            '.jpg';
+
+        $tujuan = $folder . $foto_baru;
+
+        if (!move_uploaded_file(
+            $tmp_name,
+            $tujuan
+        )) {
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Foto profil gagal disimpan.'
+            ]);
+
+            exit;
+        }
+
+        $foto_upload_baru = true;
     }
 
-    $update = $koneksi->prepare("
+    $stmt_update = $koneksi->prepare("
         UPDATE user
         SET
             nama_lengkap = ?,
@@ -174,67 +325,119 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         WHERE id_user = ?
     ");
 
-    $update->bind_param(
+    $stmt_update->bind_param(
         "ssssi",
         $nama_lengkap,
         $username,
         $level,
-        $nama_file_baru,
+        $foto_baru,
         $id_user
     );
 
-    if (!$update->execute()) {
-        if ($ada_foto_baru) {
-            gokaltara_delete_optimized_image(
-                $nama_file_baru,
-                $folder
-            );
+    if (!$stmt_update->execute()) {
+
+        if (
+            $foto_upload_baru &&
+            !empty($foto_baru)
+        ) {
+
+            $file_gagal =
+                $folder .
+                basename($foto_baru);
+
+            if (file_exists($file_gagal)) {
+
+                unlink($file_gagal);
+            }
         }
 
-        $error = $update->error;
+        $error = $stmt_update->error;
 
-        $update->close();
+        $stmt_update->close();
 
         echo json_encode([
-            "success" => false,
-            "message" => "Database gagal diperbarui: " . $error
+            'success' => false,
+            'message' =>
+                'Profil gagal diperbarui: ' .
+                $error
         ]);
+
         exit;
     }
 
-    $update->close();
+    $stmt_update->close();
 
     if (
-        $ada_foto_baru &&
-        !empty($foto_profil) &&
-        $foto_profil !== $nama_file_baru &&
-        (
-            is_file($folder . $foto_profil) ||
-            is_file($folder . "thumbs/" . gokaltara_image_stem($foto_profil) . ".webp")
-        )
+        $foto_upload_baru &&
+        !empty($foto_lama) &&
+        $foto_lama !== $foto_baru
     ) {
-        gokaltara_delete_optimized_image(
-            $foto_profil,
-            $folder
-        );
+
+        $file_lama =
+            $folder .
+            basename($foto_lama);
+
+        if (file_exists($file_lama)) {
+
+            unlink($file_lama);
+        }
     }
 
-    $_SESSION["nama_lengkap"] = $nama_lengkap;
-    $_SESSION["username"] = $username;
-    $_SESSION["level"] = $level;
-    $_SESSION["foto_profil"] = $nama_file_baru;
+    $_SESSION['login'] = true;
+    $_SESSION['id_user'] = $id_user;
+    $_SESSION['username'] = $username;
+    $_SESSION['nama_lengkap'] = $nama_lengkap;
+    $_SESSION['level'] = $level;
+    $_SESSION['foto_profil'] = $foto_baru;
 
     echo json_encode([
-        "success" => true,
-        "message" => "Profil berhasil diperbarui.",
-        "nama_lengkap" => $nama_lengkap,
-        "username" => $username,
-        "level" => $level,
-        "foto_profil" => $nama_file_baru
+        'success' => true,
+        'message' => 'Profil berhasil diperbarui.',
+        'nama_lengkap' => $nama_lengkap,
+        'username' => $username,
+        'level' => $level,
+        'foto_profil' => $foto_baru
     ]);
 
     exit;
 }
+
+$nama_admin = htmlspecialchars(
+    $user['nama_lengkap'],
+    ENT_QUOTES,
+    'UTF-8'
+);
+
+$username_admin = htmlspecialchars(
+    $user['username'],
+    ENT_QUOTES,
+    'UTF-8'
+);
+
+$level_admin = $user['level'];
+
+$foto_profil = $user['foto_profil'] ?? '';
+
+if (!empty($foto_profil)) {
+
+    $foto_profil_url =
+        "../assets/images/profil/" .
+        rawurlencode(
+            basename($foto_profil)
+        );
+
+} else {
+
+    $foto_profil_url = "";
+}
+
+$initial_admin = strtoupper(
+    mb_substr(
+        $user['nama_lengkap'],
+        0,
+        1
+    )
+);
 
 ?>
 
@@ -242,6 +445,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="id">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -249,29 +453,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Profil Admin | Kuliner Kaltara</title>
-    
+    <meta
+        name="description"
+        content="Kelola profil administrator GoKaltara Kuliner."
+    >
+
+    <title>Profil Admin | GoKaltara Kuliner</title>
+
     <link
         rel="icon"
         href="../assets/images/logo.svg"
-        sizes="48x48"
-    >
-    <link
-        rel="preconnect"
-        href="https://cdn.jsdelivr.net"
-        crossorigin
     >
 
     <link
-        rel="preconnect"
-        href="https://cdnjs.cloudflare.com"
-        crossorigin
-    >
-
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     >
 
     <link
@@ -286,588 +482,695 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <link
         rel="stylesheet"
-        href="../assets/css/profil.css?v=3"
+        href="../assets/css/dashboard.css?v=20"
     >
-    <link rel="stylesheet" href="../assets/css/performance.css?v=2">
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/profil.css?v=20"
+    >
 
 </head>
 
-<body>
+<body class="admin-profile-page">
 
-    <div>
+<div class="admin-layout">
 
-        <aside class="sidebar">
+    <aside class="sidebar">
 
-            <div>
+        <div>
 
-                <div class="brand">
+            <div class="brand">
 
-                    <div class="brand-title">
+                <a
+                    href="dashboard.php"
+                    class="brand-title"
+                >
 
-                        <img
-                            src="../assets/images/logo.svg"
-                            alt="Logo Kuliner Kaltara" loading="eager" decoding="async">
+                    <img
+                        src="../assets/images/logo.svg"
+                        alt="Logo GoKaltara Kuliner"
+                    >
 
-                        <div>
-                            GoKaltara
-                            <br>
-                            Kuliner
-                        </div>
-
+                    <div>
+                        GoKaltara
+                        <br>
+                        Kuliner
                     </div>
 
-                    <div class="brand-subtitle">
-                        Admin Panel
+                </a>
+
+                <div class="brand-subtitle">
+                    Admin Panel
+                </div>
+
+            </div>
+
+            <nav class="sidebar-menu">
+
+                <a
+                    href="dashboard.php"
+                    class="sidebar-link"
+                >
+
+                    <i class="bi bi-grid-1x2-fill"></i>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+                <a
+                    href="kuliner.php"
+                    class="sidebar-link"
+                >
+
+                    <i class="bi bi-fork-knife"></i>
+
+                    <span>
+                        Data Kuliner
+                    </span>
+
+                </a>
+
+                <a
+                    href="kategori.php"
+                    class="sidebar-link"
+                >
+
+                    <i class="bi bi-tags-fill"></i>
+
+                    <span>
+                        Kategori
+                    </span>
+
+                </a>
+
+                <a
+                    href="tambah_kuliner.php"
+                    class="sidebar-link"
+                >
+
+                    <i class="bi bi-plus-circle-fill"></i>
+
+                    <span>
+                        Tambah Kuliner
+                    </span>
+
+                </a>
+
+            </nav>
+
+        </div>
+
+        <div class="sidebar-bottom">
+
+            <a
+                href="profil.php"
+                class="admin-profile profile-active"
+            >
+
+                <?php if ($foto_profil_url !== ''): ?>
+
+                    <img
+                        src="<?= htmlspecialchars(
+                            $foto_profil_url,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>"
+                        alt="Foto Profil"
+                        class="avatar avatar-image"
+                    >
+
+                <?php else: ?>
+
+                    <div class="avatar">
+                        <?= htmlspecialchars(
+                            $initial_admin
+                        ) ?>
+                    </div>
+
+                <?php endif; ?>
+
+                <div class="flex-grow-1 min-w-0">
+
+                    <div class="admin-name">
+                        <?= $nama_admin ?>
+                    </div>
+
+                    <div class="admin-role">
+                        Administrator
                     </div>
 
                 </div>
 
-                <nav class="sidebar-menu">
+                <i class="bi bi-chevron-right text-white-50"></i>
 
-                    <a
-                        href="dashboard.php"
-                        class="sidebar-link"
-                    >
-                        <i class="bi bi-grid-1x2-fill"></i>
-                        <span>Dashboard</span>
-                    </a>
+            </a>
 
-                    <a
-                        href="kuliner.php"
-                        class="sidebar-link"
-                    >
-                        <i class="bi bi-fork-knife"></i>
-                        <span>Data Kuliner</span>
-                    </a>
+            <a
+                href="../logout.php"
+                class="sidebar-logout"
+            >
 
-                    <a
-                        href="kategori.php"
-                        class="sidebar-link"
-                    >
-                        <i class="bi bi-tags-fill"></i>
-                        <span>Kategori</span>
-                    </a>
+                <i class="bi bi-box-arrow-right"></i>
 
-                    <a
-                        href="tambah_kuliner.php"
-                        class="sidebar-link"
-                    >
-                        <i class="bi bi-plus-circle-fill"></i>
-                        <span>Tambah Kuliner</span>
-                    </a>
+                Logout
 
-                </nav>
+            </a>
+
+        </div>
+
+    </aside>
+
+    <main class="main-content">
+
+        <header class="mobile-admin-header">
+
+            <a
+                href="dashboard.php"
+                class="mobile-admin-brand"
+            >
+
+                <img
+                    src="../assets/images/logo.svg"
+                    alt="GoKaltara Kuliner"
+                >
+
+                <span>
+                    Profil Admin
+                </span>
+
+            </a>
+
+            <a
+                href="../logout.php"
+                class="mobile-logout-button"
+                aria-label="Logout"
+                title="Logout"
+            >
+
+                <i class="bi bi-box-arrow-right"></i>
+
+            </a>
+
+        </header>
+
+        <div class="container-fluid px-0">
+
+            <div class="topbar">
+
+                <div>
+
+                    <p class="eyebrow">
+                        AKUN
+                    </p>
+
+                    <h1 class="dashboard-title">
+                        Profil Admin
+                    </h1>
+
+                    <p class="dashboard-subtitle">
+                        Kelola foto dan informasi akun administrator.
+                    </p>
+
+                </div>
+
+                <a
+                    href="dashboard.php"
+                    class="website-button desktop-back-button"
+                >
+
+                    <i class="bi bi-arrow-left me-2"></i>
+
+                    Kembali ke Dashboard
+
+                </a>
 
             </div>
 
-            <div class="sidebar-bottom">
+            <div id="alertBox"></div>
 
-                <a
-                    href="profil.php"
-                    class="admin-profile profile-active"
-                >
+            <section class="profile-layout">
 
-                    <?php if (!empty($foto_profil)): ?>
+                <section class="dashboard-card profile-photo-card">
 
-                        <img
-                            src="<?= htmlspecialchars(
-                                gokaltara_profile_image_url($foto_profil, true),
-                                ENT_QUOTES,
-                                "UTF-8"
-                            ) ?>"
-                            alt="Foto Profil"
-                            class="avatar avatar-image"
-                            loading="eager"
-                            decoding="async">
+                    <div class="profile-card-header">
 
-                    <?php else: ?>
+                        <h2 class="card-title-custom">
+                            Foto Profil
+                        </h2>
 
-                        <div class="avatar">
-                            <?= htmlspecialchars(
-                                strtoupper(substr($nama_admin, 0, 1))
-                            ) ?>
+                        <p class="card-subtitle-custom">
+                            Atur posisi foto sebelum menyimpannya.
+                        </p>
+
+                    </div>
+
+                    <div class="profile-photo-content">
+
+                        <div
+                            class="main-preview"
+                            id="mainPreview"
+                        >
+
+                            <?php if ($foto_profil_url !== ''): ?>
+
+                                <img
+                                    src="<?= htmlspecialchars(
+                                        $foto_profil_url,
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>"
+                                    id="mainPreviewImage"
+                                    alt="Foto Profil"
+                                >
+
+                            <?php else: ?>
+
+                                <span
+                                    id="mainPreviewInitial"
+                                >
+                                    <?= htmlspecialchars(
+                                        $initial_admin
+                                    ) ?>
+                                </span>
+
+                            <?php endif; ?>
+
                         </div>
 
-                    <?php endif; ?>
-
-                    <div class="flex-grow-1 min-w-0">
-
-                        <div class="admin-name">
-                            <?= htmlspecialchars($nama_admin) ?>
+                        <div
+                            class="profile-name"
+                            id="liveName"
+                        >
+                            <?= $nama_admin ?>
                         </div>
 
-                        <div class="admin-role">
+                        <div
+                            class="profile-username"
+                            id="liveUsername"
+                        >
+                            @<?= $username_admin ?>
+                        </div>
+
+                        <div
+                            class="profile-role"
+                            id="liveRole"
+                        >
                             Administrator
                         </div>
 
-                    </div>
+                        <label
+                            for="fotoInput"
+                            class="profile-upload-button"
+                        >
 
-                    <i class="bi bi-chevron-right text-white-50"></i>
+                            <i class="bi bi-image me-2"></i>
 
-                </a>
+                            Pilih Foto Baru
 
-                <a
-                    href="../logout.php"
-                    class="sidebar-logout"
-                >
-                    <i class="bi bi-box-arrow-right me-2"></i>
-                    Logout
-                </a>
+                        </label>
 
-            </div>
+                        <input
+                            type="file"
+                            id="fotoInput"
+                            name="foto_profil"
+                            class="d-none"
+                            accept="image/jpeg,image/png,image/webp"
+                        >
 
-        </aside>
+                        <div class="profile-upload-help">
 
-        <main class="main-content">
-
-            <div class="container-fluid px-0">
-
-                <div class="topbar">
-
-                    <div>
-
-                        <p class="eyebrow">
-                            Akun
-                        </p>
-
-                        <h1 class="dashboard-title">
-                            Profil Admin
-                        </h1>
-
-                        <p class="dashboard-subtitle">
-                            Kelola foto dan informasi akun kamu.
-                        </p>
-
-                    </div>
-
-                    <a
-                        href="dashboard.php"
-                        class="website-button"
-                    >
-                        <i class="bi bi-arrow-left me-2"></i>
-                        Kembali ke Dashboard
-                    </a>
-
-                </div>
-
-                <div id="alertBox"></div>
-
-                <div class="profile-layout">
-
-                    <section class="dashboard-card profile-photo-card">
-
-                        <div class="profile-card-header">
-
-                            <h2 class="card-title-custom">
-                                Foto Profil
-                            </h2>
-
-                            <p class="card-subtitle-custom">
-                                Atur foto sebelum menyimpan perubahan.
-                            </p>
+                            JPG, PNG, WEBP · Maksimal 3 MB
 
                         </div>
 
-                        <div class="profile-photo-content">
+                        <div
+                            class="selected-file"
+                            id="selectedFile"
+                        >
+                            Belum memilih foto baru
+                        </div>
 
-                            <div
-                                class="main-preview"
-                                id="mainPreview"
-                            >
+                    </div>
 
-                                <?php if (!empty($foto_profil)): ?>
+                </section>
 
-                                    <img
-                                        src="<?= htmlspecialchars(
-                                            gokaltara_profile_image_url($foto_profil, false),
-                                            ENT_QUOTES,
-                                            "UTF-8"
-                                        ) ?>"
-                                        id="mainPreviewImage"
-                                        alt="Foto Profil"
-                                        loading="eager"
-                                        decoding="async">
+                <section class="dashboard-card profile-info-card">
 
-                                <?php else: ?>
+                    <div class="profile-card-header">
 
-                                    <span id="mainPreviewInitial">
-                                        <?= htmlspecialchars(
-                                            strtoupper(substr($nama_admin, 0, 1))
-                                        ) ?>
-                                    </span>
+                        <h2 class="card-title-custom">
+                            Informasi Akun
+                        </h2>
 
-                                <?php endif; ?>
+                        <p class="card-subtitle-custom">
+                            Perubahan langsung terlihat pada preview.
+                        </p>
 
-                            </div>
+                    </div>
 
-                            <div
-                                class="profile-name"
-                                id="liveName"
-                            >
-                                <?= htmlspecialchars($nama_admin) ?>
-                            </div>
+                    <div class="profile-form">
 
-                            <div
-                                class="profile-username"
-                                id="liveUsername"
-                            >
-                                @<?= htmlspecialchars($username_admin) ?>
-                            </div>
-
-                            <div
-                                class="profile-role"
-                                id="liveRole"
-                            >
-                                <?= htmlspecialchars(ucfirst($level_admin)) ?>
-                            </div>
+                        <div class="profile-form-group">
 
                             <label
-                                for="fotoInput"
-                                class="profile-upload-button"
+                                for="namaLengkap"
+                                class="profile-form-label"
                             >
-                                <i class="bi bi-image me-2"></i>
-                                Pilih Foto Baru
+                                Nama Lengkap
                             </label>
 
                             <input
-                                type="file"
-                                id="fotoInput"
-                                name="foto_profil"
-                                class="d-none"
-                                accept="image/jpeg,image/png,image/webp"
+                                type="text"
+                                id="namaLengkap"
+                                class="profile-form-control"
+                                value="<?= $nama_admin ?>"
+                                maxlength="100"
+                                autocomplete="name"
                             >
-
-                            <div class="profile-upload-help">
-                                JPG, PNG, WEBP · Maksimal 2 MB
-                            </div>
-
-                            <div
-                                class="selected-file"
-                                id="selectedFile"
-                            >
-                                Belum memilih foto baru
-                            </div>
 
                         </div>
 
-                    </section>
+                        <div class="profile-form-group">
 
-                    <section class="dashboard-card profile-info-card">
+                            <label
+                                for="username"
+                                class="profile-form-label"
+                            >
+                                Username
+                            </label>
 
-                        <div class="profile-card-header">
-
-                            <h2 class="card-title-custom">
-                                Informasi Akun
-                            </h2>
-
-                            <p class="card-subtitle-custom">
-                                Perubahan akan tampil langsung pada preview.
-                            </p>
+                            <input
+                                type="text"
+                                id="username"
+                                class="profile-form-control"
+                                value="<?= $username_admin ?>"
+                                minlength="3"
+                                maxlength="50"
+                                autocomplete="username"
+                            >
 
                         </div>
 
-                        <div class="profile-form">
+                        <div class="profile-form-group">
 
-                            <div class="profile-form-group">
+                            <label
+                                for="level"
+                                class="profile-form-label"
+                            >
+                                Role
+                            </label>
 
-                                <label
-                                    for="namaLengkap"
-                                    class="profile-form-label"
+                            <select
+                                id="level"
+                                class="profile-form-control"
+                            >
+
+                                <option
+                                    value="admin"
+                                    <?= $level_admin === 'admin'
+                                        ? 'selected'
+                                        : '' ?>
                                 >
-                                    Nama Lengkap
-                                </label>
+                                    Administrator
+                                </option>
 
-                                <input
-                                    type="text"
-                                    id="namaLengkap"
-                                    name="nama_lengkap"
-                                    class="profile-form-control"
-                                    value="<?= htmlspecialchars($nama_admin) ?>"
-                                    autocomplete="name"
+                                <option
+                                    value="user"
+                                    <?= $level_admin === 'user'
+                                        ? 'selected'
+                                        : '' ?>
                                 >
+                                    User
+                                </option>
 
-                            </div>
+                            </select>
 
-                            <div class="profile-form-group">
+                        </div>
 
-                                <label
-                                    for="username"
-                                    class="profile-form-label"
-                                >
-                                    Username
-                                </label>
+                        <div class="account-status">
 
-                                <input
-                                    type="text"
-                                    id="username"
-                                    name="username"
-                                    class="profile-form-control"
-                                    value="<?= htmlspecialchars($username_admin) ?>"
-                                    autocomplete="username"
-                                >
+                            <div>
 
-                            </div>
-
-                            <div class="profile-form-group">
-
-                                <label
-                                    for="level"
-                                    class="profile-form-label"
-                                >
-                                    Role
-                                </label>
-
-                                <select
-                                    id="level"
-                                    name="level"
-                                    class="profile-form-control"
-                                >
-
-                                    <option
-                                        value="admin"
-                                        <?= $level_admin === "admin" ? "selected" : "" ?>
-                                    >
-                                        Administrator
-                                    </option>
-
-                                    <option
-                                        value="user"
-                                        <?= $level_admin === "user" ? "selected" : "" ?>
-                                    >
-                                        User
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                            <div class="account-status">
-
-                                <div>
-
-                                    <div class="status-label">
-                                        Status Akun
-                                    </div>
-
-                                    <div class="status-caption">
-                                        Akun aktif dan siap digunakan.
-                                    </div>
-
+                                <div class="status-label">
+                                    Status Akun
                                 </div>
 
-                                <div class="status-value">
-                                    <i class="bi bi-circle-fill"></i>
-                                    Aktif
+                                <div class="status-caption">
+                                    Akun aktif dan siap digunakan.
                                 </div>
 
                             </div>
 
-                            <div class="profile-button-row">
+                            <div class="status-value">
 
-                                <a
-                                    href="dashboard.php"
-                                    class="profile-cancel-button"
-                                >
-                                    Batal
-                                </a>
+                                <i class="bi bi-circle-fill"></i>
 
-                                <button
-                                    type="button"
-                                    id="saveButton"
-                                    class="profile-save-button"
-                                >
-                                    <i class="bi bi-floppy2-fill me-2"></i>
-                                    Simpan Perubahan
-                                </button>
+                                Aktif
 
                             </div>
 
                         </div>
 
-                    </section>
+                        <div class="profile-button-row">
+
+                            <a
+                                href="dashboard.php"
+                                class="profile-cancel-button"
+                            >
+                                Batal
+                            </a>
+
+                            <button
+                                type="button"
+                                id="saveButton"
+                                class="profile-save-button"
+                            >
+
+                                <i class="bi bi-floppy2-fill me-2"></i>
+
+                                Simpan Perubahan
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<nav class="mobile-bottom-nav">
+
+    <a
+        href="dashboard.php"
+        class="mobile-nav-link"
+    >
+
+        <i class="bi bi-grid-1x2-fill"></i>
+
+        <span>
+            Dashboard
+        </span>
+
+    </a>
+
+    <a
+        href="kuliner.php"
+        class="mobile-nav-link"
+    >
+
+        <i class="bi bi-fork-knife"></i>
+
+        <span>
+            Kuliner
+        </span>
+
+    </a>
+
+    <a
+        href="tambah_kuliner.php"
+        class="mobile-nav-link mobile-nav-main-action"
+    >
+
+        <i class="bi bi-plus-lg"></i>
+
+        <span>
+            Tambah
+        </span>
+
+    </a>
+
+    <a
+        href="kategori.php"
+        class="mobile-nav-link"
+    >
+
+        <i class="bi bi-tags-fill"></i>
+
+        <span>
+            Kategori
+        </span>
+
+    </a>
+
+    <a
+        href="profil.php"
+        class="mobile-nav-link active"
+    >
+
+        <i class="bi bi-person-fill"></i>
+
+        <span>
+            Profil
+        </span>
+
+    </a>
+
+</nav>
+
+<div
+    class="modal fade"
+    id="cropModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <div class="modal-content profile-modal">
+
+            <div class="modal-header profile-modal-header">
+
+                <div>
+
+                    <h5 class="modal-title">
+                        Atur Foto Profil
+                    </h5>
+
+                    <div class="modal-subtitle">
+                        Geser dan zoom untuk mengatur posisi foto.
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Tutup"
+                ></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="crop-container">
+
+                    <img
+                        id="cropImage"
+                        src=""
+                        alt="Atur foto profil"
+                    >
+
+                </div>
+
+                <div class="crop-actions">
+
+                    <button
+                        type="button"
+                        class="crop-btn"
+                        id="zoomOut"
+                        title="Zoom Out"
+                    >
+                        <i class="bi bi-zoom-out"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="crop-btn"
+                        id="zoomIn"
+                        title="Zoom In"
+                    >
+                        <i class="bi bi-zoom-in"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="crop-btn"
+                        id="moveLeft"
+                        title="Geser Kiri"
+                    >
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="crop-btn"
+                        id="moveRight"
+                        title="Geser Kanan"
+                    >
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="crop-btn"
+                        id="moveUp"
+                        title="Geser Atas"
+                    >
+                        <i class="bi bi-arrow-up"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="crop-btn"
+                        id="moveDown"
+                        title="Geser Bawah"
+                    >
+                        <i class="bi bi-arrow-down"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="crop-btn"
+                        id="resetCrop"
+                        title="Reset"
+                    >
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
 
                 </div>
 
             </div>
 
-        </main>
+            <div class="modal-footer profile-modal-footer">
 
-    </div>
+                <button
+                    type="button"
+                    class="profile-cancel-button"
+                    data-bs-dismiss="modal"
+                >
+                    Batal
+                </button>
 
-    <nav class="mobile-bottom-nav">
-
-        <a
-            href="dashboard.php"
-            class="mobile-nav-link"
-        >
-            <i class="bi bi-grid-1x2-fill"></i>
-            <span>Dashboard</span>
-        </a>
-
-        <a
-            href="kuliner.php"
-            class="mobile-nav-link"
-        >
-            <i class="bi bi-fork-knife"></i>
-            <span>Kuliner</span>
-        </a>
-
-        <a
-            href="tambah_kuliner.php"
-            class="mobile-nav-add" aria-label="Tambah data">
-            <span>
-                <i class="bi bi-plus-lg"></i>
-            </span>
-        </a>
-
-        <a
-            href="kategori.php"
-            class="mobile-nav-link"
-        >
-            <i class="bi bi-tags-fill"></i>
-            <span>Kategori</span>
-        </a>
-
-        <a
-            href="profil.php"
-            class="mobile-nav-link active"
-        >
-            <i class="bi bi-person-fill"></i>
-            <span>Profil</span>
-        </a>
-
-    </nav>
-
-    <div
-        class="modal fade"
-        id="cropModal"
-        tabindex="-1"
-        aria-hidden="true"
-    >
-
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-
-            <div class="modal-content profile-modal">
-
-                <div class="modal-header profile-modal-header">
-
-                    <div>
-
-                        <h5 class="modal-title">
-                            Atur Foto Profil
-                        </h5>
-
-                        <div class="modal-subtitle">
-                            Geser dan zoom foto sesuai kebutuhan.
-                        </div>
-
-                    </div>
-
-                    <button type="button" class="btn-close" aria-label="Tutup"
-                        data-bs-dismiss="modal"
-                    ></button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="crop-container">
-
-                        <img
-                            id="cropImage"
-                            src=""
-                            alt="Foto yang sedang diedit" loading="lazy" decoding="async">
-
-                    </div>
-
-                    <div class="crop-actions">
-
-                        <button
-                            type="button"
-                            class="crop-btn"
-                            id="zoomOut"
-                            title="Zoom Out"
-                        >
-                            <i class="bi bi-dash-lg"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="crop-btn"
-                            id="zoomIn"
-                            title="Zoom In"
-                        >
-                            <i class="bi bi-plus-lg"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="crop-btn"
-                            id="moveLeft"
-                            title="Geser Kiri"
-                        >
-                            <i class="bi bi-arrow-left"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="crop-btn"
-                            id="moveRight"
-                            title="Geser Kanan"
-                        >
-                            <i class="bi bi-arrow-right"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="crop-btn"
-                            id="moveUp"
-                            title="Geser Atas"
-                        >
-                            <i class="bi bi-arrow-up"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="crop-btn"
-                            id="moveDown"
-                            title="Geser Bawah"
-                        >
-                            <i class="bi bi-arrow-down"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="crop-btn"
-                            id="resetCrop"
-                            title="Reset"
-                        >
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                        </button>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer profile-modal-footer">
-
-                    <button
-                        type="button"
-                        class="profile-cancel-button"
-                        data-bs-dismiss="modal"
-                    >
-                        Batal
-                    </button>
-
-                    <button
-                        type="button"
-                        class="profile-save-button"
-                        id="useCrop"
-                    >
-                        Gunakan Foto
-                    </button>
-
-                </div>
+                <button
+                    type="button"
+                    class="profile-save-button"
+                    id="useCrop"
+                >
+                    Gunakan Foto
+                </button>
 
             </div>
 
@@ -875,13 +1178,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="../assets/js/profil.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 
-    <script src="../assets/js/performance.js?v=1" defer></script>
+<script src="../assets/js/profil.js?v=20"></script>
 
 </body>
 

@@ -300,11 +300,12 @@ function gokaltara_image_url(
 ): string {
     $filename = trim($filename);
 
+    $assets_path = $base_url !== ''
+        ? rtrim($base_url, '/')
+        : rtrim(gokaltara_app_base_path(), '/') . '/assets/images';
+
     if ($filename === '') {
-        return rtrim(
-            $base_url !== '' ? $base_url : gokaltara_app_base_path() . '/assets/images',
-            '/'
-        ) . '/no-image.jpg';
+        return $assets_path . '/no-image.jpg';
     }
 
     if (gokaltara_is_remote_image($filename)) {
@@ -313,43 +314,23 @@ function gokaltara_image_url(
         }
 
         $thumb_url = gokaltara_blob_thumbnail_url($filename);
-
         return $thumb_url !== '' ? $thumb_url : $filename;
     }
 
     $filename = basename($filename);
-
-    $base_path = rtrim(
-        $base_url !== '' ? $base_url : gokaltara_app_base_path(),
-        '/'
-    );
-
-    $assets_path = $base_path . '/assets/images';
-    $root = dirname(__DIR__) . '/assets/images';
     $stem = gokaltara_image_stem($filename);
 
     if ($thumbnail) {
-        $thumb_file = $root . '/thumbs/' . $stem . '.webp';
-
-        if (is_file($thumb_file)) {
-            return $assets_path . '/thumbs/' . rawurlencode($stem) . '.webp';
-        }
+        return $assets_path . '/thumbs/' . rawurlencode($stem) . '.webp';
     }
 
     $extension = gokaltara_image_extension($filename);
-    $webp_file = $root . '/' . $stem . '.webp';
 
-    if ($extension !== 'webp' && is_file($webp_file)) {
+    if ($extension !== 'webp') {
         return $assets_path . '/' . rawurlencode($stem) . '.webp';
     }
 
-    $original_file = $root . '/' . $filename;
-
-    if (is_file($original_file)) {
-        return $assets_path . '/' . rawurlencode($filename);
-    }
-
-    return $assets_path . '/no-image.jpg';
+    return $assets_path . '/' . rawurlencode($filename);
 }
 
 function gokaltara_profile_image_url(
@@ -368,38 +349,25 @@ function gokaltara_profile_image_url(
         }
 
         $thumb_url = gokaltara_blob_thumbnail_url($filename);
-
         return $thumb_url !== '' ? $thumb_url : $filename;
     }
 
     $filename = basename($filename);
     $base_path = rtrim(gokaltara_app_base_path(), '/');
     $assets_path = $base_path . '/assets/images/profil';
-    $root = dirname(__DIR__) . '/assets/images/profil';
     $stem = gokaltara_image_stem($filename);
 
     if ($thumbnail) {
-        $thumb_file = $root . '/thumbs/' . $stem . '.webp';
-
-        if (is_file($thumb_file)) {
-            return $assets_path . '/thumbs/' . rawurlencode($stem) . '.webp';
-        }
+        return $assets_path . '/thumbs/' . rawurlencode($stem) . '.webp';
     }
 
     $extension = gokaltara_image_extension($filename);
-    $webp_file = $root . '/' . $stem . '.webp';
 
-    if ($extension !== 'webp' && is_file($webp_file)) {
+    if ($extension !== 'webp') {
         return $assets_path . '/' . rawurlencode($stem) . '.webp';
     }
 
-    $original_file = $root . '/' . $filename;
-
-    if (is_file($original_file)) {
-        return $assets_path . '/' . rawurlencode($filename);
-    }
-
-    return '';
+    return $assets_path . '/' . rawurlencode($filename);
 }
 
 function gokaltara_create_resized_webp(

@@ -1,485 +1,657 @@
+document.addEventListener("DOMContentLoaded", function () {
 
-const fotoInput = document.getElementById("fotoInput");
-const cropImage = document.getElementById("cropImage");
-const mainPreview = document.getElementById("mainPreview");
-const selectedFile = document.getElementById("selectedFile");
-const namaLengkap = document.getElementById("namaLengkap");
-const username = document.getElementById("username");
-const level = document.getElementById("level");
-const liveName = document.getElementById("liveName");
-const liveUsername = document.getElementById("liveUsername");
-const liveRole = document.getElementById("liveRole");
-const saveButton = document.getElementById("saveButton");
-const alertBox = document.getElementById("alertBox");
-const cropModalElement = document.getElementById("cropModal");
+    const fotoInput = document.getElementById("fotoInput");
+    const cropImage = document.getElementById("cropImage");
+    const mainPreview = document.getElementById("mainPreview");
+    const selectedFile = document.getElementById("selectedFile");
 
-const cropModal = new bootstrap.Modal(
-    cropModalElement
-);
+    const namaLengkap = document.getElementById("namaLengkap");
+    const username = document.getElementById("username");
+    const level = document.getElementById("level");
 
-let cropper = null;
-let croppedBlob = null;
+    const liveName = document.getElementById("liveName");
+    const liveUsername = document.getElementById("liveUsername");
+    const liveRole = document.getElementById("liveRole");
 
-function updateLiveProfile() {
+    const saveButton = document.getElementById("saveButton");
+    const alertBox = document.getElementById("alertBox");
 
-    liveName.textContent =
-        namaLengkap.value.trim() || "Nama Lengkap";
+    const cropModalElement =
+        document.getElementById("cropModal");
 
-    liveUsername.textContent =
-        "@" + (
-            username.value.trim() || "username"
+    if (
+        !fotoInput ||
+        !cropImage ||
+        !mainPreview ||
+        !selectedFile ||
+        !namaLengkap ||
+        !username ||
+        !level ||
+        !liveName ||
+        !liveUsername ||
+        !liveRole ||
+        !saveButton ||
+        !alertBox ||
+        !cropModalElement
+    ) {
+        return;
+    }
+
+    const cropModal =
+        new bootstrap.Modal(
+            cropModalElement
         );
 
-    liveRole.textContent =
-        level.value === "admin"
-            ? "Administrator"
-            : "User";
+    let cropper = null;
+    let croppedBlob = null;
+    let currentObjectUrl = null;
 
-}
+    function showAlert(
+        message,
+        type = "danger"
+    ) {
 
-namaLengkap.addEventListener(
-    "input",
-    updateLiveProfile
-);
+        alertBox.innerHTML = `
+            <div class="profile-alert ${type}">
+                ${message}
+            </div>
+        `;
 
-username.addEventListener(
-    "input",
-    updateLiveProfile
-);
-
-level.addEventListener(
-    "change",
-    updateLiveProfile
-);
-
-fotoInput.addEventListener(
-    "change",
-    function () {
-
-        const file = this.files[0];
-
-        if (!file) {
-            return;
-        }
-
-        if (file.size > 2 * 1024 * 1024) {
-
-            alertBox.innerHTML = `
-                <div class="alert alert-danger rounded-4 border-0 small">
-                    Ukuran foto maksimal 2 MB.
-                </div>
-            `;
-
-            this.value = "";
-
-            return;
-        }
-
-        const allowedTypes = [
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        ];
-
-        if (!allowedTypes.includes(file.type)) {
-
-            alertBox.innerHTML = `
-                <div class="alert alert-danger rounded-4 border-0 small">
-                    Format foto harus JPG, PNG, atau WEBP.
-                </div>
-            `;
-
-            this.value = "";
-
-            return;
-        }
-
-        selectedFile.textContent = file.name;
-
-        const reader = new FileReader();
-
-        reader.onload = function (event) {
-
-            cropImage.src = event.target.result;
-
-            cropModal.show();
-
-        };
-
-        reader.readAsDataURL(file);
-
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
     }
-);
 
-cropModalElement.addEventListener(
-    "shown.bs.modal",
-    function () {
+    function updateLiveProfile() {
+
+        liveName.textContent =
+            namaLengkap.value.trim() ||
+            "Administrator";
+
+        liveUsername.textContent =
+            "@" +
+            (
+                username.value.trim() ||
+                "admin"
+            );
+
+        liveRole.textContent =
+            level.value === "admin"
+                ? "Administrator"
+                : "User";
+    }
+
+    function revokeObjectUrl() {
+
+        if (currentObjectUrl) {
+
+            URL.revokeObjectURL(
+                currentObjectUrl
+            );
+
+            currentObjectUrl = null;
+        }
+    }
+
+    function destroyCropper() {
 
         if (cropper) {
+
             cropper.destroy();
-        }
 
-        cropper = new Cropper(
-            cropImage,
-            {
-                aspectRatio: 1,
-                viewMode: 1,
-                dragMode: "move",
-                autoCropArea: 1,
-                responsive: true,
-                background: false,
-                guides: true,
-                center: true,
-                movable: true,
-                zoomable: true,
-                rotatable: false,
-                scalable: false
-            }
-        );
-
-    }
-);
-
-cropModalElement.addEventListener(
-    "hidden.bs.modal",
-    function () {
-
-        if (cropper) {
-            cropper.destroy();
             cropper = null;
         }
-
     }
-);
 
-document.getElementById(
-    "zoomIn"
-).addEventListener(
-    "click",
-    function () {
+    namaLengkap.addEventListener(
+        "input",
+        updateLiveProfile
+    );
 
-        if (cropper) {
-            cropper.zoom(0.1);
+    username.addEventListener(
+        "input",
+        updateLiveProfile
+    );
+
+    level.addEventListener(
+        "change",
+        updateLiveProfile
+    );
+
+    fotoInput.addEventListener(
+        "change",
+        function () {
+
+            const file =
+                this.files &&
+                this.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            if (
+                ![
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp"
+                ].includes(file.type)
+            ) {
+
+                showAlert(
+                    "Format foto harus JPG, PNG, atau WEBP."
+                );
+
+                this.value = "";
+
+                return;
+            }
+
+            if (
+                file.size >
+                3 * 1024 * 1024
+            ) {
+
+                showAlert(
+                    "Ukuran foto maksimal 3 MB."
+                );
+
+                this.value = "";
+
+                return;
+            }
+
+            revokeObjectUrl();
+
+            currentObjectUrl =
+                URL.createObjectURL(file);
+
+            cropImage.src =
+                currentObjectUrl;
+
+            selectedFile.textContent =
+                file.name;
+
+            cropModal.show();
         }
+    );
 
+    cropModalElement.addEventListener(
+        "shown.bs.modal",
+        function () {
+
+            destroyCropper();
+
+            if (
+                typeof Cropper === "undefined" ||
+                !cropImage.src
+            ) {
+                return;
+            }
+
+            cropper =
+                new Cropper(
+                    cropImage,
+                    {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        dragMode: "move",
+                        autoCropArea: 1,
+                        responsive: true,
+                        restore: false,
+                        background: false,
+                        guides: true,
+                        center: true,
+                        movable: true,
+                        zoomable: true,
+                        rotatable: false,
+                        scalable: false,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: false
+                    }
+                );
+        }
+    );
+
+    cropModalElement.addEventListener(
+        "hidden.bs.modal",
+        function () {
+
+            destroyCropper();
+
+            cropImage.removeAttribute(
+                "src"
+            );
+
+            revokeObjectUrl();
+        }
+    );
+
+    const zoomIn =
+        document.getElementById("zoomIn");
+
+    const zoomOut =
+        document.getElementById("zoomOut");
+
+    const moveLeft =
+        document.getElementById("moveLeft");
+
+    const moveRight =
+        document.getElementById("moveRight");
+
+    const moveUp =
+        document.getElementById("moveUp");
+
+    const moveDown =
+        document.getElementById("moveDown");
+
+    const resetCrop =
+        document.getElementById("resetCrop");
+
+    if (zoomIn) {
+
+        zoomIn.addEventListener(
+            "click",
+            function () {
+
+                if (cropper) {
+                    cropper.zoom(0.1);
+                }
+            }
+        );
     }
-);
 
-document.getElementById(
-    "zoomOut"
-).addEventListener(
-    "click",
-    function () {
+    if (zoomOut) {
 
-        if (cropper) {
-            cropper.zoom(-0.1);
-        }
+        zoomOut.addEventListener(
+            "click",
+            function () {
 
+                if (cropper) {
+                    cropper.zoom(-0.1);
+                }
+            }
+        );
     }
-);
 
-document.getElementById(
-    "moveLeft"
-).addEventListener(
-    "click",
-    function () {
+    if (moveLeft) {
 
-        if (cropper) {
-            cropper.move(-20, 0);
-        }
+        moveLeft.addEventListener(
+            "click",
+            function () {
 
+                if (cropper) {
+                    cropper.move(-20, 0);
+                }
+            }
+        );
     }
-);
 
-document.getElementById(
-    "moveRight"
-).addEventListener(
-    "click",
-    function () {
+    if (moveRight) {
 
-        if (cropper) {
-            cropper.move(20, 0);
-        }
+        moveRight.addEventListener(
+            "click",
+            function () {
 
+                if (cropper) {
+                    cropper.move(20, 0);
+                }
+            }
+        );
     }
-);
 
-document.getElementById(
-    "moveUp"
-).addEventListener(
-    "click",
-    function () {
+    if (moveUp) {
 
-        if (cropper) {
-            cropper.move(0, -20);
-        }
+        moveUp.addEventListener(
+            "click",
+            function () {
 
+                if (cropper) {
+                    cropper.move(0, -20);
+                }
+            }
+        );
     }
-);
 
-document.getElementById(
-    "moveDown"
-).addEventListener(
-    "click",
-    function () {
+    if (moveDown) {
 
-        if (cropper) {
-            cropper.move(0, 20);
-        }
+        moveDown.addEventListener(
+            "click",
+            function () {
 
+                if (cropper) {
+                    cropper.move(0, 20);
+                }
+            }
+        );
     }
-);
 
-document.getElementById(
-    "resetCrop"
-).addEventListener(
-    "click",
-    function () {
+    if (resetCrop) {
 
-        if (cropper) {
-            cropper.reset();
-        }
+        resetCrop.addEventListener(
+            "click",
+            function () {
 
+                if (cropper) {
+                    cropper.reset();
+                }
+            }
+        );
     }
-);
 
-document.getElementById(
-    "useCrop"
-).addEventListener(
-    "click",
-    function () {
+    document
+        .getElementById("useCrop")
+        .addEventListener(
+            "click",
+            function () {
 
-        if (!cropper) {
-            return;
-        }
+                if (!cropper) {
 
-        const canvas = cropper.getCroppedCanvas({
-            width: 600,
-            height: 600,
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: "high"
-        });
+                    showAlert(
+                        "Silakan pilih dan atur foto terlebih dahulu."
+                    );
 
-        canvas.toBlob(
-            function (blob) {
-
-                if (!blob) {
                     return;
                 }
 
-                croppedBlob = blob;
+                const canvas =
+                    cropper.getCroppedCanvas({
+                        width: 600,
+                        height: 600,
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: "high",
+                        fillColor: "#ffffff"
+                    });
 
-                const previewUrl =
-                    URL.createObjectURL(blob);
+                if (!canvas) {
 
-                mainPreview.innerHTML = `
-                    <img
-                        src="${previewUrl}"
-                        alt="Preview Foto Profil"
-                    >
-                `;
+                    showAlert(
+                        "Foto gagal diproses."
+                    );
 
-                selectedFile.textContent =
-                    "Foto sudah diatur dan siap disimpan.";
+                    return;
+                }
 
-                cropModal.hide();
+                canvas.toBlob(
+                    function (blob) {
 
-            },
-            "image/jpeg",
-            0.9
+                        if (!blob) {
+
+                            showAlert(
+                                "Foto gagal diproses."
+                            );
+
+                            return;
+                        }
+
+                        croppedBlob = blob;
+
+                        const previewUrl =
+                            URL.createObjectURL(
+                                blob
+                            );
+
+                        mainPreview.innerHTML = `
+                            <img
+                                src="${previewUrl}"
+                                alt="Preview Foto Profil"
+                            >
+                        `;
+
+                        selectedFile.textContent =
+                            "Foto sudah diatur dan siap disimpan.";
+
+                        cropModal.hide();
+                    },
+                    "image/jpeg",
+                    0.88
+                );
+            }
         );
 
-    }
-);
+    saveButton.addEventListener(
+        "click",
+        async function () {
 
-saveButton.addEventListener(
-    "click",
-    async function () {
+            const nama =
+                namaLengkap.value.trim();
 
-        const nama = namaLengkap.value.trim();
-        const user = username.value.trim();
+            const user =
+                username.value.trim();
 
-        if (nama === "") {
+            const role =
+                level.value;
 
-            alertBox.innerHTML = `
-                <div class="alert alert-danger rounded-4 border-0 small">
-                    Nama lengkap wajib diisi.
-                </div>
-            `;
+            if (nama === "") {
 
-            return;
-        }
+                showAlert(
+                    "Nama lengkap wajib diisi."
+                );
 
-        if (nama.length < 3) {
+                return;
+            }
 
-            alertBox.innerHTML = `
-                <div class="alert alert-danger rounded-4 border-0 small">
-                    Nama lengkap minimal 3 karakter.
-                </div>
-            `;
+            if (nama.length < 3) {
 
-            return;
-        }
+                showAlert(
+                    "Nama lengkap minimal 3 karakter."
+                );
 
-        if (user === "") {
+                return;
+            }
 
-            alertBox.innerHTML = `
-                <div class="alert alert-danger rounded-4 border-0 small">
-                    Username wajib diisi.
-                </div>
-            `;
+            if (user === "") {
 
-            return;
-        }
+                showAlert(
+                    "Username wajib diisi."
+                );
 
-        if (user.length < 4) {
+                return;
+            }
 
-            alertBox.innerHTML = `
-                <div class="alert alert-danger rounded-4 border-0 small">
-                    Username minimal 4 karakter.
-                </div>
-            `;
+            if (user.length < 3) {
 
-            return;
-        }
+                showAlert(
+                    "Username minimal 3 karakter."
+                );
 
-        const formData = new FormData();
+                return;
+            }
 
-        formData.append(
-            "nama_lengkap",
-            nama
-        );
+            if (
+                role !== "admin" &&
+                role !== "user"
+            ) {
 
-        formData.append(
-            "username",
-            user
-        );
+                showAlert(
+                    "Role tidak valid."
+                );
 
-        formData.append(
-            "level",
-            level.value
-        );
+                return;
+            }
 
-        if (croppedBlob) {
+            const formData =
+                new FormData();
 
             formData.append(
-                "foto_profil",
-                croppedBlob,
-                "profil.jpg"
+                "nama_lengkap",
+                nama
             );
 
-        }
-
-        saveButton.disabled = true;
-
-        saveButton.innerHTML = `
-            <span
-                class="spinner-border spinner-border-sm me-2"
-            ></span>
-            Menyimpan...
-        `;
-
-        try {
-
-            const response = await fetch(
-                "profil.php",
-                {
-                    method: "POST",
-                    body: formData
-                }
+            formData.append(
+                "username",
+                user
             );
 
-            const responseText =
-                await response.text();
+            formData.append(
+                "level",
+                role
+            );
 
-            let data;
+            if (croppedBlob) {
+
+                formData.append(
+                    "foto_profil",
+                    croppedBlob,
+                    "profil.jpg"
+                );
+            }
+
+            const originalButton =
+                saveButton.innerHTML;
+
+            saveButton.disabled = true;
+
+            saveButton.innerHTML = `
+                <span
+                    class="spinner-border spinner-border-sm me-2"
+                ></span>
+                Menyimpan...
+            `;
+
+            alertBox.innerHTML = "";
 
             try {
 
-                data =
-                    JSON.parse(responseText);
+                const response =
+                    await fetch(
+                        "profil.php",
+                        {
+                            method: "POST",
+                            body: formData,
+                            credentials: "same-origin",
+                            cache: "no-store"
+                        }
+                    );
+
+                const responseText =
+                    await response.text();
+
+                let data;
+
+                try {
+
+                    data =
+                        JSON.parse(
+                            responseText
+                        );
+
+                } catch (error) {
+
+                    console.error(
+                        responseText
+                    );
+
+                    showAlert(
+                        "Server mengirim respons yang tidak valid."
+                    );
+
+                    return;
+                }
+
+                if (!data.success) {
+
+                    showAlert(
+                        data.message ||
+                        "Profil gagal diperbarui."
+                    );
+
+                    return;
+                }
+
+                liveName.textContent =
+                    data.nama_lengkap;
+
+                liveUsername.textContent =
+                    "@" +
+                    data.username;
+
+                liveRole.textContent =
+                    data.level === "admin"
+                        ? "Administrator"
+                        : "User";
+
+                if (
+                    data.foto_profil
+                ) {
+
+                    const fotoUrl =
+                        "../assets/images/profil/" +
+                        encodeURIComponent(
+                            data.foto_profil
+                        ) +
+                        "?v=" +
+                        Date.now();
+
+                    mainPreview.innerHTML = `
+                        <img
+                            src="${fotoUrl}"
+                            id="mainPreviewImage"
+                            alt="Foto Profil"
+                        > 
+                    `;
+
+                    document
+                        .querySelectorAll(
+                            ".avatar-image"
+                        )
+                        .forEach(
+                            function (image) {
+
+                                image.src =
+                                    fotoUrl;
+                            }
+                        );
+                }
+
+                croppedBlob = null;
+
+                showAlert(
+                    data.message ||
+                    "Profil berhasil diperbarui.",
+                    "success"
+                );
+
+                setTimeout(
+                    function () {
+
+                        if (
+                            data.level === "admin"
+                        ) {
+
+                            window.location.href =
+                                "dashboard.php";
+
+                        } else {
+
+                            window.location.href =
+                                "../index.php";
+                        }
+
+                    },
+                    900
+                );
 
             } catch (error) {
 
-                console.error(responseText);
+                console.error(error);
 
-                alertBox.innerHTML = `
-                    <div class="alert alert-danger rounded-4 border-0 small">
-                        Server mengirim respons yang tidak valid.
-                        Buka Console Browser untuk melihat detailnya.
-                    </div>
-                `;
+                showAlert(
+                    "Tidak dapat terhubung ke server."
+                );
 
-                return;
+            } finally {
+
+                saveButton.disabled = false;
+
+                saveButton.innerHTML =
+                    originalButton;
             }
-
-            if (!data.success) {
-
-                alertBox.innerHTML = `
-                    <div class="alert alert-danger rounded-4 border-0 small">
-                        ${data.message}
-                    </div>
-                `;
-
-                return;
-            }
-
-            alertBox.innerHTML = `
-                <div class="alert alert-success rounded-4 border-0 small">
-                    ${data.message}
-                </div>
-            `;
-
-            liveName.textContent =
-                data.nama_lengkap;
-
-            liveUsername.textContent =
-                "@" + data.username;
-
-            liveRole.textContent =
-                data.level === "admin"
-                    ? "Administrator"
-                    : "User";
-
-            croppedBlob = null;
-
-            setTimeout(
-                function () {
-
-                    if (data.level === "admin") {
-                        window.location.href =
-                            "dashboard.php";
-                    } else {
-                        window.location.href =
-                            "../index.php";
-                    }
-
-                },
-                800
-            );
-
-        } catch (error) {
-
-            console.error(error);
-
-            alertBox.innerHTML = `
-                <div class="alert alert-danger rounded-4 border-0 small">
-                    ${error.message}
-                </div>
-            `;
-
-        } finally {
-
-            saveButton.disabled = false;
-
-            saveButton.innerHTML = `
-                <i class="bi bi-floppy2-fill me-2"></i>
-                Simpan Perubahan
-            `;
-
         }
+    );
 
-    }
-);
+    updateLiveProfile();
 
-updateLiveProfile();
+});

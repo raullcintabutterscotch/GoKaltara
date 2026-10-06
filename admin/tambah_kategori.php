@@ -1,6 +1,7 @@
 <?php
 
-require_once "../api/_auth.php";
+session_start();
+require_once "../config/koneksi.php";
 require_once "../config/image_optimizer.php";
 
 if (
@@ -73,13 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="id">
 <head>
 
-<style id="gokaltara-performance-inline">
-img.perf-image{background-color:#eef3f0;background-image:linear-gradient(90deg,#eef3f0 0%,#f8faf9 50%,#eef3f0 100%);background-size:220% 100%;background-repeat:no-repeat}
-img.perf-image.is-loaded{background-image:none}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-@media(max-width:991.98px){html{scroll-behavior:auto}}
-</style>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Kategori | Kuliner Kaltara</title>
     <link
@@ -93,14 +88,10 @@ img.perf-image.is-loaded{background-image:none}
         crossorigin
     >
 
-    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></noscript>
-    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"></noscript>
-    <link rel="preload" as="style" href="../assets/css/dashboard.css" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="../assets/css/dashboard.css"></noscript>
-    <link rel="preload" as="style" href="../assets/css/kategori.css" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="../assets/css/kategori.css"></noscript>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css?v=4">
+    <link rel="stylesheet" href="../assets/css/kategori.css">
     </head>
 <body>
     <div>
@@ -242,20 +233,8 @@ img.perf-image.is-loaded{background-image:none}
             <i class="bi bi-person-circle"></i>
             <span>Profil</span>
         </a>
-    
-
-        <a
-            href="../logout.php"
-            class="mobile-nav-link mobile-nav-logout"
-            aria-label="Logout"
-        >
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Logout</span>
-        </a>
 </nav>
 
     <script src="../assets/js/dashboard.js" defer></script>
-    <script src="../assets/js/performance.js?v=1" defer></script>
-
 </body>
 </html>

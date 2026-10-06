@@ -97,14 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <head>
 
-<style id="gokaltara-performance-inline">
-img.perf-image{background-color:#eef3f0;background-image:linear-gradient(90deg,#eef3f0 0%,#f8faf9 50%,#eef3f0 100%);background-size:220% 100%;background-repeat:no-repeat}
-img.perf-image.is-loaded{background-image:none}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-@media(max-width:991.98px){html{scroll-behavior:auto}}
-</style>
-
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
     <meta
         name="viewport"
@@ -119,8 +112,7 @@ img.perf-image.is-loaded{background-image:none}
         sizes="48x48"
     >
 
-    <link rel="preload" as="style" href="./assets/css/login.css?v=7" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="./assets/css/login.css?v=7"></noscript>
+    <link rel="stylesheet" href="./assets/css/login.css?v=7">
 
 </head>
 
