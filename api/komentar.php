@@ -1,131 +1,178 @@
 <?php
 
-session_start();
+declare(strict_types=1);
 
-require_once "../config/koneksi.php";
 require_once "_auth.php";
 
-header("Content-Type: application/json; charset=UTF-8");
-
-if (!isUserLoggedIn()) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Silakan login terlebih dahulu."
-    ]);
-    exit;
-}
-
-$id_user = getUserId();
+$id_user = requireLogin($koneksi);
 $id_kuliner = (int) ($_POST["id_kuliner"] ?? 0);
-$komentar = trim($_POST["komentar"] ?? "");
+$parent_id = (int) ($_POST["parent_id"] ?? 0);
+$komentar = trim((string) ($_POST["komentar"] ?? ""));
 
-if ($id_user <= 0 || $id_kuliner <= 0) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Data tidak valid."
-    ]);
-    exit;
+if ($id_kuliner <= 0 || !validKuliner($koneksi, $id_kuliner)) {
+    jsonResponse(false, "Kuliner tidak ditemukan.");
 }
 
 if ($komentar === "") {
-    echo json_encode([
-        "success" => false,
-        "message" => "Komentar tidak boleh kosong."
-    ]);
-    exit;
+    jsonResponse(false, "Komentar tidak boleh kosong.");
 }
 
 if (mb_strlen($komentar) < 3) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Komentar minimal 3 karakter."
-    ]);
-    exit;
+    jsonResponse(false, "Komentar minimal 3 karakter.");
 }
 
 if (mb_strlen($komentar) > 1000) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Komentar maksimal 1000 karakter."
-    ]);
-    exit;
+    jsonResponse(false, "Komentar maksimal 1000 karakter.");
 }
 
-$cek_kuliner = $koneksi->prepare("
-    SELECT id_kuliner
-    FROM kuliner
-    WHERE id_kuliner = ?
-    LIMIT 1
-");
+$pemilik_parent = 0;
 
-$cek_kuliner->bind_param(
-    "i",
-    $id_kuliner
-);
+if ($parent_id > 0) {
+    $check_parent = $koneksi->prepare("
+        SELECT
+            id_komentar,
+            id_user
+        FROM komentar
+        WHERE id_komentar = ?
+        AND id_kuliner = ?
+        LIMIT 1
+    ");
 
-$cek_kuliner->execute();
+    if (!$check_parent) {
+        jsonResponse(false, "Komentar tujuan tidak dapat diperiksa.");
+    }
 
-$result_kuliner = $cek_kuliner->get_result();
+    $check_parent->bind_param("ii", $parent_id, $id_kuliner);
+    $check_parent->execute();
+    $parent = $check_parent->get_result()->fetch_assoc();
+    $check_parent->close();
 
-if ($result_kuliner->num_rows === 0) {
+    if (!$parent) {
+        jsonResponse(false, "Komentar tujuan tidak ditemukan.");
+    }
 
-    $cek_kuliner->close();
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Kuliner tidak ditemukan."
-    ]);
-
-    exit;
+    $pemilik_parent = (int) ($parent["id_user"] ?? 0);
 }
 
-$cek_kuliner->close();
+if ($parent_id > 0) {
+    $stmt = $koneksi->prepare("
+        INSERT INTO komentar
+        (
+            id_user,
+            id_kuliner,
+            parent_id,
+            komentar
+        )
+        VALUES
+        (
+            ?,
+            ?,
+            ?,
+            ?
+        )
+    ");
 
-$stmt = $koneksi->prepare("
-    INSERT INTO komentar
+    if (!$stmt) {
+        jsonResponse(false, "Komentar gagal disiapkan.");
+    }
+
+    $stmt->bind_param("iiis", $id_user, $id_kuliner, $parent_id, $komentar);
+} else {
+    $stmt = $koneksi->prepare("
+        INSERT INTO komentar
         (
             id_user,
             id_kuliner,
             komentar
         )
-    VALUES
+        VALUES
         (
             ?,
             ?,
             ?
         )
-");
+    ");
 
-$stmt->bind_param(
-    "iis",
-    $id_user,
-    $id_kuliner,
-    $komentar
-);
+    if (!$stmt) {
+        jsonResponse(false, "Komentar gagal disiapkan.");
+    }
 
-if (!$stmt->execute()) {
-
-    $stmt->close();
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Komentar gagal disimpan."
-    ]);
-
-    exit;
+    $stmt->bind_param("iis", $id_user, $id_kuliner, $komentar);
 }
 
-$id_komentar = $koneksi->insert_id;
+if (!$stmt->execute()) {
+    $error = $stmt->error;
+    $stmt->close();
 
+    jsonResponse(false, "Komentar gagal disimpan: " . $error);
+}
+
+$id_komentar = (int) $koneksi->insert_id;
 $stmt->close();
+
+if ($parent_id > 0 && $pemilik_parent > 0 && $pemilik_parent !== $id_user) {
+    $food_query = $koneksi->prepare("
+        SELECT nama_kuliner
+        FROM kuliner
+        WHERE id_kuliner = ?
+        LIMIT 1
+    ");
+
+    if ($food_query) {
+        $food_query->bind_param("i", $id_kuliner);
+        $food_query->execute();
+        $food = $food_query->get_result()->fetch_assoc();
+        $food_query->close();
+
+        $nama_food = $food["nama_kuliner"] ?? "kuliner ini";
+        $pesan = "membalas komentar kamu di " . $nama_food . ".";
+
+        $notification = $koneksi->prepare("
+            INSERT INTO notifikasi
+            (
+                id_user,
+                id_pengirim,
+                id_kuliner,
+                id_komentar,
+                pesan
+            )
+            VALUES
+            (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )
+        ");
+
+        if ($notification) {
+            $notification->bind_param(
+                "iiiis",
+                $pemilik_parent,
+                $id_user,
+                $id_kuliner,
+                $id_komentar,
+                $pesan
+            );
+            $notification->execute();
+            $notification->close();
+        }
+    }
+}
 
 $get = $koneksi->prepare("
     SELECT
         k.id_komentar,
+        k.id_user,
+        k.id_kuliner,
+        k.parent_id,
         k.komentar,
         k.created_at,
         u.nama_lengkap,
-        u.username
+        u.username,
+        u.level,
+        u.foto_profil
     FROM komentar AS k
     INNER JOIN `user` AS u
         ON k.id_user = u.id_user
@@ -133,19 +180,19 @@ $get = $koneksi->prepare("
     LIMIT 1
 ");
 
-$get->bind_param(
-    "i",
-    $id_komentar
+$data = null;
+
+if ($get) {
+    $get->bind_param("i", $id_komentar);
+    $get->execute();
+    $data = $get->get_result()->fetch_assoc();
+    $get->close();
+}
+
+jsonResponse(
+    true,
+    "Komentar berhasil ditambahkan.",
+    [
+        "data" => $data
+    ]
 );
-
-$get->execute();
-
-$data = $get->get_result()->fetch_assoc();
-
-$get->close();
-
-echo json_encode([
-    "success" => true,
-    "message" => "Komentar berhasil ditambahkan.",
-    "data" => $data
-]);
