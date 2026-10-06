@@ -112,103 +112,232 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         sizes="48x48"
     >
 
-    <link rel="stylesheet" href="./assets/css/login.css?v=7">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    >
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    >
+    <link rel="stylesheet" href="./assets/css/login.css?v=8">
 
 </head>
 
-<body class="signup-body">
+<body class="login-body signup-body">
 
-<div class="form-container">
+<a class="login-skip-link" href="#signup-main">Lewati ke formulir pendaftaran</a>
 
-    <p class="title">
-        Create account
-    </p>
+<div class="login-page" id="signup-main">
 
-    <?php if ($pesan !== ""): ?>
+    <section class="login-visual">
 
-        <div class="alert-error">
-            <?= htmlspecialchars($pesan) ?>
+        <div>
+
+            <p class="eyebrow">
+                GoKaltara Kuliner
+            </p>
+
+            <h1>
+                Mulai jelajahi rasa khas
+                Kalimantan Utara.
+            </h1>
+
+            <p class="mb-0 text-white-50">
+                Buat akun untuk menikmati pengalaman
+                menjelajahi katalog kuliner GoKaltara.
+            </p>
+
         </div>
 
-    <?php endif; ?>
+    </section>
 
-    <?php if ($berhasil !== ""): ?>
+    <section class="login-panel">
 
-        <div class="alert-success">
-            <?= htmlspecialchars($berhasil) ?>
+        <div class="login-box">
+
+            <div class="login-brand">
+
+                <span class="brand-logo">
+
+                    <img
+                        src="assets/images/logo.svg"
+                        alt="GoKaltara"
+                    >
+
+                </span>
+
+                <span>
+
+                    <strong>
+                        GoKaltara
+                    </strong>
+
+                    <small>
+                        Kuliner
+                    </small>
+
+                </span>
+
+            </div>
+
+            <p class="section-kicker mb-2">
+                Daftar
+            </p>
+
+            <h2>
+                Buat akun
+            </h2>
+
+            <p class="login-copy mb-4">
+                Isi data berikut untuk membuat akun GoKaltara Kuliner.
+            </p>
+
+            <?php if ($pesan !== ""): ?>
+
+                <div class="alert-soft mb-3" role="alert" aria-live="polite">
+                    <?= htmlspecialchars($pesan) ?>
+                </div>
+
+            <?php endif; ?>
+
+            <?php if ($berhasil !== ""): ?>
+
+                <div
+                    class="alert-soft signup-success mb-3"
+                    role="alert"
+                    aria-live="polite"
+                >
+                    <?= htmlspecialchars($berhasil) ?>
+                </div>
+
+            <?php endif; ?>
+
+            <form
+                method="POST"
+                action=""
+                autocomplete="on"
+            >
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label fw-semibold"
+                        for="nama_lengkap"
+                    >
+                        Nama Lengkap
+                    </label>
+
+                    <input
+                        class="form-control"
+                        type="text"
+                        id="nama_lengkap"
+                        name="nama_lengkap"
+                        placeholder="Nama lengkap"
+                        autocomplete="name"
+                        required
+                    >
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label fw-semibold"
+                        for="username"
+                    >
+                        Username
+                    </label>
+
+                    <input
+                        class="form-control"
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Username"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label fw-semibold"
+                        for="password"
+                    >
+                        Password
+                    </label>
+
+                    <input
+                        class="form-control"
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Password"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label fw-semibold"
+                        for="konfirmasi_password"
+                    >
+                        Konfirmasi Password
+                    </label>
+
+                    <input
+                        class="form-control"
+                        type="password"
+                        id="konfirmasi_password"
+                        name="konfirmasi_password"
+                        placeholder="Konfirmasi password"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+                <button
+                    class="btn btn-brand w-100"
+                    type="submit"
+                >
+                    Daftar
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+
+            </form>
+
+            <div class="mt-4 pt-3 border-top small text-muted text-center">
+
+                Sudah punya akun?
+
+                <a href="./login.php">
+                    Login
+                </a>
+
+            </div>
+
+            <div class="mt-3 text-center small">
+
+                <a href="./index.php">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Kembali ke halaman utama
+                </a>
+
+            </div>
+
         </div>
 
-    <?php endif; ?>
-
-    <form
-        class="form"
-        method="POST"
-        action=""
-    >
-
-        <input
-            type="text"
-            name="nama_lengkap"
-            class="input"
-            placeholder="Nama lengkap"
-            required
-        >
-
-        <input
-            type="text"
-            name="username"
-            class="input"
-            placeholder="Username"
-            required
-        >
-
-        <input
-            type="password"
-            name="password"
-            class="input"
-            placeholder="Password"
-            required
-        >
-
-        <input
-            type="password"
-            name="konfirmasi_password"
-            class="input"
-            placeholder="Konfirmasi password"
-            required
-        >
-
-        <button
-            type="submit"
-            class="form-btn"
-        >
-            Sign Up
-        </button>
-
-    </form>
-
-    <p class="sign-up-label">
-
-        Sudah punya akun?
-
-        <a
-            href="./login.php"
-            class="sign-up-link"
-        >
-            Login
-        </a>
-
-    </p>
-
-    <a
-        href="./index.php"
-        class="back-login"
-    >
-        Kembali ke halaman utama
-    </a>
+    </section>
 
 </div>
-
 </body>
 
 </html>

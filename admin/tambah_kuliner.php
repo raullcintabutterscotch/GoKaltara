@@ -209,7 +209,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <link rel="stylesheet" href="../assets/css/kuliner.css?v=4">
 
-    </head>
+        <link rel="stylesheet" href="../assets/css/lenis.css?v=1">
+
+</head>
 
 <body>
 
@@ -810,5 +812,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <script src="../assets/js/dashboard.js?v=4" defer></script>
 
 <script src="../assets/js/kuliner.js?v=4" defer></script>
+    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
+    <script src="../assets/js/lenis.js?v=1" defer></script>
+
 </body>
 </html>

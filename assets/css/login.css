@@ -709,6 +709,12 @@ body.signup-body .form-container {
     line-height: 1.5;
 }
 
+.signup-success {
+    border-color: #a7d8c2;
+    background: #edf9f3;
+    color: #176b47;
+}
+
 .login-box .text-muted {
     color: #65716c !important;
     font-size: 9px;

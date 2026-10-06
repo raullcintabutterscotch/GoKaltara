@@ -179,7 +179,9 @@ if ($foto_lama !== "") {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css?v=4">
     <link rel="stylesheet" href="../assets/css/kuliner.css">
-    </head>
+        <link rel="stylesheet" href="../assets/css/lenis.css?v=1">
+
+</head>
 <body>
     <div>
         <aside class="sidebar">
@@ -352,5 +354,8 @@ if ($foto_lama !== "") {
 
     <script src="../assets/js/dashboard.js" defer></script>
     <script src="../assets/js/kuliner.js" defer></script>
+    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
+    <script src="../assets/js/lenis.js?v=1" defer></script>
+
 </body>
 </html>

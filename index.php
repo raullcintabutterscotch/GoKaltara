@@ -273,6 +273,8 @@ $query_kategori = $koneksi->query("
 
     <?php endif; ?>
 
+    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
+
 </head>
 
 <body>
@@ -455,7 +457,7 @@ $query_kategori = $koneksi->query("
         <div class="hero-slide hero-slide-1">
 
             <img
-                src="assets/images/carousel/Kepiting-Soka.png"
+                src="assets/images/carousel/Kepiting-Soka.webp"
                 alt="Kepiting Soka"
                 class="hero-slide-image"
                 width="1600"
@@ -842,5 +844,8 @@ $query_kategori = $koneksi->query("
 <script src="assets/js/notifikasi.js?v=60" defer></script>
 
 <?php endif; ?>
+    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
+    <script src="assets/js/lenis.js?v=1" defer></script>
+
 </body>
 </html>

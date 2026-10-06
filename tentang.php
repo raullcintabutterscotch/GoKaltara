@@ -65,6 +65,8 @@ $nama_tampilan = htmlspecialchars(
     <noscript>
         </noscript>
 
+    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
+
 </head>
 
 <body>
@@ -509,5 +511,8 @@ $nama_tampilan = htmlspecialchars(
     <script
         src="assets/js/notifikasi.js?v=60"
      defer></script>
+    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
+    <script src="assets/js/lenis.js?v=1" defer></script>
+
 </body>
 </html>
