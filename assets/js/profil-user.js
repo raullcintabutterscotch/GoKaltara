@@ -445,26 +445,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 liveUsername.textContent =
                     "@" + data.username;
 
-                if (data.foto_profil) {
+                if (data.foto_profil_url) {
+                    const imageUrl = new URL(
+                        data.foto_profil_url,
+                        window.location.href
+                    );
+                    imageUrl.searchParams.set("v", Date.now().toString());
 
-                    const imageUrl =
-                        "assets/images/profil/" +
-                        encodeURIComponent(
-                            data.foto_profil
-                        ) +
-                        "?v=" +
-                        Date.now();
+                    const previewContainer = document.getElementById("mainPreview");
+                    let preview = document.querySelector("#mainPreview img");
 
-                    const preview =
-                        document.querySelector(
-                            "#mainPreview img"
-                        );
+                    if (previewContainer && !preview) {
+                        preview = document.createElement("img");
+                        preview.id = "previewFoto";
+                        preview.alt = "Foto Profil";
+                        preview.width = 220;
+                        preview.height = 220;
+                        previewContainer.replaceChildren(preview);
+                    }
 
                     if (preview) {
-                        preview.src =
-                            imageUrl;
+                        preview.src = imageUrl.toString();
                     }
                 }
+
+                window.GokaltaraProfileLive?.apply(data);
+                window.GokaltaraProfileLive?.publish(data);
 
                 croppedBlob = null;
 

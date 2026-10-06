@@ -14,7 +14,18 @@ function gokaltara_image_stem(string $filename): string
 
 function gokaltara_app_base_path(): string
 {
-    $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $request_path = parse_url(
+        (string) ($_SERVER['REQUEST_URI'] ?? ''),
+        PHP_URL_PATH
+    );
+
+    $script = str_replace(
+        '\\',
+        '/',
+        is_string($request_path) && $request_path !== ''
+            ? $request_path
+            : (string) ($_SERVER['SCRIPT_NAME'] ?? '')
+    );
     $script = '/' . trim($script, '/');
 
     if ($script === '/') {
@@ -355,19 +366,27 @@ function gokaltara_profile_image_url(
     $filename = basename($filename);
     $base_path = rtrim(gokaltara_app_base_path(), '/');
     $assets_path = $base_path . '/assets/images/profil';
+    $profile_dir = __DIR__ . '/../assets/images/profil';
     $stem = gokaltara_image_stem($filename);
+    $optimized_filename = $stem . '.webp';
+    $thumbnail_filename = 'thumbs/' . $optimized_filename;
 
-    if ($thumbnail) {
-        return $assets_path . '/thumbs/' . rawurlencode($stem) . '.webp';
+    if (
+        $thumbnail &&
+        is_file($profile_dir . '/' . $thumbnail_filename)
+    ) {
+        return $assets_path . '/' . rawurlencode('thumbs') . '/' . rawurlencode($optimized_filename);
     }
 
-    $extension = gokaltara_image_extension($filename);
-
-    if ($extension !== 'webp') {
-        return $assets_path . '/' . rawurlencode($stem) . '.webp';
+    if (is_file($profile_dir . '/' . $optimized_filename)) {
+        return $assets_path . '/' . rawurlencode($optimized_filename);
     }
 
-    return $assets_path . '/' . rawurlencode($filename);
+    if (is_file($profile_dir . '/' . $filename)) {
+        return $assets_path . '/' . rawurlencode($filename);
+    }
+
+    return $base_path . '/assets/images/no-image.jpg';
 }
 
 function gokaltara_create_resized_webp(

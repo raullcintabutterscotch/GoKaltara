@@ -145,16 +145,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function updateProfileImages(url) {
-        const cacheUrl =
-            url +
-            (
-                url.includes("?")
-                    ? "&"
-                    : "?"
-            ) +
-            "v=" +
-            Date.now();
+    function withFreshProfileUrl(url) {
+        if (!url) {
+            return "";
+        }
+
+        const freshUrl = new URL(url, window.location.href);
+        freshUrl.searchParams.set("v", Date.now().toString());
+
+        return freshUrl.toString();
+    }
+
+    function updateProfileImages(url, thumbnailUrl = "") {
+        const cacheUrl = withFreshProfileUrl(url);
+        const sidebarCacheUrl = withFreshProfileUrl(thumbnailUrl || url);
 
         createPreviewImage(cacheUrl);
 
@@ -171,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "is-avatar-loading",
                 false
             );
-            currentSidebarImage.src = cacheUrl;
+            currentSidebarImage.src = sidebarCacheUrl;
         } else {
             const image = document.createElement("img");
 
@@ -190,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     wrapper,
                     "is-avatar-loading"
                 );
-                image.src = cacheUrl;
+                image.src = sidebarCacheUrl;
             }
         }
 
@@ -638,9 +642,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (data.foto_profil_url) {
                     updateProfileImages(
-                        data.foto_profil_url
+                        data.foto_profil_url,
+                        data.foto_profil_thumbnail_url || ""
                     );
                 }
+
+                window.GokaltaraProfileLive?.apply(data);
+                window.GokaltaraProfileLive?.publish(data);
 
                 croppedBlob = null;
 

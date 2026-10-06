@@ -205,7 +205,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-    <link rel="stylesheet" href="../assets/css/dashboard.css?v=4">
+    <link rel="stylesheet" href="../assets/css/dashboard.css?v=5">
 
     <link rel="stylesheet" href="../assets/css/kuliner.css?v=4">
 
@@ -809,6 +809,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </a>
 </nav>
 
+<script src="../assets/js/profile-live.js?v=1" defer></script>
 <script src="../assets/js/dashboard.js?v=4" defer></script>
 
 <script src="../assets/js/kuliner.js?v=4" defer></script>

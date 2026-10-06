@@ -136,6 +136,7 @@ a {
 .admin-profile {
     width: 100%;
     height: 68px;
+    position: relative;
     padding: 13px 7px;
     display: flex;
     align-items: center;
@@ -169,6 +170,50 @@ a {
 .avatar-image {
     object-fit: cover;
     background: #dfece6;
+}
+
+.admin-profile.is-avatar-loading::before,
+.mobile-header-profile.is-avatar-loading::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    background:
+        linear-gradient(
+            100deg,
+            #e4ebe8 20%,
+            #f7faf8 38%,
+            #e4ebe8 56%
+        );
+    background-size: 220% 100%;
+    animation: admin-avatar-shimmer 1.25s ease-in-out infinite;
+}
+
+.admin-profile.is-avatar-loading::before {
+    top: 13px;
+    left: 7px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+}
+
+.mobile-header-profile.is-avatar-loading::before {
+    inset: 0;
+    border-radius: 50%;
+}
+
+@keyframes admin-avatar-shimmer {
+    to {
+        background-position: -220% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-profile.is-avatar-loading::before,
+    .mobile-header-profile.is-avatar-loading::before {
+        animation: none;
+        background-position: 50% 0;
+    }
 }
 
 .admin-name {
@@ -658,6 +703,7 @@ a {
     .mobile-header-profile {
         width: 36px;
         height: 36px;
+        position: relative;
         flex-shrink: 0;
         overflow: hidden;
         display: flex;

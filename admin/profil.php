@@ -257,6 +257,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ) . "v=" . time();
     }
 
+    $foto_thumbnail_url = "";
+
+    if ($foto_baru !== "") {
+        $foto_thumbnail_url = gokaltara_profile_image_url(
+            $foto_baru,
+            true
+        );
+
+        $foto_thumbnail_url .= (
+            str_contains($foto_thumbnail_url, "?") ? "&" : "?"
+        ) . "v=" . time();
+    }
+
     profile_json([
         "success" => true,
         "message" => "Profil berhasil diperbarui.",
@@ -264,7 +277,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "username" => $username,
         "level" => $level,
         "foto_profil" => $foto_baru,
-        "foto_profil_url" => $foto_url
+        "foto_profil_url" => $foto_url,
+        "foto_profil_thumbnail_url" => $foto_thumbnail_url
     ]);
 }
 
@@ -639,6 +653,7 @@ $initial_admin = strtoupper(
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
+<script src="<?= htmlspecialchars($assets_base_url . "/js/profile-live.js?v=1", ENT_QUOTES, "UTF-8") ?>" defer></script>
 <script src="<?= htmlspecialchars($assets_base_url . "/js/profil.js?v=" . $profile_js_version, ENT_QUOTES, "UTF-8") ?>" defer></script>
 </body>
 </html>

@@ -115,7 +115,7 @@ unset($_SESSION["kategori_message"], $_SESSION["kategori_message_type"]);
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../assets/css/dashboard.css?v=4">
+    <link rel="stylesheet" href="../assets/css/dashboard.css?v=5">
     <link rel="stylesheet" href="../assets/css/kategori.css">
         <link rel="stylesheet" href="../assets/css/lenis.css?v=1">
 
@@ -329,6 +329,7 @@ unset($_SESSION["kategori_message"], $_SESSION["kategori_message_type"]);
         </a>
 </nav>
 
+    <script src="../assets/js/profile-live.js?v=1" defer></script>
     <script src="../assets/js/dashboard.js" defer></script>
     <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
     <script src="../assets/js/lenis.js?v=1" defer></script>

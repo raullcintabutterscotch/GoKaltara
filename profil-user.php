@@ -45,6 +45,7 @@ $_SESSION['id_user'] = $user['id_user'];
 $_SESSION['username'] = $user['username'];
 $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
 $_SESSION['level'] = $user['level'];
+$_SESSION['foto_profil'] = (string) ($user['foto_profil'] ?? '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -119,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (
         isset($_FILES['foto_profil']) &&
-        $_FILES['foto_profil']['error'] !== UPLOAD_ERR_NO_FILE
+        ($_FILES['foto_profil']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
     ) {
         $processed = gokaltara_process_upload(
             $_FILES['foto_profil'],
@@ -198,12 +199,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['level'] = $user['level'];
     $_SESSION['foto_profil'] = $foto_baru;
 
+    $foto_url = $foto_baru !== ''
+        ? gokaltara_profile_image_url($foto_baru, false)
+        : '';
+    $foto_thumbnail_url = $foto_baru !== ''
+        ? gokaltara_profile_image_url($foto_baru, true)
+        : '';
+
+    if ($foto_url !== '') {
+        $foto_url .= (str_contains($foto_url, '?') ? '&' : '?') . 'v=' . time();
+    }
+
+    if ($foto_thumbnail_url !== '') {
+        $foto_thumbnail_url .= (
+            str_contains($foto_thumbnail_url, '?') ? '&' : '?'
+        ) . 'v=' . time();
+    }
+
     echo json_encode([
         'success' => true,
         'message' => 'Profil berhasil diperbarui.',
         'nama_lengkap' => $nama_lengkap,
         'username' => $username,
-        'foto_profil' => $foto_baru
+        'foto_profil' => $foto_baru,
+        'foto_profil_url' => $foto_url,
+        'foto_profil_thumbnail_url' => $foto_thumbnail_url
     ]);
 
     exit;
@@ -835,7 +855,8 @@ if (!empty($user['foto_profil'])) {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 
-<script src="assets/js/profil-user.js?v=5" defer></script>
+<script src="assets/js/profile-live.js?v=1" defer></script>
+<script src="assets/js/profil-user.js?v=6" defer></script>
 <?php if ($is_login): ?>
     <script src="assets/js/notifikasi.js?v=60" defer></script>
 <?php endif; ?>
