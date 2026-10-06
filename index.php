@@ -1,5 +1,6 @@
 <?php
-require_once "api/_auth.php";
+session_start();
+require_once "config/koneksi.php";
 require_once "config/image_optimizer.php";
 
 $is_login = isset($_SESSION['login']) &&
@@ -215,6 +216,13 @@ $query_kategori = $koneksi->query("
 
 <head>
 
+<style id="gokaltara-performance-inline">
+img.perf-image{background-color:#eef3f0;background-image:linear-gradient(90deg,#eef3f0 0%,#f8faf9 50%,#eef3f0 100%);background-size:220% 100%;background-repeat:no-repeat}
+img.perf-image.is-loaded{background-image:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(max-width:991.98px){html{scroll-behavior:auto}}
+</style>
+
     <meta charset="UTF-8">
 
     <meta
@@ -250,27 +258,19 @@ $query_kategori = $koneksi->query("
         sizes="48x48"
     >
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-    >
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="assets/css/index.css?v=11"
-    >
+    <link rel="preload" as="style" href="assets/css/index.css?v=11" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/index.css?v=11"></noscript>
 
 <?php if ($is_login): ?>
 
-    <link
-        rel="stylesheet"
-        href="assets/css/notifikasi.css?v=61"
-    >
+    <link rel="preload" as="style" href="assets/css/notifikasi.css?v=60" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/notifikasi.css?v=60"></noscript>
 
 <?php endif; ?>
 
@@ -292,7 +292,7 @@ $query_kategori = $koneksi->query("
             <span class="brand-logo">
                 <img
                     src="assets/images/logo.svg"
-                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
+                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async" width="58" height="58">
             </span>
 
             <span>
@@ -496,7 +496,7 @@ $query_kategori = $koneksi->query("
 
                     <div
                         class="hero-slide hero-slide-2"
-                        style="background-image: url('assets/images/carousel/nasi-subut.webp');"
+                        data-bg="assets/images/carousel/nasi-subut.webp"
                     >
 
                         <div class="hero-overlay"></div>
@@ -536,7 +536,7 @@ $query_kategori = $koneksi->query("
 
                     <div
                         class="hero-slide hero-slide-3"
-                        style="background-image: url('assets/images/carousel/kue-lapis.webp');"
+                        data-bg="assets/images/carousel/kue-lapis.webp"
                     >
 
                         <div class="hero-overlay"></div>
@@ -754,7 +754,7 @@ $query_kategori = $koneksi->query("
     </div>
 </footer>
 
-<nav class="mobile-public-nav">
+<nav class="mobile-public-nav<?= $is_login ? " logged-in" : "" ?>">
 
     <a
         href="index.php"
@@ -824,15 +824,28 @@ $query_kategori = $koneksi->query("
 
     <?php endif; ?>
 
+
+    <?php if ($is_login): ?>
+
+        <a
+            href="logout.php"
+            class="mobile-public-link mobile-public-logout"
+            aria-label="Logout"
+        >
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+
+    <?php endif; ?>
 </nav>
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-></script>
+ defer></script>
 
 <script
     src="assets/js/index.js?v=10"
-></script>
+ defer></script>
 
 <?php if ($is_login): ?>
 

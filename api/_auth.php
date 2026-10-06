@@ -722,9 +722,9 @@ function validKuliner(
     $stmt =
         $koneksi->prepare(
             "SELECT id_kuliner
-             FROM kuliner
-             WHERE id_kuliner = ?
-             LIMIT 1"
+            FROM kuliner
+            WHERE id_kuliner = ?
+            LIMIT 1"
         );
 
     if (!$stmt) {

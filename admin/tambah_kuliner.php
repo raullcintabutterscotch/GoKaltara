@@ -178,6 +178,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <head>
 
+<style id="gokaltara-performance-inline">
+img.perf-image{background-color:#eef3f0;background-image:linear-gradient(90deg,#eef3f0 0%,#f8faf9 50%,#eef3f0 100%);background-size:220% 100%;background-repeat:no-repeat}
+img.perf-image.is-loaded{background-image:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(max-width:991.98px){html{scroll-behavior:auto}}
+</style>
+
     <meta charset="UTF-8">
 
     <meta
@@ -200,25 +207,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     >
 
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/dashboard.css?v=4">
+    <link rel="preload" as="style" href="../assets/css/dashboard.css?v=4" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="../assets/css/dashboard.css?v=4"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/kuliner.css?v=4">
+    <link rel="preload" as="style" href="../assets/css/kuliner.css?v=4" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="../assets/css/kuliner.css?v=4"></noscript>
 
-    <link rel="stylesheet" href="../assets/css/performance.css?v=2">
-
-</head>
+    </head>
 
 <body>
 
@@ -234,7 +235,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <img
                         src="../assets/images/logo.svg"
-                        alt="Logo Kuliner Kaltara" loading="eager" decoding="async">
+                        alt="Logo Kuliner Kaltara" loading="eager" decoding="async" width="58" height="58">
 
                     <div>
                         GoKaltara<br>
@@ -815,11 +816,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     </a>
 
+
+
+        <a
+            href="../logout.php"
+            class="mobile-nav-link mobile-nav-logout"
+            aria-label="Logout"
+        >
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
 </nav>
 
-<script src="../assets/js/dashboard.js?v=4"></script>
+<script src="../assets/js/dashboard.js?v=4" defer></script>
 
-<script src="../assets/js/kuliner.js?v=4"></script>
+<script src="../assets/js/kuliner.js?v=4" defer></script>
 
     <script src="../assets/js/performance.js?v=1" defer></script>
 

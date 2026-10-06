@@ -1,36 +1,11 @@
 <?php
+declare(strict_types=1);
+
 require_once "api/_auth.php";
 require_once "config/image_optimizer.php";
 
-$id_user = (int) ($_SESSION['id_user'] ?? 0);
-$username_session = trim($_SESSION['username'] ?? '');
-
-if ($id_user <= 0 && $username_session !== '') {
-    $stmt_session = $koneksi->prepare("
-        SELECT id_user
-        FROM user
-        WHERE username = ?
-        LIMIT 1
-    ");
-
-    $stmt_session->bind_param("s", $username_session);
-    $stmt_session->execute();
-
-    $result_session = $stmt_session->get_result();
-    $data_session = $result_session->fetch_assoc();
-
-    if ($data_session) {
-        $id_user = (int) $data_session['id_user'];
-        $_SESSION['id_user'] = $id_user;
-    }
-
-    $stmt_session->close();
-}
-
-if ($id_user <= 0) {
-    header("Location: login.php");
-    exit;
-}
+$id_user = requirePageLogin($koneksi);
+$is_login = true;
 
 $stmt_user = $koneksi->prepare("
     SELECT
@@ -221,6 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['username'] = $username;
     $_SESSION['nama_lengkap'] = $nama_lengkap;
     $_SESSION['level'] = $user['level'];
+    $_SESSION['foto_profil'] = $foto_baru;
 
     echo json_encode([
         'success' => true,
@@ -260,6 +236,13 @@ if (!empty($user['foto_profil'])) {
 
 <head>
 
+<style id="gokaltara-performance-inline">
+img.perf-image{background-color:#eef3f0;background-image:linear-gradient(90deg,#eef3f0 0%,#f8faf9 50%,#eef3f0 100%);background-size:220% 100%;background-repeat:no-repeat}
+img.perf-image.is-loaded{background-image:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(max-width:991.98px){html{scroll-behavior:auto}}
+</style>
+
     <meta charset="UTF-8">
 
     <meta
@@ -286,32 +269,22 @@ if (!empty($user['foto_profil'])) {
     >
 
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></noscript>
 
-    <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"></noscript>
 
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"
-        rel="stylesheet">
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="assets/css/profil-user.css?v=5">
+    <link rel="preload" as="style" href="assets/css/profil-user.css?v=5" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/profil-user.css?v=5"></noscript>
 
-    <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
-    <link
-        rel="preload"
-        href="assets/css/performance.css?v=2"
-        as="style"
-        onload="this.onload=null;this.rel='stylesheet'"
-    >
+    <link rel="preload" as="style" href="assets/css/notifikasi.css?v=60" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/notifikasi.css?v=60"></noscript>
     <noscript>
-        <link rel="stylesheet" href="assets/css/performance.css?v=2">
-    </noscript>
+        </noscript>
 
 </head>
 
@@ -327,7 +300,7 @@ if (!empty($user['foto_profil'])) {
 
             <img
                 src="assets/images/logo.svg"
-                alt="GoKaltara Kuliner" loading="eager" decoding="async">
+                alt="GoKaltara Kuliner" loading="eager" decoding="async" width="58" height="58">
 
             <div>
                 GoKaltara
@@ -859,17 +832,26 @@ if (!empty($user['foto_profil'])) {
 
     </a>
 
+
+    <a
+        href="logout.php"
+        class="mobile-nav-link mobile-nav-logout"
+        aria-label="Logout"
+    >
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Logout</span>
+    </a>
+
 </nav>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 
-<script src="assets/js/profil-user.js?v=5"></script>
-
-    <script
-        src="assets/js/notifikasi.js?v=60"
-    ></script>
+<script src="assets/js/profil-user.js?v=5" defer></script>
+<?php if ($is_login): ?>
+    <script src="assets/js/notifikasi.js?v=60" defer></script>
+<?php endif; ?>
 
     <script src="assets/js/performance.js?v=1" defer></script>
 

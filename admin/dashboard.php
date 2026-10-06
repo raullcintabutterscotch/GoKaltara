@@ -182,6 +182,13 @@ $initial_admin =
 
 <head>
 
+<style id="gokaltara-performance-inline">
+img.perf-image{background-color:#eef3f0;background-image:linear-gradient(90deg,#eef3f0 0%,#f8faf9 50%,#eef3f0 100%);background-size:220% 100%;background-repeat:no-repeat}
+img.perf-image.is-loaded{background-image:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(max-width:991.98px){html{scroll-behavior:auto}}
+</style>
+
     <meta charset="UTF-8">
 
     <meta
@@ -208,26 +215,18 @@ $initial_admin =
     >
 
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></noscript>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-        rel="stylesheet"
-    >
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="../assets/css/dashboard.css"
-    >
+    <link rel="preload" as="style" href="../assets/css/dashboard.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="../assets/css/dashboard.css"></noscript>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
-    <link rel="stylesheet" href="../assets/css/performance.css?v=2">
-
-</head>
+    </head>
 
 <body>
 
@@ -243,7 +242,7 @@ $initial_admin =
 
                         <img
                             src="../assets/images/logo.svg"
-                            alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
+                            alt="Logo GoKaltara Kuliner" loading="eager" decoding="async" width="58" height="58">
 
                         <div>
                             GoKaltara
@@ -398,7 +397,7 @@ $initial_admin =
 
                             <img
                                 src="../assets/images/logo.svg"
-                                alt="GoKaltara Kuliner" loading="eager" decoding="async">
+                                alt="GoKaltara Kuliner" loading="eager" decoding="async" width="58" height="58">
 
                         </div>
 
@@ -996,9 +995,21 @@ $initial_admin =
 
         </a>
 
-    </nav>
+    
+
+        <a
+            href="../logout.php"
+            class="mobile-nav-link mobile-nav-logout"
+            aria-label="Logout"
+        >
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+</nav>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
 
         const regionLabels =
             <?= json_encode(
@@ -1179,9 +1190,11 @@ $initial_admin =
 
         }
 
-    </script>
+    
+        });
+</script>
 
-    <script src="../assets/js/dashboard.js"></script>
+    <script src="../assets/js/dashboard.js" defer></script>
 
     <script src="../assets/js/performance.js?v=1" defer></script>
 

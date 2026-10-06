@@ -784,7 +784,7 @@ select {
         height: 75px;
         padding: 7px 8px;
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         align-items: center;
         background: rgba(255, 255, 255, 0.98);
         border-top: 1px solid var(--border);
@@ -978,4 +978,14 @@ select {
         width: 45px;
         height: 45px;
     }
+}
+
+.mobile-nav-logout {
+    color: #b42318 !important;
+}
+
+.mobile-nav-logout:hover,
+.mobile-nav-logout:focus-visible {
+    color: #8d2119 !important;
+    background: #fff2f0;
 }

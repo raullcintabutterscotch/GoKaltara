@@ -1234,19 +1234,19 @@ img {
         font-size: 16px;
     }
 }
-
-.public-navbar .notification-nav,
-.public-navbar .notification-nav:link,
-.public-navbar .notification-nav:visited,
-.public-navbar .notification-nav i,
-.public-navbar .notification-nav:link i,
-.public-navbar .notification-nav:visited i {
-    color: #1d6250 !important;
-}
-
-.public-navbar .notification-nav:hover,
-.public-navbar .notification-nav:hover i,
-.public-navbar .notification-nav:focus-visible,
-.public-navbar .notification-nav:focus-visible i {
-    color: #123d32 !important;
+@media (max-width: 991.98px) {
+    .mobile-public-nav.logged-in {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .mobile-public-link {
+        min-width: 0;
+    }
+    .mobile-public-logout {
+        color: #b42318 !important;
+    }
+    .mobile-public-logout:hover,
+    .mobile-public-logout:focus-visible {
+        color: #8d2119 !important;
+        background: #fff2f0;
+    }
 }

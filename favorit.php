@@ -1,6 +1,7 @@
 <?php
 
-require_once "api/_auth.php";
+session_start();
+require_once "config/koneksi.php";
 require_once "config/image_optimizer.php";
 
 $is_login = isset($_SESSION["login"]) &&
@@ -269,6 +270,13 @@ $total_favorit =
 
 <head>
 
+<style id="gokaltara-performance-inline">
+img.perf-image{background-color:#eef3f0;background-image:linear-gradient(90deg,#eef3f0 0%,#f8faf9 50%,#eef3f0 100%);background-size:220% 100%;background-repeat:no-repeat}
+img.perf-image.is-loaded{background-image:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(max-width:991.98px){html{scroll-behavior:auto}}
+</style>
+
     <meta charset="UTF-8">
 
     <meta
@@ -297,32 +305,20 @@ $total_favorit =
     >
 
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-    >
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="assets/css/favorit.css?v=10"
-    >
+    <link rel="preload" as="style" href="assets/css/favorit.css?v=10" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/favorit.css?v=10"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="assets/css/notifikasi.css?v=61"
-    >
+    <link rel="preload" as="style" href="assets/css/notifikasi.css?v=60" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/notifikasi.css?v=60"></noscript>
     
-    <link rel="stylesheet" href="assets/css/footer.css">
+    <link rel="preload" as="style" href="assets/css/footer.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/footer.css"></noscript>
     
-    <link
-        rel="preload"
-        href="assets/css/performance.css?v=2"
-        as="style"
-        onload="this.onload=null;this.rel='stylesheet'"
-    >
     <noscript>
-        <link rel="stylesheet" href="assets/css/performance.css?v=2">
-    </noscript>
+        </noscript>
 
 </head>
 
@@ -341,7 +337,7 @@ $total_favorit =
 
                 <img
                     src="assets/images/logo.svg"
-                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
+                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async" width="58" height="58">
 
             </span>
 
@@ -794,7 +790,7 @@ $total_favorit =
     </div>
 </footer>
 
-<nav class="mobile-public-nav">
+<nav class="mobile-public-nav<?= $is_login ? " logged-in" : "" ?>">
 
     <a
         href="index.php"
@@ -871,15 +867,27 @@ $total_favorit =
 
     </a>
 
+
+    <?php if ($is_login): ?>
+
+        <a
+            href="logout.php"
+            class="mobile-public-link mobile-public-logout"
+            aria-label="Logout"
+        >
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+
+    <?php endif; ?>
 </nav>
 
 <script
     src="assets/js/favorit.js?v=10"
-></script>
-
-    <script
-        src="assets/js/notifikasi.js?v=60"
-    ></script>
+ defer></script>
+<?php if ($is_login): ?>
+    <script src="assets/js/notifikasi.js?v=60" defer></script>
+<?php endif; ?>
 
     <script src="assets/js/performance.js?v=1" defer></script>
 

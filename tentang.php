@@ -1,5 +1,6 @@
 <?php
-require_once "api/_auth.php";
+session_start();
+require_once "config/koneksi.php";
 
 $is_login = isset($_SESSION['login']) &&
     (
@@ -22,6 +23,13 @@ $nama_tampilan = htmlspecialchars(
 <html lang="id">
 
 <head>
+
+<style id="gokaltara-performance-inline">
+img.perf-image{background-color:#eef3f0;background-image:linear-gradient(90deg,#eef3f0 0%,#f8faf9 50%,#eef3f0 100%);background-size:220% 100%;background-repeat:no-repeat}
+img.perf-image.is-loaded{background-image:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(max-width:991.98px){html{scroll-behavior:auto}}
+</style>
 
     <meta charset="UTF-8">
 
@@ -50,43 +58,25 @@ $nama_tampilan = htmlspecialchars(
     >
 
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-    >
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="assets/css/tentang.css"
-    >
+    <link rel="preload" as="style" href="assets/css/tentang.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/tentang.css"></noscript>
 
-    <link
-        rel="stylesheet"
-        href="assets/css/notifikasi.css?v=61"
-    >
-    <link
-        rel="preload"
-        href="assets/css/footer.css?v=2"
-        as="style"
-        onload="this.onload=null;this.rel='stylesheet'"
-    >
+    <link rel="preload" as="style" href="assets/css/notifikasi.css?v=60" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/notifikasi.css?v=60"></noscript>
+    <link rel="preload" as="style" href="assets/css/footer.css?v=2" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/footer.css?v=2"></noscript>
     <noscript>
-        <link rel="stylesheet" href="assets/css/footer.css?v=2">
+        <link rel="preload" as="style" href="assets/css/footer.css?v=2" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="assets/css/footer.css?v=2"></noscript>
     </noscript>
-    <link
-        rel="preload"
-        href="assets/css/performance.css?v=2"
-        as="style"
-        onload="this.onload=null;this.rel='stylesheet'"
-    >
     <noscript>
-        <link rel="stylesheet" href="assets/css/performance.css?v=2">
-    </noscript>
+        </noscript>
 
 </head>
 
@@ -105,7 +95,7 @@ $nama_tampilan = htmlspecialchars(
 
                 <img
                     src="assets/images/logo.svg"
-                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
+                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async" width="58" height="58">
 
             </span>
 
@@ -458,7 +448,7 @@ $nama_tampilan = htmlspecialchars(
     </div>
 </footer>
 
-<nav class="mobile-public-nav">
+<nav class="mobile-public-nav<?= $is_login ? " logged-in" : "" ?>">
 
     <a
         href="index.php"
@@ -528,11 +518,24 @@ $nama_tampilan = htmlspecialchars(
 
     <?php endif; ?>
 
+
+    <?php if ($is_login): ?>
+
+        <a
+            href="logout.php"
+            class="mobile-public-link mobile-public-logout"
+            aria-label="Logout"
+        >
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+
+    <?php endif; ?>
 </nav>
 
     <script
         src="assets/js/notifikasi.js?v=60"
-    ></script>
+     defer></script>
 
     <script src="assets/js/performance.js?v=1" defer></script>
 
