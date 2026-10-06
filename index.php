@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once "config/koneksi.php";
+require_once "config/image_optimizer.php";
 
 $is_login = isset($_SESSION['login']) &&
     (
@@ -27,16 +28,13 @@ function e($value)
     );
 }
 
-function fotoKuliner($foto)
+function fotoKuliner($foto, $thumbnail = false)
 {
-    if (
-        !empty($foto) &&
-        file_exists("assets/images/" . $foto)
-    ) {
-        return "assets/images/" . $foto;
-    }
-
-    return "assets/images/no-image.jpg";
+    return gokaltara_image_url(
+        (string) ($foto ?? ""),
+        "assets/images/",
+        (bool) $thumbnail
+    );
 }
 
 function renderFoodCards($koneksi, $kategori_id = 0)
@@ -111,7 +109,8 @@ function renderFoodCards($koneksi, $kategori_id = 0)
 
     while ($data = $result->fetch_assoc()) {
         $foto = fotoKuliner(
-            $data['foto']
+            $data['foto'],
+            true
         );
 
         $deskripsi = strip_tags(
@@ -138,7 +137,7 @@ function renderFoodCards($koneksi, $kategori_id = 0)
                             src="' . e($foto) . '"
                             alt="' . e($data['nama_kuliner']) . '"
                             loading="lazy"
-                        >
+                            decoding="async">
 
                         <span class="food-category">
                             ' . e($data['nama_kategori'] ?: 'Kuliner') . '
@@ -261,6 +260,8 @@ $query_kategori = $koneksi->query("
     
     <link rel="stylesheet" href="assets/css/footer.css">
 
+    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+
 </head>
 
 <body>
@@ -277,8 +278,7 @@ $query_kategori = $koneksi->query("
             <span class="brand-logo">
                 <img
                     src="assets/images/logo.svg"
-                    alt="Logo GoKaltara Kuliner"
-                >
+                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
             </span>
 
             <span>
@@ -440,7 +440,7 @@ $query_kategori = $koneksi->query("
 
                     <div
                         class="hero-slide hero-slide-1"
-                        style="background-image: url('assets/images/carousel/Kepiting-Soka.png');"
+                        style="background-image: url('assets/images/carousel/Kepiting-Soka.webp');"
                     >
 
                         <div class="hero-overlay"></div>
@@ -481,7 +481,7 @@ $query_kategori = $koneksi->query("
 
                     <div
                         class="hero-slide hero-slide-2"
-                        style="background-image: url('assets/images/carousel/nasi-subut.jpeg');"
+                        style="background-image: url('assets/images/carousel/nasi-subut.webp');"
                     >
 
                         <div class="hero-overlay"></div>
@@ -819,6 +819,8 @@ $query_kategori = $koneksi->query("
     <script
         src="assets/js/notifikasi.js?v=60"
     ></script>
+
+    <script src="assets/js/performance.js?v=1" defer></script>
 
 </body>
 </html>

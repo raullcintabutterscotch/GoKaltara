@@ -1,211 +1,221 @@
 <?php
 
-session_start();
-require_once "./config/koneksi.php";
+declare(strict_types=1);
 
+require_once "config/koneksi.php";
 
-if (isset($_SESSION["login"]) && $_SESSION["login"] === true) {
+if (
+    ($_SESSION["login"] ?? false) === true
+) {
 
-    if ($_SESSION["level"] === "admin") {
-        header("Location: ./admin/dashboard.php");
-        exit;
-    }
-
-    if ($_SESSION["level"] === "user") {
-        header("Location: ./index.php");
-        exit;
-    }
-}
-
-$pesan = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
-    $username = trim($_POST["username"] ?? "");
-    $password = $_POST["password"] ?? "";
-
-
-    if ($username === "" || $password === "") {
-
-        $pesan = "Username dan password wajib diisi.";
-    } else {
-
-        $stmt = $koneksi->prepare(
-            "SELECT
-                id_user,
-                username,
-                password,
-                nama_lengkap,
-                level
-            FROM user
-            WHERE username = ?
-            LIMIT 1"
+    if (
+        ($_SESSION["level"] ?? "")
+        === "admin"
+    ) {
+        header(
+            "Location: admin/dashboard.php"
         );
-
-        if (!$stmt) {
-
-            $pesan = "Terjadi kesalahan pada sistem database.";
-        } else {
-
-            $stmt->bind_param("s", $username);
-            $stmt->execute();
-
-            $result = $stmt->get_result();
-
-
-            if ($result->num_rows === 1) {
-
-                $user = $result->fetch_assoc();
-
-
-                if (password_verify($password, $user["password"])) {
-
-
-                    session_regenerate_id(true);
-
-                    $_SESSION["login"] = true;
-                    $_SESSION["id_user"] = $user["id_user"];
-                    $_SESSION["username"] = $user["username"];
-                    $_SESSION["nama_lengkap"] = $user["nama_lengkap"];
-                    $_SESSION["level"] = $user["level"];
-
-
-
-                    if ($user["level"] === "admin") {
-
-                        header("Location: ./admin/dashboard.php");
-                        exit;
-                    } elseif ($user["level"] === "user") {
-
-                        header("Location: ./index.php");
-                        exit;
-                    } else {
-
-                        session_unset();
-                        session_destroy();
-
-                        $pesan = "Level akun tidak dikenali.";
-                    }
-                } else {
-
-                    $pesan = "Username atau password salah.";
-                }
-            } else {
-
-                $pesan = "Username atau password salah.";
-            }
-
-            $stmt->close();
-        }
+        exit;
     }
+
+    header(
+        "Location: index.php"
+    );
+    exit;
 }
+
+$page_title =
+    "Masuk | GoKaltara Kuliner";
+
+$error =
+    $_GET["error"] ?? "";
 
 ?>
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 
 <head>
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <title>Login | Kuliner Kaltara</title>
-    
     <link
-        rel="icon"
-        href="assets/images/logo.svg"
-        sizes="48x48"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
     >
 
     <link
         rel="stylesheet"
-        href="./assets/css/login.css">
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    >
 
 </head>
 
 <body>
 
-    <div class="form-container">
+<div class="login-page">
 
-        <p class="title">
-            Welcome back
-        </p>
+    <section class="login-visual">
 
-        <?php if ($pesan !== ""): ?>
+        <div>
 
-            <div class="alert-error">
-                <?= htmlspecialchars($pesan) ?>
-            </div>
-
-        <?php endif; ?>
-
-        <form
-            class="form"
-            method="POST"
-            action="">
-
-            <input
-                type="text"
-                name="username"
-                class="input"
-                placeholder="Username"
-                autocomplete="username"
-                required>
-
-            <input
-                type="password"
-                name="password"
-                class="input"
-                placeholder="Password"
-                autocomplete="current-password"
-                required>
-
-            <p class="page-link">
-
-                <a
-                    href="./lupa_password.php"
-                    class="page-link-label">
-                    Forgot Password?
-                </a>
-
+            <p class="eyebrow">
+                GoKaltara Kuliner
             </p>
 
-            <button
-                type="submit"
-                class="form-btn">
-                Log in
-            </button>
+            <h1>
+                Jelajahi rasa khas
+                Kalimantan Utara.
+            </h1>
 
-        </form>
+            <p class="mb-0 text-white-50">
+                Katalog kuliner, asal daerah,
+                dan informasi hidangan dalam satu aplikasi.
+            </p>
 
-        <p class="sign-up-label">
-
-            Don't have an account?
-
-            <a
-                href="./signup.php"
-                class="sign-up-link">
-                Sign up
-            </a>
-
-        </p>
-
-        <div class="buttons-container">
-
-        <a
-        href="./index.php"
-        class="back-login"
-    >
-        Kembali ke halaman utama
-    </a>
         </div>
 
-    </div>
+    </section>
+
+    <section class="login-panel">
+
+        <div class="login-box">
+
+            <div class="login-brand">
+
+                <span class="brand-logo">
+
+                    <img
+                        src="assets/images/logo.svg"
+                        alt="GoKaltara"
+                    >
+
+                </span>
+
+                <span>
+
+                    <strong>
+                        GoKaltara
+                    </strong>
+
+                    <small>
+                        Kuliner
+                    </small>
+
+                </span>
+
+            </div>
+
+            <p class="section-kicker mb-2">
+                Masuk
+            </p>
+
+            <h2>
+                Selamat datang
+            </h2>
+
+            <p class="login-copy mb-4">
+                Masuk menggunakan akun
+                yang tersimpan di database aplikasi.
+            </p>
+
+            <?php if ($error === "1"): ?>
+
+                <div class="alert-soft mb-3">
+                    Username atau password salah.
+                </div>
+
+            <?php endif; ?>
+
+            <?php if ($error === "db"): ?>
+
+                <div class="alert-soft mb-3">
+                    Database belum tersambung.
+                </div>
+
+            <?php endif; ?>
+
+            <form
+                action="proses_login.php"
+                method="POST"
+                autocomplete="on"
+            >
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label fw-semibold"
+                        for="username"
+                    >
+                        Username
+                    </label>
+
+                    <input
+                        class="form-control"
+                        id="username"
+                        name="username"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label fw-semibold"
+                        for="password"
+                    >
+                        Password
+                    </label>
+
+                    <input
+                        class="form-control"
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+                <button
+                    class="btn btn-brand w-100"
+                    type="submit"
+                >
+                    Masuk
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+
+            </form>
+
+            <div class="mt-3 small text-muted text-center">
+
+                <i class="bi bi-shield-check me-1"></i>
+
+                Perangkat ini akan diingat
+                selama 30 hari.
+
+            </div>
+
+            <div
+                class="d-flex justify-content-between
+                    mt-4 pt-3 border-top small"
+            >
+
+                <a href="signup.php">
+                    Belum punya akun? Daftar
+                </a>
+
+                <a href="index.php">
+                    Beranda
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
 
 </body>
-
 </html>

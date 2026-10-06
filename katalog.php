@@ -2,6 +2,7 @@
 
 session_start();
 require_once "config/koneksi.php";
+require_once "config/image_optimizer.php";
 
 $is_login = isset($_SESSION["login"]) &&
     (
@@ -46,18 +47,13 @@ function e($value)
     );
 }
 
-function fotoKuliner($foto)
+function fotoKuliner($foto, $thumbnail = false)
 {
-    if (
-        !empty($foto) &&
-        file_exists(
-            "assets/images/" . $foto
-        )
-    ) {
-        return "assets/images/" . $foto;
-    }
-
-    return "assets/images/no-image.jpg";
+    return gokaltara_image_url(
+        (string) ($foto ?? ""),
+        "assets/images/",
+        (bool) $thumbnail
+    );
 }
 
 $query_kategori =
@@ -381,6 +377,8 @@ $nama_tampilan =
         
         <link rel="stylesheet" href="assets/css/footer.css">
 
+    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+
 </head>
 
 <body>
@@ -397,7 +395,7 @@ $nama_tampilan =
 
                     <img
                         src="assets/images/logo.svg"
-                        alt="Logo GoKaltara Kuliner">
+                        alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
 
                 </span>
 
@@ -697,7 +695,8 @@ $nama_tampilan =
 
                             $foto =
                                 fotoKuliner(
-                                    $data["foto"]
+                                    $data["foto"],
+                                    true
                                 );
 
                             $rating =
@@ -743,8 +742,7 @@ $nama_tampilan =
                                         src="<?= e($foto) ?>"
                                         alt="<?= e(
                                                     $data["nama_kuliner"]
-                                                ) ?>"
-                                        loading="lazy">
+                                                ) ?>" loading="lazy" decoding="async">
 
                                     <span
                                         class="food-category">
@@ -1203,6 +1201,8 @@ $nama_tampilan =
     <script
         src="assets/js/notifikasi.js?v=60"
     ></script>
+
+    <script src="assets/js/performance.js?v=1" defer></script>
 
 </body>
 

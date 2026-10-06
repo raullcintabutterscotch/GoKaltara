@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once "config/koneksi.php";
+require_once "config/image_optimizer.php";
 
 $is_login = isset($_SESSION['login']) &&
     (
@@ -128,16 +129,13 @@ $total_hasil = $query_hasil
     ? $query_hasil->num_rows
     : 0;
 
-function fotoKuliner($foto)
+function fotoKuliner($foto, $thumbnail = false)
 {
-    if (
-        !empty($foto) &&
-        file_exists("assets/images/" . $foto)
-    ) {
-        return "assets/images/" . $foto;
-    }
-
-    return "assets/images/no-image.jpg";
+    return gokaltara_image_url(
+        (string) ($foto ?? ""),
+        "assets/images/",
+        (bool) $thumbnail
+    );
 }
 ?>
 
@@ -188,6 +186,8 @@ function fotoKuliner($foto)
     
     <link rel="stylesheet" href="assets/css/footer.css">
 
+    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+
 </head>
 
 <body>
@@ -205,8 +205,7 @@ function fotoKuliner($foto)
 
                 <img
                     src="assets/images/logo.svg"
-                    alt="Logo GoKaltara Kuliner"
-                >
+                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
 
             </span>
 
@@ -513,7 +512,8 @@ function fotoKuliner($foto)
                         <?php
 
                         $foto = fotoKuliner(
-                            $data['foto']
+                            $data['foto'],
+                            true
                         );
 
                         $deskripsi = strip_tags(
@@ -581,7 +581,7 @@ function fotoKuliner($foto)
                                             ENT_QUOTES,
                                             'UTF-8'
                                         ) ?>"
-                                    >
+                                     loading="lazy" decoding="async">
 
                                     <span class="food-category">
 
@@ -797,6 +797,8 @@ function fotoKuliner($foto)
     <script
         src="assets/js/notifikasi.js?v=60"
     ></script>
+
+    <script src="assets/js/performance.js?v=1" defer></script>
 
 </body>
 </html>

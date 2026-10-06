@@ -3,6 +3,7 @@
 session_start();
 
 require_once "../config/koneksi.php";
+require_once "../config/image_optimizer.php";
 
 if (
     !isset($_SESSION["login"]) ||
@@ -142,69 +143,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         isset($_FILES["foto_profil"]) &&
         $_FILES["foto_profil"]["error"] !== UPLOAD_ERR_NO_FILE
     ) {
-        if ($_FILES["foto_profil"]["error"] !== UPLOAD_ERR_OK) {
+        $processed = gokaltara_process_upload(
+            $_FILES["foto_profil"],
+            __DIR__ . "/../assets/images/profil",
+            "profil_" . $id_user,
+            3 * 1024 * 1024,
+            600,
+            240,
+            80,
+            78
+        );
+
+        if (!$processed["success"]) {
             echo json_encode([
                 "success" => false,
-                "message" => "Upload foto gagal."
+                "message" => $processed["message"] ?? "Foto gagal diproses."
             ]);
             exit;
         }
 
-        $file = $_FILES["foto_profil"];
-
-        if ($file["size"] > 2 * 1024 * 1024) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Ukuran foto maksimal 2 MB."
-            ]);
-            exit;
-        }
-
-        $image_info = getimagesize($file["tmp_name"]);
-
-        if ($image_info === false) {
-            echo json_encode([
-                "success" => false,
-                "message" => "File bukan gambar yang valid."
-            ]);
-            exit;
-        }
-
-        $mime = $image_info["mime"];
-
-        $allowed = [
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        ];
-
-        if (!in_array($mime, $allowed, true)) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Format foto harus JPG, PNG, atau WEBP."
-            ]);
-            exit;
-        }
-
-        $nama_file_baru =
-            "profil_" .
-            $id_user .
-            "_" .
-            date("YmdHis") .
-            "_" .
-            bin2hex(random_bytes(4)) .
-            ".jpg";
-
-        $path_baru = $folder . $nama_file_baru;
-
-        if (!move_uploaded_file($file["tmp_name"], $path_baru)) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Foto gagal disimpan."
-            ]);
-            exit;
-        }
-
+        $nama_file_baru = $processed["filename"];
         $ada_foto_baru = true;
     }
 
@@ -228,11 +186,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     );
 
     if (!$update->execute()) {
-        if (
-            $ada_foto_baru &&
-            file_exists($folder . $nama_file_baru)
-        ) {
-            unlink($folder . $nama_file_baru);
+        if ($ada_foto_baru) {
+            gokaltara_delete_optimized_image(
+                $nama_file_baru,
+                $folder
+            );
         }
 
         $error = $update->error;
@@ -252,9 +210,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ada_foto_baru &&
         !empty($foto_profil) &&
         $foto_profil !== $nama_file_baru &&
-        file_exists($folder . $foto_profil)
+        (
+            is_file($folder . $foto_profil) ||
+            is_file($folder . "thumbs/" . gokaltara_image_stem($foto_profil) . ".webp")
+        )
     ) {
-        unlink($folder . $foto_profil);
+        gokaltara_delete_optimized_image(
+            $foto_profil,
+            $folder
+        );
     }
 
     $_SESSION["nama_lengkap"] = $nama_lengkap;
@@ -314,6 +278,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         rel="stylesheet"
         href="../assets/css/profil.css?v=3"
     >
+    <link rel="stylesheet" href="../assets/css/performance.css?v=1">
+
 </head>
 
 <body>
@@ -330,8 +296,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         <img
                             src="../assets/images/logo.svg"
-                            alt="Logo Kuliner Kaltara"
-                        >
+                            alt="Logo Kuliner Kaltara" loading="eager" decoding="async">
 
                         <div>
                             GoKaltara
@@ -395,10 +360,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <?php if (!empty($foto_profil)): ?>
 
                         <img
-                            src="../assets/images/profil/<?= htmlspecialchars($foto_profil) ?>"
+                            src="<?= htmlspecialchars(
+                                gokaltara_profile_image_url($foto_profil, true),
+                                ENT_QUOTES,
+                                "UTF-8"
+                            ) ?>"
                             alt="Foto Profil"
                             class="avatar avatar-image"
-                        >
+                            loading="eager"
+                            decoding="async">
 
                     <?php else: ?>
 
@@ -498,10 +468,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 <?php if (!empty($foto_profil)): ?>
 
                                     <img
-                                        src="../assets/images/profil/<?= htmlspecialchars($foto_profil) ?>"
+                                        src="<?= htmlspecialchars(
+                                            gokaltara_profile_image_url($foto_profil, false),
+                                            ENT_QUOTES,
+                                            "UTF-8"
+                                        ) ?>"
                                         id="mainPreviewImage"
                                         alt="Foto Profil"
-                                    >
+                                        loading="eager"
+                                        decoding="async">
 
                                 <?php else: ?>
 
@@ -794,8 +769,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <img
                             id="cropImage"
                             src=""
-                            alt="Foto yang sedang diedit"
-                        >
+                            alt="Foto yang sedang diedit" loading="lazy" decoding="async">
 
                     </div>
 
@@ -899,6 +873,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 
     <script src="../assets/js/profil.js"></script>
+
+    <script src="../assets/js/performance.js?v=1" defer></script>
 
 </body>
 

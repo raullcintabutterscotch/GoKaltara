@@ -65,6 +65,8 @@ $nama_tampilan = htmlspecialchars(
         href="assets/css/notifikasi.css?v=60"
     >
     <link rel="stylesheet" href="assets/css/footer.css">
+    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+
 </head>
 
 <body>
@@ -82,8 +84,7 @@ $nama_tampilan = htmlspecialchars(
 
                 <img
                     src="assets/images/logo.svg"
-                    alt="Logo GoKaltara Kuliner"
-                >
+                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
 
             </span>
 
@@ -511,6 +512,8 @@ $nama_tampilan = htmlspecialchars(
     <script
         src="assets/js/notifikasi.js?v=60"
     ></script>
+
+    <script src="assets/js/performance.js?v=1" defer></script>
 
 </body>
 </html>

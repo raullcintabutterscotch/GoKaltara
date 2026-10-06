@@ -2,6 +2,7 @@
 session_start();
 
 require_once "config/koneksi.php";
+require_once "config/image_optimizer.php";
 
 $is_login = isset($_SESSION['login']) &&
     (
@@ -73,49 +74,31 @@ function e($value)
     );
 }
 
-function fotoProfil($foto)
+function fotoProfil($foto, $thumbnail = false)
 {
-    if (
-        !empty($foto) &&
-        file_exists(
-            "assets/images/profil/" .
-            $foto
-        )
-    ) {
-        return
-            "assets/images/profil/" .
-            $foto;
+    $url = gokaltara_profile_image_url(
+        (string) ($foto ?? ""),
+        (bool) $thumbnail
+    );
+
+    if ($url !== "") {
+        return $url;
     }
 
-    if (
-        file_exists(
-            "assets/images/profil/default.png"
-        )
-    ) {
-        return
-            "assets/images/profil/default.png";
+    if (file_exists("assets/images/profil/default.png")) {
+        return "assets/images/profil/default.png";
     }
 
-    return
-        "assets/images/no-image.jpg";
+    return "assets/images/no-image.jpg";
 }
 
-function fotoKuliner($foto)
+function fotoKuliner($foto, $thumbnail = false)
 {
-    if (
-        !empty($foto) &&
-        file_exists(
-            "assets/images/" .
-            $foto
-        )
-    ) {
-        return
-            "assets/images/" .
-            $foto;
-    }
-
-    return
-        "assets/images/no-image.jpg";
+    return gokaltara_image_url(
+        (string) ($foto ?? ""),
+        "assets/images/",
+        (bool) $thumbnail
+    );
 }
 
 function waktuRelatif($tanggal)
@@ -489,7 +472,8 @@ function renderNotifikasi(
 
             $avatar =
                 fotoProfil(
-                    $item['foto_profil']
+                    $item['foto_profil'],
+                    true
                 );
 
             $thumb = "";
@@ -502,7 +486,8 @@ function renderNotifikasi(
 
                 $thumb =
                     fotoKuliner(
-                        $item['foto_kuliner']
+                        $item['foto_kuliner'],
+                        true
                     );
             }
 
@@ -558,8 +543,7 @@ function renderNotifikasi(
                                     "Pengguna"
                                 ) .
                             '"
-                            class="notification-avatar"
-                        >
+                            class="notification-avatar">
 
                         <span
                             class="notification-type-icon ' .
@@ -616,8 +600,7 @@ function renderNotifikasi(
                                                 "Kuliner"
                                             ) .
                                         '"
-                                        class="notification-thumb"
-                                    >
+                                        class="notification-thumb">
 
                                 </div>
                                 '
@@ -822,6 +805,8 @@ $notifications =
         href="assets/css/notifikasi.css?v=50"
     >
 
+    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+
 </head>
 
 <body class="notification-page">
@@ -940,6 +925,8 @@ $notifications =
 <script
     src="assets/js/notifikasi.js?v=50"
 ></script>
+
+    <script src="assets/js/performance.js?v=1" defer></script>
 
 </body>
 

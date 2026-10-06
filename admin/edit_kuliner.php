@@ -2,6 +2,7 @@
 
 session_start();
 require_once "../config/koneksi.php";
+require_once "../config/image_optimizer.php";
 
 if (
     !isset($_SESSION["login"]) ||
@@ -87,38 +88,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $foto_baru = $foto_lama;
     $upload_baru = false;
 
-    if (isset($_FILES["foto"]) && $_FILES["foto"]["error"] !== UPLOAD_ERR_NO_FILE) {
-        if ($_FILES["foto"]["error"] !== UPLOAD_ERR_OK) {
-            $errors[] = "Foto gagal diunggah.";
+    if (
+        isset($_FILES["foto"]) &&
+        $_FILES["foto"]["error"] !== UPLOAD_ERR_NO_FILE
+    ) {
+        $processed = gokaltara_process_upload(
+            $_FILES["foto"],
+            __DIR__ . "/../assets/images",
+            "kuliner",
+            5 * 1024 * 1024,
+            1400,
+            640,
+            82,
+            78
+        );
+
+        if (!$processed["success"]) {
+            $errors[] = $processed["message"] ?? "Foto gagal diproses.";
         } else {
-            $tmp_name = $_FILES["foto"]["tmp_name"];
-            $file_size = (int) $_FILES["foto"]["size"];
-            $extension = strtolower(pathinfo($_FILES["foto"]["name"], PATHINFO_EXTENSION));
-            $allowed = ["jpg", "jpeg", "png", "webp"];
-
-            if (!in_array($extension, $allowed, true)) {
-                $errors[] = "Format foto harus JPG, JPEG, PNG, atau WEBP.";
-            }
-
-            if ($file_size > 5 * 1024 * 1024) {
-                $errors[] = "Ukuran foto maksimal 5 MB.";
-            }
-
-            if (!is_uploaded_file($tmp_name)) {
-                $errors[] = "File foto tidak valid.";
-            }
-
-            if (empty($errors)) {
-                $foto_baru = uniqid("kuliner_", true) . "." . $extension;
-                $tujuan = "../assets/images/" . $foto_baru;
-
-                if (!move_uploaded_file($tmp_name, $tujuan)) {
-                    $errors[] = "Foto gagal disimpan.";
-                    $foto_baru = $foto_lama;
-                } else {
-                    $upload_baru = true;
-                }
-            }
+            $foto_baru = $processed["filename"];
+            $upload_baru = true;
         }
     }
 
@@ -134,10 +123,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt->close();
 
             if ($upload_baru && $foto_lama !== "") {
-                $file_lama = "../assets/images/" . basename($foto_lama);
-                if (file_exists($file_lama)) {
-                    unlink($file_lama);
-                }
+                gokaltara_delete_optimized_image(
+                    $foto_lama,
+                    __DIR__ . "/../assets/images"
+                );
             }
 
             $_SESSION["flash_success"] = "Data kuliner berhasil diperbarui.";
@@ -148,10 +137,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
 
         if ($upload_baru) {
-            $file_baru = "../assets/images/" . basename($foto_baru);
-            if (file_exists($file_baru)) {
-                unlink($file_baru);
-            }
+            gokaltara_delete_optimized_image(
+                $foto_baru,
+                __DIR__ . "/../assets/images"
+            );
         }
 
         $errors[] = "Data kuliner gagal diperbarui.";
@@ -160,10 +149,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 $foto_preview = "";
 if ($foto_lama !== "") {
-    $foto_lama_path = "../assets/images/" . basename($foto_lama);
-    if (file_exists($foto_lama_path)) {
-        $foto_preview = $foto_lama_path;
-    }
+    $foto_preview = gokaltara_image_url(
+        $foto_lama,
+        "../assets/images/",
+        false
+    );
 }
 
 ?>
@@ -182,6 +172,8 @@ if ($foto_lama !== "") {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="../assets/css/kuliner.css">
+    <link rel="stylesheet" href="../assets/css/performance.css?v=1">
+
 </head>
 <body>
     <div>
@@ -189,7 +181,7 @@ if ($foto_lama !== "") {
             <div>
                 <div class="brand">
                     <div class="brand-title">
-                        <img src="../assets/images/logo.svg" alt="Logo Kuliner Kaltara">
+                        <img src="../assets/images/logo.svg" alt="Logo Kuliner Kaltara" loading="eager" decoding="async">
                         <div>GoKaltara<br>Kuliner</div>
                     </div>
                     <div class="brand-subtitle">Admin Panel</div>
@@ -218,7 +210,7 @@ if ($foto_lama !== "") {
             <div class="sidebar-bottom">
                 <a href="profil.php" class="admin-profile">
                     <?php if (!empty($foto_profil)): ?>
-                        <img src="../assets/images/profil/<?= htmlspecialchars($foto_profil) ?>" alt="Foto Profil" class="avatar avatar-image">
+                        <img src="<?= htmlspecialchars(gokaltara_profile_image_url($foto_profil, true)) ?>" alt="Foto Profil" class="avatar avatar-image" loading="eager" decoding="async">
                     <?php else: ?>
                         <div class="avatar">
                             <?= htmlspecialchars(strtoupper(substr($nama_admin, 0, 1))) ?>
@@ -305,7 +297,7 @@ if ($foto_lama !== "") {
                                     <label class="form-label-custom">Foto Kuliner</label>
                                     <label for="foto" class="image-upload-box">
                                         <div class="image-preview-wrapper">
-                                            <img src="<?= htmlspecialchars($foto_preview) ?>" alt="Preview Foto" class="image-preview <?= $foto_preview !== "" ? "show" : "" ?>" data-image-preview>
+                                            <img src="<?= htmlspecialchars($foto_preview) ?>" alt="Preview Foto" class="image-preview <?= $foto_preview !== "" ? "show" : "" ?>" data-image-preview loading="lazy" decoding="async">
                                             <div class="image-upload-placeholder <?= $foto_preview !== "" ? "hide" : "" ?>" data-image-placeholder>
                                                 <i class="bi bi-cloud-arrow-up"></i>
                                                 <strong><?= $foto_preview !== "" ? "Ganti foto" : "Pilih foto" ?></strong>
@@ -355,5 +347,7 @@ if ($foto_lama !== "") {
 
     <script src="../assets/js/dashboard.js"></script>
     <script src="../assets/js/kuliner.js"></script>
+    <script src="../assets/js/performance.js?v=1" defer></script>
+
 </body>
 </html>

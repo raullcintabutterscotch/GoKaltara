@@ -2,6 +2,7 @@
 
 session_start();
 require_once "config/koneksi.php";
+require_once "config/image_optimizer.php";
 
 $is_login = isset($_SESSION["login"]) &&
     (
@@ -25,22 +26,21 @@ function e($value)
     return htmlspecialchars($value ?? "", ENT_QUOTES, "UTF-8");
 }
 
-function fotoKuliner($foto)
+function fotoKuliner($foto, $thumbnail = false)
 {
-    if (!empty($foto) && file_exists("assets/images/" . $foto)) {
-        return "assets/images/" . $foto;
-    }
-
-    return "assets/images/no-image.jpg";
+    return gokaltara_image_url(
+        (string) ($foto ?? ""),
+        "assets/images/",
+        (bool) $thumbnail
+    );
 }
 
-function fotoProfil($foto)
+function fotoProfil($foto, $thumbnail = false)
 {
-    if (!empty($foto) && file_exists("assets/images/profil/" . $foto)) {
-        return "assets/images/profil/" . $foto;
-    }
-
-    return "";
+    return gokaltara_profile_image_url(
+        (string) ($foto ?? ""),
+        (bool) $thumbnail
+    );
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["ajax"])) {
@@ -574,7 +574,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["ajax"])) {
 
         $item["foto_url"] =
             fotoProfil(
-                $item["foto_profil"]
+                $item["foto_profil"],
+                true
             );
 
         $item["total_like"] =
@@ -1133,7 +1134,8 @@ while (
 
     $row["foto_url"] =
         fotoProfil(
-            $row["foto_profil"]
+            $row["foto_profil"],
+            true
         );
 
     $row["total_like"] =
@@ -1368,6 +1370,8 @@ if ($is_login) {
     
     <link rel="stylesheet" href="assets/css/footer.css?v=70">
 
+    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+
 </head>
 
 <body
@@ -1389,8 +1393,7 @@ if ($is_login) {
 
                 <img
                     src="assets/images/logo.svg"
-                    alt="Logo GoKaltara Kuliner"
-                >
+                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
 
             </span>
 
@@ -1540,7 +1543,9 @@ if ($is_login) {
                         src="<?= e($foto) ?>"
                         alt="<?= e($data["nama_kuliner"]) ?>"
                         class="detail-photo"
-                    >
+                        data-no-lazy
+                        fetchpriority="high"
+                     loading="eager" decoding="async">
 
                 </div>
 
@@ -1851,7 +1856,8 @@ if ($is_login) {
                         <?php
                         $recommend_photo =
                             fotoKuliner(
-                                $item["foto"] ?? ""
+                                $item["foto"] ?? "",
+                                true
                             );
 
                         $recommend_rating =
@@ -1875,7 +1881,7 @@ if ($is_login) {
                                     alt="<?= e(
                                         $item["nama_kuliner"]
                                     ) ?>"
-                                >
+                                 loading="lazy" decoding="async">
 
                             </div>
 
@@ -2068,7 +2074,7 @@ if ($is_login) {
                                             ) ?>"
                                             alt="Foto profil"
                                             class="comment-avatar"
-                                        >
+                                         loading="eager" decoding="async">
 
                                     <?php else: ?>
 
@@ -2278,7 +2284,7 @@ if ($is_login) {
                                                         ) ?>"
                                                         alt="Foto profil"
                                                         class="comment-avatar"
-                                                    >
+                                                     loading="eager" decoding="async">
 
                                                 <?php else: ?>
 
@@ -2584,6 +2590,8 @@ if ($is_login) {
     <script
         src="assets/js/notifikasi.js?v=60"
     ></script>
+
+    <script src="assets/js/performance.js?v=1" defer></script>
 
 </body>
 </html>

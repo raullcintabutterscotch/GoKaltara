@@ -179,7 +179,7 @@ img {
             rgba(18, 61, 50, 0.95),
             rgba(18, 61, 50, 0.57)
         ),
-        url("../images/carousel/nasi-subut.jpeg") center / cover;
+        url("../images/carousel/nasi-subut.webp") center / cover;
 }
 
 .about-hero-content {

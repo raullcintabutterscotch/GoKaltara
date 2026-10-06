@@ -2,6 +2,7 @@
 
 session_start();
 require_once "../config/koneksi.php";
+require_once "../config/image_optimizer.php";
 
 if (
     !isset($_SESSION["login"]) ||
@@ -111,6 +112,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="../assets/css/kategori.css">
+    <link rel="stylesheet" href="../assets/css/performance.css?v=1">
+
 </head>
 <body>
     <div>
@@ -118,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div>
                 <div class="brand">
                     <div class="brand-title">
-                        <img src="../assets/images/logo.svg" alt="Logo Kuliner Kaltara">
+                        <img src="../assets/images/logo.svg" alt="Logo Kuliner Kaltara" loading="eager" decoding="async">
                         <div>
                             GoKaltara
                             <br>
@@ -151,7 +154,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="sidebar-bottom">
                 <a href="profil.php" class="admin-profile">
                     <?php if (!empty($foto_profil)): ?>
-                        <img src="../assets/images/profil/<?= htmlspecialchars($foto_profil) ?>" alt="Foto Profil" class="avatar avatar-image">
+                        <img src="<?= htmlspecialchars(gokaltara_profile_image_url($foto_profil, true)) ?>" alt="Foto Profil" class="avatar avatar-image" loading="eager" decoding="async">
                     <?php else: ?>
                         <div class="avatar">
                             <?= htmlspecialchars(strtoupper(substr($nama_admin, 0, 1))) ?>
@@ -254,5 +257,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </nav>
 
     <script src="../assets/js/dashboard.js"></script>
+    <script src="../assets/js/performance.js?v=1" defer></script>
+
 </body>
 </html>

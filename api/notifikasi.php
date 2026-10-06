@@ -3,6 +3,7 @@
 session_start();
 
 require_once "../config/koneksi.php";
+require_once "../config/image_optimizer.php";
 
 header("Content-Type: application/json; charset=UTF-8");
 
@@ -61,15 +62,10 @@ $ids = [];
 while ($row = $result->fetch_assoc()) {
 
     if (!empty($row["foto_profil"])) {
-        $path = "../assets/images/profil/" . $row["foto_profil"];
-
-        if (file_exists($path)) {
-            $row["foto_url"] =
-                "../assets/images/profil/" .
-                $row["foto_profil"];
-        } else {
-            $row["foto_url"] = "";
-        }
+        $row["foto_url"] = gokaltara_profile_image_url(
+            $row["foto_profil"],
+            true
+        );
     } else {
         $row["foto_url"] = "";
     }

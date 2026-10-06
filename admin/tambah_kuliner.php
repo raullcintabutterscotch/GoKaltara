@@ -2,6 +2,7 @@
 
 session_start();
 require_once "../config/koneksi.php";
+require_once "../config/image_optimizer.php";
 
 if (
     !isset($_SESSION["login"]) ||
@@ -99,94 +100,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         isset($_FILES["foto"]) &&
         $_FILES["foto"]["error"] !== UPLOAD_ERR_NO_FILE
     ) {
+        $processed = gokaltara_process_upload(
+            $_FILES["foto"],
+            __DIR__ . "/../assets/images",
+            "kuliner",
+            5 * 1024 * 1024,
+            1400,
+            640,
+            82,
+            78
+        );
 
-        if ($_FILES["foto"]["error"] !== UPLOAD_ERR_OK) {
-
-            $errors[] = "Foto gagal diunggah.";
-
+        if (!$processed["success"]) {
+            $errors[] = $processed["message"] ?? "Foto gagal diproses.";
         } else {
-
-            $tmp_name = $_FILES["foto"]["tmp_name"];
-            $file_size = (int) $_FILES["foto"]["size"];
-
-            $extension = strtolower(
-                pathinfo(
-                    $_FILES["foto"]["name"],
-                    PATHINFO_EXTENSION
-                )
-            );
-
-            $allowed = [
-                "jpg",
-                "jpeg",
-                "png",
-                "webp"
-            ];
-
-            $allowed_mime = [
-                "image/jpeg",
-                "image/png",
-                "image/webp"
-            ];
-
-            $image_info = @getimagesize($tmp_name);
-
-            if (!in_array($extension, $allowed, true)) {
-
-                $errors[] =
-                    "Format foto harus JPG, JPEG, PNG, atau WEBP.";
-
-            } elseif ($file_size > 5 * 1024 * 1024) {
-
-                $errors[] =
-                    "Ukuran foto maksimal 5 MB.";
-
-            } elseif (!is_uploaded_file($tmp_name)) {
-
-                $errors[] =
-                    "File foto tidak valid.";
-
-            } elseif (!$image_info) {
-
-                $errors[] =
-                    "File yang dipilih bukan gambar.";
-
-            } elseif (
-                !in_array(
-                    $image_info["mime"],
-                    $allowed_mime,
-                    true
-                )
-            ) {
-
-                $errors[] =
-                    "Jenis file gambar tidak valid.";
-
-            } else {
-
-                $nama_file =
-                    "kuliner_" .
-                    time() .
-                    "_" .
-                    bin2hex(random_bytes(4)) .
-                    "." .
-                    $extension;
-
-                $tujuan =
-                    "../assets/images/" .
-                    $nama_file;
-
-                if (!move_uploaded_file(
-                    $tmp_name,
-                    $tujuan
-                )) {
-
-                    $errors[] =
-                        "Foto gagal disimpan.";
-
-                    $nama_file = "";
-                }
-            }
+            $nama_file = $processed["filename"];
         }
     }
 
@@ -233,14 +161,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
 
         if ($nama_file !== "") {
-
-            $file_path =
-                "../assets/images/" .
-                basename($nama_file);
-
-            if (file_exists($file_path)) {
-                unlink($file_path);
-            }
+            gokaltara_delete_optimized_image(
+                $nama_file,
+                __DIR__ . "/../assets/images"
+            );
         }
 
         $errors[] =
@@ -287,6 +211,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         rel="stylesheet"
         href="../assets/css/kuliner.css?v=4">
 
+    <link rel="stylesheet" href="../assets/css/performance.css?v=1">
+
 </head>
 
 <body>
@@ -303,7 +229,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <img
                         src="../assets/images/logo.svg"
-                        alt="Logo Kuliner Kaltara">
+                        alt="Logo Kuliner Kaltara" loading="eager" decoding="async">
 
                     <div>
                         GoKaltara<br>
@@ -381,13 +307,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <?php if (!empty($foto_profil)): ?>
 
                     <img
-                        src="../assets/images/profil/<?= htmlspecialchars(
-                            $foto_profil,
+                        src="<?= htmlspecialchars(
+                            gokaltara_profile_image_url(
+                                $foto_profil,
+                                true
+                            ),
                             ENT_QUOTES,
                             "UTF-8"
                         ) ?>"
                         alt="Foto Profil"
-                        class="avatar avatar-image">
+                        class="avatar avatar-image" loading="eager" decoding="async">
 
                 <?php else: ?>
 
@@ -753,7 +682,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                             src=""
                                             alt="Preview Foto"
                                             class="image-preview"
-                                            data-image-preview>
+                                            data-image-preview loading="lazy" decoding="async">
 
                                         <div
                                             class="image-upload-placeholder"
@@ -886,6 +815,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <script src="../assets/js/dashboard.js?v=4"></script>
 
 <script src="../assets/js/kuliner.js?v=4"></script>
+
+    <script src="../assets/js/performance.js?v=1" defer></script>
 
 </body>
 </html>

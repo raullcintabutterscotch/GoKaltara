@@ -1,0 +1,44 @@
+img.perf-image {
+    background-color: #eef3f0;
+    background-image: linear-gradient(
+        90deg,
+        #eef3f0 0%,
+        #f8faf9 45%,
+        #eef3f0 100%
+    );
+    background-size: 220% 100%;
+    background-repeat: no-repeat;
+    animation: perf-skeleton 1.15s linear infinite;
+}
+
+img.perf-image.is-loaded {
+    background-image: none;
+    animation: none;
+}
+
+@keyframes perf-skeleton {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -20% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    img.perf-image {
+        animation: none;
+        background-image: none;
+    }
+}
+
+@media (max-width: 991.98px) {
+    html {
+        scroll-behavior: auto;
+    }
+}

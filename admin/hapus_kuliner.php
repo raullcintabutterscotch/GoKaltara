@@ -2,6 +2,7 @@
 
 session_start();
 require_once "../config/koneksi.php";
+require_once "../config/image_optimizer.php";
 
 if (
     !isset($_SESSION["login"]) ||
@@ -46,10 +47,10 @@ if ($stmt->execute()) {
 
     $foto = $data["foto"] ?? "";
     if ($foto !== "") {
-        $foto_path = "../assets/images/" . basename($foto);
-        if (file_exists($foto_path)) {
-            unlink($foto_path);
-        }
+        gokaltara_delete_optimized_image(
+            $foto,
+            __DIR__ . "/../assets/images"
+        );
     }
 
     $_SESSION["flash_success"] = "Data kuliner berhasil dihapus.";

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once "config/koneksi.php";
+require_once "config/image_optimizer.php";
 
 $id_user = (int) ($_SESSION['id_user'] ?? 0);
 $username_session = trim($_SESSION['username'] ?? '');
@@ -146,71 +147,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         isset($_FILES['foto_profil']) &&
         $_FILES['foto_profil']['error'] !== UPLOAD_ERR_NO_FILE
     ) {
+        $processed = gokaltara_process_upload(
+            $_FILES['foto_profil'],
+            __DIR__ . "/assets/images/profil",
+            "profil_" . $id_user,
+            3 * 1024 * 1024,
+            600,
+            240,
+            80,
+            78
+        );
 
-        if ($_FILES['foto_profil']['error'] !== UPLOAD_ERR_OK) {
+        if (!$processed['success']) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Foto profil gagal diupload.'
+                'message' => $processed['message'] ?? 'Foto profil gagal diproses.'
             ]);
             exit;
         }
 
-        $tmp_name = $_FILES['foto_profil']['tmp_name'];
-        $file_size = (int) $_FILES['foto_profil']['size'];
-
-        if ($file_size > 3 * 1024 * 1024) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Ukuran foto maksimal 3 MB.'
-            ]);
-            exit;
-        }
-
-        $image_info = @getimagesize($tmp_name);
-
-        if (!$image_info) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'File yang dipilih bukan gambar.'
-            ]);
-            exit;
-        }
-
-        $mime = $image_info['mime'] ?? '';
-
-        if ($mime !== 'image/jpeg') {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Foto hasil crop harus berformat JPG.'
-            ]);
-            exit;
-        }
-
-        $folder = __DIR__ . "/assets/images/profil/";
-
-        if (!is_dir($folder)) {
-            mkdir($folder, 0755, true);
-        }
-
-        $foto_baru =
-            "profil_" .
-            $id_user .
-            "_" .
-            time() .
-            "_" .
-            bin2hex(random_bytes(4)) .
-            ".jpg";
-
-        $tujuan = $folder . $foto_baru;
-
-        if (!move_uploaded_file($tmp_name, $tujuan)) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Foto profil gagal disimpan.'
-            ]);
-            exit;
-        }
-
+        $foto_baru = $processed['filename'];
         $foto_upload_baru = true;
     }
 
@@ -233,15 +189,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$stmt_update->execute()) {
 
-        if ($foto_upload_baru && !empty($foto_baru)) {
-            $file_gagal =
-                __DIR__ .
-                "/assets/images/profil/" .
-                basename($foto_baru);
-
-            if (file_exists($file_gagal)) {
-                unlink($file_gagal);
-            }
+        if ($foto_upload_baru) {
+            gokaltara_delete_optimized_image(
+                $foto_baru,
+                __DIR__ . "/assets/images/profil"
+            );
         }
 
         echo json_encode([
@@ -259,14 +211,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         !empty($foto_lama)
     ) {
 
-        $file_lama =
-            __DIR__ .
-            "/assets/images/profil/" .
-            basename($foto_lama);
-
-        if (file_exists($file_lama)) {
-            unlink($file_lama);
-        }
+        gokaltara_delete_optimized_image(
+            $foto_lama,
+            __DIR__ . "/assets/images/profil"
+        );
     }
 
     $_SESSION['login'] = true;
@@ -299,15 +247,11 @@ $username_user = htmlspecialchars(
 );
 
 if (!empty($user['foto_profil'])) {
-
-    $foto_profil =
-        "assets/images/profil/" .
-        rawurlencode(
-            basename($user['foto_profil'])
-        );
-
+    $foto_profil = gokaltara_profile_image_url(
+        $user['foto_profil'],
+        false
+    );
 } else {
-
     $foto_profil = "";
 }
 ?>
@@ -349,6 +293,8 @@ if (!empty($user['foto_profil'])) {
 
     <link rel="stylesheet" href="assets/css/notifikasi.css?v=60">
 
+    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+
 </head>
 
 <body>
@@ -363,7 +309,7 @@ if (!empty($user['foto_profil'])) {
 
             <img
                 src="assets/images/logo.svg"
-                alt="GoKaltara Kuliner">
+                alt="GoKaltara Kuliner" loading="eager" decoding="async">
 
             <div>
                 GoKaltara
@@ -429,7 +375,7 @@ if (!empty($user['foto_profil'])) {
                         'UTF-8'
                     ) ?>"
                     alt="Foto Profil"
-                    class="avatar avatar-image">
+                    class="avatar avatar-image" loading="eager" decoding="async">
 
             <?php else: ?>
 
@@ -558,7 +504,7 @@ if (!empty($user['foto_profil'])) {
                                 'UTF-8'
                             ) ?>"
                             id="previewFoto"
-                            alt="Foto Profil">
+                            alt="Foto Profil" loading="lazy" decoding="async">
 
                     <?php else: ?>
 
@@ -742,7 +688,7 @@ if (!empty($user['foto_profil'])) {
 
                     <img
                         id="cropImage"
-                        alt="Atur Foto Profil">
+                        alt="Atur Foto Profil" loading="lazy" decoding="async">
 
                 </div>
 
@@ -908,6 +854,8 @@ if (!empty($user['foto_profil'])) {
     <script
         src="assets/js/notifikasi.js?v=60"
     ></script>
+
+    <script src="assets/js/performance.js?v=1" defer></script>
 
 </body>
 </html>

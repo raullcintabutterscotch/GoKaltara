@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $cek = $koneksi->prepare(
             "SELECT id_user
-            FROM users
+            FROM user
             WHERE username = ?
             LIMIT 1"
         );
@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $level = "user";
 
             $stmt = $koneksi->prepare(
-                "INSERT INTO users
+                "INSERT INTO user
                 (username, password, nama_lengkap, level)
                 VALUES (?, ?, ?, ?)"
             );

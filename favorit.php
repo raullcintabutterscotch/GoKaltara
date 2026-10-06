@@ -2,6 +2,7 @@
 
 session_start();
 require_once "config/koneksi.php";
+require_once "config/image_optimizer.php";
 
 $is_login = isset($_SESSION["login"]) &&
     (
@@ -39,18 +40,13 @@ function e($value)
     );
 }
 
-function fotoKuliner($foto)
+function fotoKuliner($foto, $thumbnail = false)
 {
-    if (
-        !empty($foto) &&
-        file_exists(
-            "assets/images/" . $foto
-        )
-    ) {
-        return "assets/images/" . $foto;
-    }
-
-    return "assets/images/no-image.jpg";
+    return gokaltara_image_url(
+        (string) ($foto ?? ""),
+        "assets/images/",
+        (bool) $thumbnail
+    );
 }
 
 function getUnreadNotification($koneksi, $id_user)
@@ -311,6 +307,8 @@ $total_favorit =
         href="assets/css/notifikasi.css?v=60"
     >
 
+    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+
 </head>
 
 <body>
@@ -328,8 +326,7 @@ $total_favorit =
 
                 <img
                     src="assets/images/logo.svg"
-                    alt="Logo GoKaltara Kuliner"
-                >
+                    alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
 
             </span>
 
@@ -532,7 +529,8 @@ $total_favorit =
                             fotoKuliner(
                                 $item[
                                     "foto"
-                                ] ?? ""
+                                ] ?? "",
+                                true
                             );
 
                         $rating =
@@ -592,8 +590,7 @@ $total_favorit =
                                             "nama_kuliner"
                                         ]
                                     ) ?>"
-                                    loading="lazy"
-                                >
+                                 loading="lazy" decoding="async">
 
                                 <span
                                     class="favorite-category"
@@ -790,8 +787,7 @@ $total_favorit =
                     <span class="footer-logo">
                         <img
                             src="assets/images/logo.svg"
-                            alt="GoKaltara Kuliner"
-                        >
+                            alt="GoKaltara Kuliner" loading="eager" decoding="async">
                     </span>
 
                     <span class="footer-brand-text">
@@ -951,6 +947,8 @@ $total_favorit =
     <script
         src="assets/js/notifikasi.js?v=60"
     ></script>
+
+    <script src="assets/js/performance.js?v=1" defer></script>
 
 </body>
 </html>

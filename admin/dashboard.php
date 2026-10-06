@@ -1,20 +1,12 @@
 <?php
 
-session_start();
+declare(strict_types=1);
 
-require_once "../config/koneksi.php";
+require_once "../api/_auth.php";
 
-if (
-    !isset($_SESSION["login"]) ||
-    $_SESSION["login"] !== true ||
-    !isset($_SESSION["level"]) ||
-    $_SESSION["level"] !== "admin"
-) {
-    header("Location: ../login.php");
-    exit;
-}
+requireAdminPage($koneksi);
 
-$id_user = $_SESSION["id_user"] ?? 0;
+$id_user = (int) ($_SESSION["id_user"] ?? 0);
 $nama_admin = $_SESSION["nama_lengkap"] ?? "Administrator";
 
 $stmt_user = $koneksi->prepare("
@@ -29,6 +21,11 @@ $stmt_user = $koneksi->prepare("
     LIMIT 1
 ");
 
+if (!$stmt_user) {
+    header("Location: ../login.php");
+    exit;
+}
+
 $stmt_user->bind_param("i", $id_user);
 $stmt_user->execute();
 
@@ -38,15 +35,35 @@ $data_user = $result_user->fetch_assoc();
 $stmt_user->close();
 
 if (!$data_user) {
-    session_unset();
+    $_SESSION = [];
+
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+
+        setcookie(
+            session_name(),
+            "",
+            time() - 42000,
+            $params["path"],
+            $params["domain"],
+            $params["secure"],
+            $params["httponly"]
+        );
+    }
+
     session_destroy();
 
     header("Location: ../login.php");
     exit;
 }
 
-$nama_admin = $data_user["nama_lengkap"];
-$foto_profil = $data_user["foto_profil"] ?? "";
+$nama_admin = trim((string) ($data_user["nama_lengkap"] ?? "Administrator"));
+
+if ($nama_admin === "") {
+    $nama_admin = "Administrator";
+}
+
+$foto_profil = trim((string) ($data_user["foto_profil"] ?? ""));
 
 $query = $koneksi->query("
     SELECT COUNT(*) AS total
@@ -56,7 +73,8 @@ $query = $koneksi->query("
 $total_kuliner = 0;
 
 if ($query) {
-    $total_kuliner = (int) $query->fetch_assoc()["total"];
+    $row = $query->fetch_assoc();
+    $total_kuliner = (int) ($row["total"] ?? 0);
 }
 
 $query = $koneksi->query("
@@ -67,7 +85,8 @@ $query = $koneksi->query("
 $total_kategori = 0;
 
 if ($query) {
-    $total_kategori = (int) $query->fetch_assoc()["total"];
+    $row = $query->fetch_assoc();
+    $total_kategori = (int) ($row["total"] ?? 0);
 }
 
 $query = $koneksi->query("
@@ -80,7 +99,8 @@ $query = $koneksi->query("
 $total_daerah = 0;
 
 if ($query) {
-    $total_daerah = (int) $query->fetch_assoc()["total"];
+    $row = $query->fetch_assoc();
+    $total_daerah = (int) ($row["total"] ?? 0);
 }
 
 $query_terbaru = $koneksi->query("
@@ -119,8 +139,7 @@ $query_chart = $koneksi->query("
 
 if ($query_chart) {
     while ($row = $query_chart->fetch_assoc()) {
-
-        $label = trim($row["asal_daerah"]);
+        $label = trim((string) ($row["asal_daerah"] ?? ""));
 
         $label = preg_replace(
             '/,\s*Provinsi Kalimantan Utara.*$/i',
@@ -143,12 +162,20 @@ if ($query_chart) {
         $label = trim($label);
 
         $chart_labels[] = $label;
-        $chart_values[] = (int) $row["total"];
+        $chart_values[] = (int) ($row["total"] ?? 0);
     }
 }
 
-?>
+$initial_admin =
+    strtoupper(
+        substr(
+            $nama_admin,
+            0,
+            1
+        )
+    );
 
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -161,12 +188,17 @@ if ($query_chart) {
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="theme-color"
+        content="#123d32"
+    >
+
     <title>Dashboard Admin | Kuliner Kaltara</title>
-    
+
     <link
         rel="icon"
+        type="image/svg+xml"
         href="../assets/images/logo.svg"
-        sizes="48x48"
     >
 
     <link
@@ -175,8 +207,8 @@ if ($query_chart) {
     >
 
     <link
-        rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+        rel="stylesheet"
     >
 
     <link
@@ -185,6 +217,8 @@ if ($query_chart) {
     >
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="../assets/css/performance.css?v=1">
 
 </head>
 
@@ -202,8 +236,7 @@ if ($query_chart) {
 
                         <img
                             src="../assets/images/logo.svg"
-                            alt="Logo Kuliner Kaltara"
-                        >
+                            alt="Logo GoKaltara Kuliner" loading="eager" decoding="async">
 
                         <div>
                             GoKaltara
@@ -284,22 +317,22 @@ if ($query_chart) {
                     class="admin-profile"
                 >
 
-                    <?php if (!empty($foto_profil)): ?>
+                    <?php if ($foto_profil !== ""): ?>
 
                         <img
-                            src="../assets/images/profil/<?= htmlspecialchars($foto_profil) ?>"
+                            src="<?= htmlspecialchars(gokaltara_profile_image_url($foto_profil, true), ENT_QUOTES, "UTF-8") ?>"
                             alt="Foto Profil"
                             class="avatar avatar-image"
-                        >
+                         loading="eager" decoding="async">
 
                     <?php else: ?>
 
                         <div class="avatar">
 
                             <?= htmlspecialchars(
-                                strtoupper(
-                                    substr($nama_admin, 0, 1)
-                                )
+                                $initial_admin,
+                                ENT_QUOTES,
+                                "UTF-8"
                             ) ?>
 
                         </div>
@@ -310,7 +343,11 @@ if ($query_chart) {
 
                         <div class="admin-name">
 
-                            <?= htmlspecialchars($nama_admin) ?>
+                            <?= htmlspecialchars(
+                                $nama_admin,
+                                ENT_QUOTES,
+                                "UTF-8"
+                            ) ?>
 
                         </div>
 
@@ -340,6 +377,66 @@ if ($query_chart) {
         </aside>
 
         <main class="main-content">
+
+            <div class="mobile-header">
+
+                <div class="mobile-header-left">
+
+                    <a
+                        href="../index.php"
+                        class="mobile-brand"
+                    >
+
+                        <div class="mobile-brand-logo">
+
+                            <img
+                                src="../assets/images/logo.svg"
+                                alt="GoKaltara Kuliner" loading="eager" decoding="async">
+
+                        </div>
+
+                        <div class="mobile-brand-info">
+
+                            <div class="mobile-brand-title">
+                                GoKaltara Kuliner
+                            </div>
+
+                            <div class="mobile-brand-subtitle">
+                                Admin Panel
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+                <a
+                    href="profil.php"
+                    class="mobile-header-profile"
+                    title="Profil"
+                >
+
+                    <?php if ($foto_profil !== ""): ?>
+
+                        <img
+                            src="<?= htmlspecialchars(gokaltara_profile_image_url($foto_profil, true), ENT_QUOTES, "UTF-8") ?>"
+                            alt="Foto Profil"
+                         loading="lazy" decoding="async">
+
+                    <?php else: ?>
+
+                        <?= htmlspecialchars(
+                            $initial_admin,
+                            ENT_QUOTES,
+                            "UTF-8"
+                        ) ?>
+
+                    <?php endif; ?>
+
+                </a>
+
+            </div>
 
             <div class="container-fluid px-0">
 
@@ -558,14 +655,7 @@ if ($query_chart) {
 
                     </div>
 
-                    <div
-                        style="
-                            position: relative;
-                            width: 100%;
-                            height: 340px;
-                            padding: 0 22px 22px;
-                        "
-                    >
+                    <div class="region-chart-wrapper">
 
                         <canvas id="regionChart"></canvas>
 
@@ -599,9 +689,7 @@ if ($query_chart) {
                                         href="kuliner.php"
                                         class="btn btn-sm btn-outline-success rounded-3"
                                     >
-
                                         Lihat Semua
-
                                     </a>
 
                                 </div>
@@ -638,22 +726,24 @@ if ($query_chart) {
 
                                     <tbody>
 
-                                        <?php if (
-                                            $query_terbaru &&
-                                            $query_terbaru->num_rows > 0
-                                        ): ?>
+                                        <?php if ($query_terbaru && $query_terbaru->num_rows > 0): ?>
 
-                                            <?php while (
-                                                $data =
-                                                $query_terbaru->fetch_assoc()
-                                            ): ?>
+                                            <?php while ($data = $query_terbaru->fetch_assoc()): ?>
 
                                                 <?php
+                                                $foto_nama = trim(
+                                                    (string) ($data["foto"] ?? "")
+                                                );
 
-                                                $foto_kuliner =
-                                                    "../assets/images/" .
-                                                    ($data["foto"] ?? "");
+                                                $foto_kuliner = gokaltara_image_url(
+                                                    $foto_nama,
+                                                    "../assets/images/",
+                                                    true
+                                                );
 
+                                                $foto_kuliner_exists =
+                                                    $foto_nama !== "" &&
+                                                    $foto_kuliner !== "../assets/images/no-image.jpg";
                                                 ?>
 
                                                 <tr>
@@ -663,20 +753,23 @@ if ($query_chart) {
                                                         <div class="food-wrapper">
 
                                                             <?php if (
-                                                                !empty($data["foto"]) &&
-                                                                file_exists($foto_kuliner)
+                                                                $foto_kuliner_exists
                                                             ): ?>
 
                                                                 <div class="food-image">
 
                                                                     <img
                                                                         src="<?= htmlspecialchars(
-                                                                            $foto_kuliner
+                                                                            $foto_kuliner,
+                                                                            ENT_QUOTES,
+                                                                            "UTF-8"
                                                                         ) ?>"
                                                                         alt="<?= htmlspecialchars(
-                                                                            $data["nama_kuliner"]
+                                                                            $data["nama_kuliner"],
+                                                                            ENT_QUOTES,
+                                                                            "UTF-8"
                                                                         ) ?>"
-                                                                    >
+                                                                     loading="lazy" decoding="async">
 
                                                                 </div>
 
@@ -695,15 +788,20 @@ if ($query_chart) {
                                                                 <div class="food-name">
 
                                                                     <?= htmlspecialchars(
-                                                                        $data["nama_kuliner"]
+                                                                        $data["nama_kuliner"],
+                                                                        ENT_QUOTES,
+                                                                        "UTF-8"
                                                                     ) ?>
 
                                                                 </div>
 
                                                                 <div class="food-id">
 
-                                                                    ID #<?= htmlspecialchars(
-                                                                        $data["id_kuliner"]
+                                                                    ID #
+                                                                    <?= htmlspecialchars(
+                                                                        $data["id_kuliner"],
+                                                                        ENT_QUOTES,
+                                                                        "UTF-8"
                                                                     ) ?>
 
                                                                 </div>
@@ -713,7 +811,9 @@ if ($query_chart) {
                                                                     <span class="mobile-area">
 
                                                                         <?= htmlspecialchars(
-                                                                            $data["asal_daerah"] ?: "-"
+                                                                            $data["asal_daerah"] ?: "-",
+                                                                            ENT_QUOTES,
+                                                                            "UTF-8"
                                                                         ) ?>
 
                                                                     </span>
@@ -725,7 +825,9 @@ if ($query_chart) {
                                                                     <span class="category-badge">
 
                                                                         <?= htmlspecialchars(
-                                                                            $data["nama_kategori"] ?: "Tanpa kategori"
+                                                                            $data["nama_kategori"] ?: "Tanpa kategori",
+                                                                            ENT_QUOTES,
+                                                                            "UTF-8"
                                                                         ) ?>
 
                                                                     </span>
@@ -741,7 +843,9 @@ if ($query_chart) {
                                                     <td>
 
                                                         <?= htmlspecialchars(
-                                                            $data["asal_daerah"] ?: "-"
+                                                            $data["asal_daerah"] ?: "-",
+                                                            ENT_QUOTES,
+                                                            "UTF-8"
                                                         ) ?>
 
                                                     </td>
@@ -751,7 +855,9 @@ if ($query_chart) {
                                                         <span class="category-badge">
 
                                                             <?= htmlspecialchars(
-                                                                $data["nama_kategori"] ?: "Tanpa kategori"
+                                                                $data["nama_kategori"] ?: "Tanpa kategori",
+                                                                ENT_QUOTES,
+                                                                "UTF-8"
                                                             ) ?>
 
                                                         </span>
@@ -762,7 +868,7 @@ if ($query_chart) {
 
                                                         <a
                                                             href="edit_kuliner.php?id=<?= urlencode(
-                                                                $data["id_kuliner"]
+                                                                (string) $data["id_kuliner"]
                                                             ) ?>"
                                                             class="edit-button"
                                                             title="Edit Kuliner"
@@ -853,9 +959,7 @@ if ($query_chart) {
         >
 
             <span>
-
                 <i class="bi bi-plus-lg"></i>
-
             </span>
 
         </a>
@@ -890,15 +994,17 @@ if ($query_chart) {
 
     <script>
 
-        const regionLabels = <?= json_encode(
-            $chart_labels,
-            JSON_UNESCAPED_UNICODE
-        ) ?>;
+        const regionLabels =
+            <?= json_encode(
+                $chart_labels,
+                JSON_UNESCAPED_UNICODE
+            ) ?>;
 
-        const regionValues = <?= json_encode(
-            $chart_values,
-            JSON_UNESCAPED_UNICODE
-        ) ?>;
+        const regionValues =
+            <?= json_encode(
+                $chart_values,
+                JSON_UNESCAPED_UNICODE
+            ) ?>;
 
         const regionCanvas =
             document.getElementById("regionChart");
@@ -932,33 +1038,28 @@ if ($query_chart) {
                         datasets: [
                             {
                                 label: "Jumlah Kuliner",
-
                                 data: regionValues,
 
                                 backgroundColor:
                                     regionValues.map(
                                         function (_, index) {
                                             return regionColors[
-                                                index %
-                                                regionColors.length
+                                                index % regionColors.length
                                             ];
                                         }
                                     ),
 
                                 borderWidth: 0,
-
                                 borderRadius: 8,
-
                                 borderSkipped: false,
-
                                 barPercentage: 0.65,
-
                                 categoryPercentage: 0.7
                             }
                         ]
                     },
 
                     options: {
+
                         responsive: true,
 
                         maintainAspectRatio: false,
@@ -1066,6 +1167,7 @@ if ($query_chart) {
                         }
 
                     }
+
                 }
             );
 
@@ -1074,6 +1176,8 @@ if ($query_chart) {
     </script>
 
     <script src="../assets/js/dashboard.js"></script>
+
+    <script src="../assets/js/performance.js?v=1" defer></script>
 
 </body>
 
