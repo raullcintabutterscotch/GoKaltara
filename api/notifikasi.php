@@ -1,28 +1,11 @@
 <?php
 
-session_start();
+declare(strict_types=1);
 
-require_once "../config/koneksi.php";
-require_once "../config/image_optimizer.php";
+require_once "_auth.php";
+require_once dirname(__DIR__) . "/config/image_optimizer.php";
 
-header("Content-Type: application/json; charset=UTF-8");
-
-$is_login = isset($_SESSION["login"]) &&
-    (
-        $_SESSION["login"] === true ||
-        $_SESSION["login"] === 1 ||
-        $_SESSION["login"] === "1"
-    );
-
-$id_user = (int) ($_SESSION["id_user"] ?? 0);
-
-if (!$is_login || $id_user <= 0) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Tidak memiliki akses."
-    ]);
-    exit;
-}
+$id_user = requireLogin($koneksi);
 
 $after = (int) ($_GET["after"] ?? 0);
 

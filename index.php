@@ -1,6 +1,5 @@
 <?php
-session_start();
-require_once "config/koneksi.php";
+require_once "api/_auth.php";
 require_once "config/image_optimizer.php";
 
 $is_login = isset($_SESSION['login']) &&
@@ -270,7 +269,7 @@ $query_kategori = $koneksi->query("
 
     <link
         rel="stylesheet"
-        href="assets/css/notifikasi.css?v=60"
+        href="assets/css/notifikasi.css?v=61"
     >
 
 <?php endif; ?>

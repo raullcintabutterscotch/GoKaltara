@@ -1,6 +1,5 @@
 <?php
-session_start();
-require_once "config/koneksi.php";
+require_once "api/_auth.php";
 require_once "config/image_optimizer.php";
 
 $id_user = (int) ($_SESSION['id_user'] ?? 0);
@@ -303,7 +302,7 @@ if (!empty($user['foto_profil'])) {
         rel="stylesheet"
         href="assets/css/profil-user.css?v=5">
 
-    <link rel="stylesheet" href="assets/css/notifikasi.css?v=60">
+    <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
     <link
         rel="preload"
         href="assets/css/performance.css?v=2"

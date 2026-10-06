@@ -60,6 +60,11 @@ function gokaltara_profile_image_url(
         return "";
     }
 
+    $script = str_replace("\\", "/", (string) ($_SERVER["SCRIPT_NAME"] ?? $_SERVER["PHP_SELF"] ?? ""));
+    $base_url = strpos($script, "/admin/") !== false
+        ? "../assets/images/profil/"
+        : "assets/images/profil/";
+
     $root = dirname(__DIR__) . "/assets/images/profil";
     $stem = gokaltara_image_stem($filename);
 
@@ -67,7 +72,7 @@ function gokaltara_profile_image_url(
         $thumb_file = $root . "/thumbs/" . $stem . ".webp";
 
         if (is_file($thumb_file)) {
-            return "assets/images/profil/thumbs/" . rawurlencode($stem) . ".webp";
+            return $base_url . "thumbs/" . rawurlencode($stem) . ".webp";
         }
     }
 
@@ -75,13 +80,13 @@ function gokaltara_profile_image_url(
     $webp_file = $root . "/" . $stem . ".webp";
 
     if ($extension !== "webp" && is_file($webp_file)) {
-        return "assets/images/profil/" . rawurlencode($stem) . ".webp";
+        return $base_url . rawurlencode($stem) . ".webp";
     }
 
     $original_file = $root . "/" . $filename;
 
     if (is_file($original_file)) {
-        return "assets/images/profil/" . rawurlencode($filename);
+        return $base_url . rawurlencode($filename);
     }
 
     return "";

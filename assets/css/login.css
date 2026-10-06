@@ -747,3 +747,14 @@ body.login-body {
         transition: none;
     }
 }
+
+
+.alert-success-soft {
+    padding: 10px 12px;
+    border: 1px solid #b5d9c6;
+    border-radius: 10px;
+    background: #effaf4;
+    color: #176b47;
+    font-size: 10px;
+    line-height: 1.5;
+}

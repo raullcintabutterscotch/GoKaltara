@@ -810,3 +810,19 @@ img {
     }
 
 }
+
+.public-navbar .notification-nav,
+.public-navbar .notification-nav:link,
+.public-navbar .notification-nav:visited,
+.public-navbar .notification-nav i,
+.public-navbar .notification-nav:link i,
+.public-navbar .notification-nav:visited i {
+    color: #1d6250 !important;
+}
+
+.public-navbar .notification-nav:hover,
+.public-navbar .notification-nav:hover i,
+.public-navbar .notification-nav:focus-visible,
+.public-navbar .notification-nav:focus-visible i {
+    color: #123d32 !important;
+}

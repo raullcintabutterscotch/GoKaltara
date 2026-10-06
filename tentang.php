@@ -1,6 +1,5 @@
 <?php
-session_start();
-require_once "config/koneksi.php";
+require_once "api/_auth.php";
 
 $is_login = isset($_SESSION['login']) &&
     (
@@ -68,7 +67,7 @@ $nama_tampilan = htmlspecialchars(
 
     <link
         rel="stylesheet"
-        href="assets/css/notifikasi.css?v=60"
+        href="assets/css/notifikasi.css?v=61"
     >
     <link
         rel="preload"

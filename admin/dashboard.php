@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once "../api/_auth.php";
+require_once "../config/image_optimizer.php";
 
 requireAdminPage($koneksi);
 

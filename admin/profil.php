@@ -1,8 +1,6 @@
 <?php
 
-session_start();
-
-require_once "../config/koneksi.php";
+require_once "../api/_auth.php";
 require_once "../config/image_optimizer.php";
 
 if (
