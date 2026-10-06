@@ -261,7 +261,7 @@ $query_kategori = $koneksi->query("
 
     <link
         rel="stylesheet"
-        href="assets/css/index.css?v=11"
+        href="assets/css/index.css?v=12"
     >
 
     <?php if ($is_login): ?>
@@ -504,7 +504,7 @@ $query_kategori = $koneksi->query("
     <div class="carousel-item">
 
         <div
-            class="hero-slide hero-slide-2"
+            class="hero-slide hero-slide-2 is-loading"
             data-bg="assets/images/carousel/nasi-subut.webp"
         >
 
@@ -545,7 +545,7 @@ $query_kategori = $koneksi->query("
     <div class="carousel-item">
 
         <div
-            class="hero-slide hero-slide-3"
+            class="hero-slide hero-slide-3 is-loading"
             data-bg="assets/images/carousel/kue-lapis.webp"
         >
 
@@ -836,7 +836,7 @@ $query_kategori = $koneksi->query("
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
-<script src="assets/js/index.js?v=10" defer></script>
+<script src="assets/js/index.js?v=11" defer></script>
 
 
 <?php if ($is_login): ?>

@@ -10,7 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const liveName = document.getElementById("liveName");
     const liveUsername = document.getElementById("liveUsername");
-    const liveRole = document.getElementById("liveRole");
+    const liveRole =
+        document.getElementById("liveRole") ||
+        document.querySelector(".admin-role");
 
     const saveButton = document.getElementById("saveButton");
     const alertBox = document.getElementById("alertBox");
@@ -18,9 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const sidebarProfileImage =
         document.getElementById("sidebarProfileImage");
-
-    const sidebarProfileInitial =
-        document.getElementById("sidebarProfileInitial");
 
     if (
         !fotoInput ||
@@ -107,12 +106,43 @@ document.addEventListener("DOMContentLoaded", function () {
         mainPreview.innerHTML = `
             <img
                 id="mainPreviewImage"
-                src="${src}"
                 alt="Foto Profil"
                 width="220"
                 height="220"
             >
         `;
+
+        const image = mainPreview.querySelector("img");
+
+        watchImageLoading(image, mainPreview);
+        image.src = src;
+    }
+
+    function watchImageLoading(
+        image,
+        wrapper,
+        loadingClass = "is-loading",
+        checkCurrentSource = true
+    ) {
+        if (!image || !wrapper) {
+            return;
+        }
+
+        const finishLoading = () => {
+            wrapper.classList.remove(loadingClass);
+        };
+
+        wrapper.classList.add(loadingClass);
+        image.addEventListener("load", finishLoading, { once: true });
+        image.addEventListener("error", finishLoading, { once: true });
+
+        if (
+            checkCurrentSource &&
+            image.getAttribute("src") &&
+            image.complete
+        ) {
+            finishLoading();
+        }
     }
 
     function updateProfileImages(url) {
@@ -128,27 +158,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
         createPreviewImage(cacheUrl);
 
-        if (sidebarProfileImage) {
-            sidebarProfileImage.src = cacheUrl;
+        const currentSidebarImage =
+            document.getElementById("sidebarProfileImage");
+
+        if (currentSidebarImage) {
+            const sidebarWrapper =
+                currentSidebarImage.closest(".admin-profile");
+
+            watchImageLoading(
+                currentSidebarImage,
+                sidebarWrapper,
+                "is-avatar-loading",
+                false
+            );
+            currentSidebarImage.src = cacheUrl;
         } else {
             const image = document.createElement("img");
 
             image.id = "sidebarProfileImage";
-            image.className =
-                "sidebar-avatar-image";
+            image.className = "avatar avatar-image";
             image.alt = "Foto Profil";
             image.width = 44;
             image.height = 44;
-            image.src = cacheUrl;
+            const initial = document.getElementById("sidebarProfileInitial");
+            const wrapper = initial?.closest(".admin-profile");
 
-            const wrapper =
-                document.querySelector(
-                    ".sidebar-avatar-wrap"
+            if (wrapper && initial) {
+                initial.replaceWith(image);
+                watchImageLoading(
+                    image,
+                    wrapper,
+                    "is-avatar-loading"
                 );
-
-            if (wrapper) {
-                wrapper.innerHTML = "";
-                wrapper.appendChild(image);
+                image.src = cacheUrl;
             }
         }
 
@@ -160,6 +202,19 @@ document.addEventListener("DOMContentLoaded", function () {
         if (oldInitial) {
             oldInitial.remove();
         }
+    }
+
+    watchImageLoading(
+        mainPreview.querySelector("img"),
+        mainPreview
+    );
+
+    if (sidebarProfileImage) {
+        watchImageLoading(
+            sidebarProfileImage,
+            sidebarProfileImage.closest(".admin-profile"),
+            "is-avatar-loading"
+        );
     }
 
     function setSavingState(isSaving) {

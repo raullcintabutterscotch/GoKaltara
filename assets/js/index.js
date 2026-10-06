@@ -7,6 +7,25 @@ document.addEventListener("DOMContentLoaded", () => {
     let controller = null;
 
     if (carousel && window.bootstrap) {
+        const firstSlideImage =
+            carousel.querySelector(".hero-slide-image");
+
+        if (firstSlideImage) {
+            const firstSlide = firstSlideImage.closest(".hero-slide");
+            const finishLoading = () => {
+                firstSlide?.classList.remove("is-loading");
+            };
+
+            firstSlideImage.addEventListener("load", finishLoading, { once: true });
+            firstSlideImage.addEventListener("error", finishLoading, { once: true });
+
+            if (firstSlideImage.complete) {
+                finishLoading();
+            } else {
+                firstSlide?.classList.add("is-loading");
+            }
+        }
+
         const instance = bootstrap.Carousel.getOrCreateInstance(carousel, {
             interval: 4500,
             ride: "carousel",
@@ -27,8 +46,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!src) return;
 
-                element.style.backgroundImage = `url("${src}")`;
-                element.removeAttribute("data-bg");
+                const image = new Image();
+
+                image.onload = () => {
+                    element.style.backgroundImage = `url("${src}")`;
+                    element.removeAttribute("data-bg");
+                    element.classList.remove("is-loading");
+                };
+
+                image.onerror = () => {
+                    element.classList.remove("is-loading");
+                };
+
+                image.src = src;
             });
         };
 

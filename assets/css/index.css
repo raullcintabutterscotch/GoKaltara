@@ -216,7 +216,10 @@ img {
 
 .hero-slide {
     position: relative;
+    display: flex;
+    align-items: center;
     overflow: hidden;
+    min-height: clamp(360px, 36vw, 500px);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -229,7 +232,31 @@ img {
     height: 100%;
     object-fit: cover;
     object-position: center;
+    z-index: 0;
     display: block;
+}
+
+.hero-slide.is-loading::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        linear-gradient(
+            100deg,
+            #dfe8e3 20%,
+            #f3f6f2 38%,
+            #dfe8e3 56%
+        );
+    background-size: 220% 100%;
+    animation: hero-image-shimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes hero-image-shimmer {
+    to {
+        background-position: -220% 0;
+    }
 }
 
 .hero-slide-2,
@@ -242,6 +269,7 @@ img {
 .hero-overlay {
     position: absolute;
     inset: 0;
+    z-index: 2;
     background:
         linear-gradient(
             90deg,
@@ -253,7 +281,7 @@ img {
 
 .hero-content {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     width: min(600px, 90%);
     margin-left: clamp(30px, 7vw, 85px);
     color: var(--white);
@@ -1074,7 +1102,7 @@ img {
     }
 
     .hero-slide {
-        min-height: 430px;
+        min-height: 380px;
     }
 
     .hero-content {
@@ -1218,7 +1246,7 @@ img {
     }
 
     .hero-slide {
-        min-height: 390px;
+        min-height: 360px;
     }
 
     .hero-content {
@@ -1313,7 +1341,7 @@ img {
 
 @media (max-width: 400px) {
     .hero-slide {
-        min-height: 360px;
+        min-height: 340px;
     }
 
     .hero-content h1 {
@@ -1377,7 +1405,8 @@ img.perf-image.is-loaded {
 
 @media (prefers-reduced-motion: reduce) {
     .skip-link,
-    img.perf-image {
+    img.perf-image,
+    .hero-slide.is-loading::before {
         transition: none;
         animation: none;
     }

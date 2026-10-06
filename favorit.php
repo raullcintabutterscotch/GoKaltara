@@ -374,7 +374,7 @@ $total_favorit =
             <a
                 href="notifikasi.php"
                 class="notification-nav"
-             aria-label="Notifikasi">
+                aria-label="Notifikasi">
 
                 <i
                     class="bi bi-bell"
