@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once "../api/_auth.php";
 require_once "../config/image_optimizer.php";
+require_once "../config/profile_images.php";
 
 requireAdminPage($koneksi);
 
@@ -318,7 +319,7 @@ $initial_admin =
                     <?php if ($foto_profil !== ""): ?>
 
                         <img
-                            src="<?= htmlspecialchars(gokaltara_profile_image_url($foto_profil, true), ENT_QUOTES, "UTF-8") ?>"
+                            src="<?= htmlspecialchars(gokaltara_profile_image_url_direct($foto_profil, true), ENT_QUOTES, "UTF-8") ?>"
                             alt="Foto Profil"
                             class="avatar avatar-image"
                          loading="eager" decoding="async">
@@ -418,7 +419,7 @@ $initial_admin =
                     <?php if ($foto_profil !== ""): ?>
 
                         <img
-                            src="<?= htmlspecialchars(gokaltara_profile_image_url($foto_profil, true), ENT_QUOTES, "UTF-8") ?>"
+                            src="<?= htmlspecialchars(gokaltara_profile_image_url_direct($foto_profil, true), ENT_QUOTES, "UTF-8") ?>"
                             alt="Foto Profil"
                          loading="lazy" decoding="async">
 

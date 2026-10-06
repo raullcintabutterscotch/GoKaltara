@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 require_once "api/_auth.php";
-require_once "config/image_optimizer.php";
+require_once "config/profile_images.php";
 
 $id_user = requirePageLogin($koneksi);
 $is_login = true;
@@ -122,15 +122,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         isset($_FILES['foto_profil']) &&
         ($_FILES['foto_profil']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
     ) {
-        $processed = gokaltara_process_upload(
+        $processed = gokaltara_save_profile_upload_direct(
             $_FILES['foto_profil'],
-            __DIR__ . "/assets/images/profil",
-            "profil_" . $id_user,
-            3 * 1024 * 1024,
-            600,
-            240,
-            80,
-            78
+            (int) $id_user
         );
 
         if (!$processed['success']) {
@@ -165,10 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$stmt_update->execute()) {
 
         if ($foto_upload_baru) {
-            gokaltara_delete_optimized_image(
-                $foto_baru,
-                __DIR__ . "/assets/images/profil"
-            );
+            gokaltara_delete_profile_image_direct($foto_baru);
         }
 
         echo json_encode([
@@ -186,10 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         !empty($foto_lama)
     ) {
 
-        gokaltara_delete_optimized_image(
-            $foto_lama,
-            __DIR__ . "/assets/images/profil"
-        );
+        gokaltara_delete_profile_image_direct((string) $foto_lama);
     }
 
     $_SESSION['login'] = true;
@@ -200,10 +188,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['foto_profil'] = $foto_baru;
 
     $foto_url = $foto_baru !== ''
-        ? gokaltara_profile_image_url($foto_baru, false)
+        ? gokaltara_profile_image_url_direct($foto_baru, false)
         : '';
     $foto_thumbnail_url = $foto_baru !== ''
-        ? gokaltara_profile_image_url($foto_baru, true)
+        ? gokaltara_profile_image_url_direct($foto_baru, true)
         : '';
 
     if ($foto_url !== '') {
@@ -242,7 +230,7 @@ $username_user = htmlspecialchars(
 );
 
 if (!empty($user['foto_profil'])) {
-    $foto_profil = gokaltara_profile_image_url(
+    $foto_profil = gokaltara_profile_image_url_direct(
         $user['foto_profil'],
         false
     );

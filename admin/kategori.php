@@ -3,6 +3,7 @@
 session_start();
 require_once "../config/koneksi.php";
 require_once "../config/image_optimizer.php";
+require_once "../config/profile_images.php";
 
 if (
     !isset($_SESSION["login"]) ||
@@ -160,7 +161,7 @@ unset($_SESSION["kategori_message"], $_SESSION["kategori_message_type"]);
                 <a href="profil.php" class="admin-profile">
                     <?php if (!empty($foto_profil)): ?>
                         <img
-                            src="<?= htmlspecialchars(gokaltara_profile_image_url($foto_profil, true)) ?>"
+                            src="<?= htmlspecialchars(gokaltara_profile_image_url_direct($foto_profil, true)) ?>"
                             alt="Foto Profil"
                             class="avatar avatar-image"
                          loading="eager" decoding="async">

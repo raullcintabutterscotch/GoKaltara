@@ -344,51 +344,6 @@ function gokaltara_image_url(
     return $assets_path . '/' . rawurlencode($filename);
 }
 
-function gokaltara_profile_image_url(
-    string $filename,
-    bool $thumbnail = false
-): string {
-    $filename = trim($filename);
-
-    if ($filename === '') {
-        return '';
-    }
-
-    if (gokaltara_is_remote_image($filename)) {
-        if (!$thumbnail) {
-            return $filename;
-        }
-
-        $thumb_url = gokaltara_blob_thumbnail_url($filename);
-        return $thumb_url !== '' ? $thumb_url : $filename;
-    }
-
-    $filename = basename($filename);
-    $base_path = rtrim(gokaltara_app_base_path(), '/');
-    $assets_path = $base_path . '/assets/images/profil';
-    $profile_dir = __DIR__ . '/../assets/images/profil';
-    $stem = gokaltara_image_stem($filename);
-    $optimized_filename = $stem . '.webp';
-    $thumbnail_filename = 'thumbs/' . $optimized_filename;
-
-    if (
-        $thumbnail &&
-        is_file($profile_dir . '/' . $thumbnail_filename)
-    ) {
-        return $assets_path . '/' . rawurlencode('thumbs') . '/' . rawurlencode($optimized_filename);
-    }
-
-    if (is_file($profile_dir . '/' . $optimized_filename)) {
-        return $assets_path . '/' . rawurlencode($optimized_filename);
-    }
-
-    if (is_file($profile_dir . '/' . $filename)) {
-        return $assets_path . '/' . rawurlencode($filename);
-    }
-
-    return $base_path . '/assets/images/no-image.jpg';
-}
-
 function gokaltara_create_resized_webp(
     string $source_path,
     string $destination_path,

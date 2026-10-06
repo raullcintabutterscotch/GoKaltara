@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 require_once "../api/_auth.php";
-require_once "../config/image_optimizer.php";
+require_once "../config/profile_images.php";
 
 $id_user = requirePageLogin($koneksi);
 
@@ -69,7 +69,7 @@ function admin_profile_image_url(string $filename): string
         return "";
     }
 
-    return gokaltara_profile_image_url($filename, false);
+    return gokaltara_profile_image_url_direct($filename, false);
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -148,15 +148,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         isset($_FILES["foto_profil"]) &&
         ($_FILES["foto_profil"]["error"] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
     ) {
-        $processed = gokaltara_process_upload(
+        $processed = gokaltara_save_profile_upload_direct(
             $_FILES["foto_profil"],
-            __DIR__ . "/../assets/images/profil",
-            "profil_" . $id_user,
-            3 * 1024 * 1024,
-            600,
-            240,
-            80,
-            78
+            $id_user
         );
 
         if (!$processed["success"]) {
@@ -190,10 +184,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (!$stmt_update) {
         if ($foto_upload_baru) {
-            gokaltara_delete_optimized_image(
-                $foto_baru,
-                __DIR__ . "/../assets/images/profil"
-            );
+            gokaltara_delete_profile_image_direct($foto_baru);
         }
 
         profile_json([
@@ -215,10 +206,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt_update->close();
 
         if ($foto_upload_baru) {
-            gokaltara_delete_optimized_image(
-                $foto_baru,
-                __DIR__ . "/../assets/images/profil"
-            );
+            gokaltara_delete_profile_image_direct($foto_baru);
         }
 
         profile_json([
@@ -234,10 +222,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $foto_lama !== "" &&
         $foto_lama !== $foto_baru
     ) {
-        gokaltara_delete_optimized_image(
-            $foto_lama,
-            __DIR__ . "/../assets/images/profil"
-        );
+        gokaltara_delete_profile_image_direct($foto_lama);
     }
 
     $_SESSION["login"] = true;
@@ -260,7 +245,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $foto_thumbnail_url = "";
 
     if ($foto_baru !== "") {
-        $foto_thumbnail_url = gokaltara_profile_image_url(
+        $foto_thumbnail_url = gokaltara_profile_image_url_direct(
             $foto_baru,
             true
         );
@@ -297,7 +282,7 @@ $username_admin = htmlspecialchars(
 $level_admin = (string) $user["level"];
 $foto_profil = trim((string) ($user["foto_profil"] ?? ""));
 $foto_profil_url = admin_profile_image_url($foto_profil);
-$assets_base_url = rtrim(gokaltara_app_base_path(), "/") . "/assets";
+$assets_base_url = rtrim(gokaltara_profile_storage_base_path(), "/") . "/assets";
 $profile_css_version = (string) (@filemtime(__DIR__ . "/../assets/css/profil.css") ?: 1);
 $profile_js_version = (string) (@filemtime(__DIR__ . "/../assets/js/profil.js") ?: 1);
 

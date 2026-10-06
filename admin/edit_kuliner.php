@@ -3,6 +3,7 @@
 session_start();
 require_once "../config/koneksi.php";
 require_once "../config/image_optimizer.php";
+require_once "../config/profile_images.php";
 
 if (
     !isset($_SESSION["login"]) ||
@@ -217,7 +218,7 @@ if ($foto_lama !== "") {
             <div class="sidebar-bottom">
                 <a href="profil.php" class="admin-profile">
                     <?php if (!empty($foto_profil)): ?>
-                        <img src="<?= htmlspecialchars(gokaltara_profile_image_url($foto_profil, true)) ?>" alt="Foto Profil" class="avatar avatar-image" loading="eager" decoding="async">
+                        <img src="<?= htmlspecialchars(gokaltara_profile_image_url_direct($foto_profil, true)) ?>" alt="Foto Profil" class="avatar avatar-image" loading="eager" decoding="async">
                     <?php else: ?>
                         <div class="avatar">
                             <?= htmlspecialchars(strtoupper(substr($nama_admin, 0, 1))) ?>

@@ -4,6 +4,7 @@ session_start();
 
 require_once "../config/koneksi.php";
 require_once "../config/image_optimizer.php";
+require_once "../config/profile_images.php";
 
 header("Content-Type: application/json; charset=UTF-8");
 
@@ -62,7 +63,7 @@ $ids = [];
 while ($row = $result->fetch_assoc()) {
 
     if (!empty($row["foto_profil"])) {
-        $row["foto_url"] = gokaltara_profile_image_url(
+        $row["foto_url"] = gokaltara_profile_image_url_direct(
             $row["foto_profil"],
             true
         );

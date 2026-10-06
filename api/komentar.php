@@ -1,9 +1,8 @@
-﻿<?php
+<?php
 
 declare(strict_types=1);
 
 require_once "_auth.php";
-require_once dirname(__DIR__) . "/config/image_optimizer.php";
 
 $id_user = requireLogin($koneksi);
 
