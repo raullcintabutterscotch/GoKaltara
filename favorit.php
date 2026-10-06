@@ -312,6 +312,9 @@ $total_favorit =
         rel="stylesheet"
         href="assets/css/notifikasi.css?v=60"
     >
+    
+    <link rel="stylesheet" href="assets/css/footer.css">
+    
     <link
         rel="preload"
         href="assets/css/performance.css?v=2"
@@ -602,7 +605,7 @@ $total_favorit =
                                             "nama_kuliner"
                                         ]
                                     ) ?>"
-                                 loading="lazy" decoding="async">
+                                loading="lazy" decoding="async">
 
                                 <span
                                     class="favorite-category"
@@ -784,93 +787,12 @@ $total_favorit =
 </main>
 
 <footer class="public-footer">
-
-    <div class="footer-container">
-
-        <div class="footer-top">
-
-            <div class="footer-brand-block">
-
-                <a
-                    href="index.php"
-                    class="footer-brand-link"
-                >
-
-                    <span class="footer-logo">
-                        <img
-                            src="assets/images/logo.svg"
-                            alt="GoKaltara Kuliner" loading="eager" decoding="async">
-                    </span>
-
-                    <span class="footer-brand-text">
-                        GoKaltara
-                        <strong>Kuliner</strong>
-                    </span>
-
-                </a>
-
-                <p class="footer-description">
-                    Katalog kuliner khas Kalimantan Utara.
-                </p>
-
-            </div>
-
-            <nav class="footer-nav" aria-label="Navigasi website">
-
-                <span class="footer-nav-title">
-                    Jelajahi
-                </span>
-
-                <a href="index.php">
-                    Beranda
-                </a>
-
-                <a href="katalog.php">
-                    Katalog
-                </a>
-
-                <a href="pencarian.php">
-                    Pencarian
-                </a>
-
-                <a href="tentang.php">
-                    Tentang
-                </a>
-
-            </nav>
-
-            <nav class="footer-nav" aria-label="Navigasi akun">
-
-                <span class="footer-nav-title">
-                    Akun
-                </span>
-
-                <a href="favorit.php">
-                    Favorit
-                </a>
-
-                <a href="notifikasi.php">
-                    Notifikasi
-                </a>
-
-                <a href="profil-user.php">
-                    Profil
-                </a>
-
-            </nav>
-
-        </div>
-
         <div class="footer-bottom">
-
             <p class="footer-copy">
                 &copy; 2026 GoKaltara | Muhammad Raul Zia Parsa | All Rights Reserved.
             </p>
-
         </div>
-
     </div>
-
 </footer>
 
 <nav class="mobile-public-nav">

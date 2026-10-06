@@ -775,7 +775,7 @@ $initial_admin =
                                                                             ENT_QUOTES,
                                                                             "UTF-8"
                                                                         ) ?>"
-                                                                     loading="lazy" decoding="async">
+                                                                    loading="lazy" decoding="async">
 
                                                                 </div>
 
