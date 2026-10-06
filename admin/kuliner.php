@@ -111,11 +111,17 @@ if ($query) {
         href="../assets/images/logo.svg"
         sizes="48x48"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="../assets/css/kuliner.css">
-    <link rel="stylesheet" href="../assets/css/performance.css?v=1">
+    <link rel="stylesheet" href="../assets/css/performance.css?v=2">
 
 </head>
 <body>
@@ -309,7 +315,7 @@ if ($query) {
             <i class="bi bi-fork-knife"></i>
             <span>Kuliner</span>
         </a>
-        <a href="tambah_kuliner.php" class="mobile-nav-add">
+        <a href="tambah_kuliner.php" class="mobile-nav-add" aria-label="Tambah data">
             <span><i class="bi bi-plus-lg"></i></span>
         </a>
         <a href="kategori.php" class="mobile-nav-link">

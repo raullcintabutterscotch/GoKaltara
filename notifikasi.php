@@ -794,6 +794,12 @@ $notifications =
         href="assets/images/logo.svg"
         sizes="48x48"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
 
     <link
         rel="stylesheet"
@@ -804,8 +810,15 @@ $notifications =
         rel="stylesheet"
         href="assets/css/notifikasi.css?v=50"
     >
-
-    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+    <link
+        rel="preload"
+        href="assets/css/performance.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/performance.css?v=2">
+    </noscript>
 
 </head>
 

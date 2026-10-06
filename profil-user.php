@@ -274,6 +274,18 @@ if (!empty($user['foto_profil'])) {
         href="assets/images/logo.svg"
         sizes="48x48"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
+    <link
+        rel="preconnect"
+        href="https://cdnjs.cloudflare.com"
+        crossorigin
+    >
+
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -292,8 +304,15 @@ if (!empty($user['foto_profil'])) {
         href="assets/css/profil-user.css?v=5">
 
     <link rel="stylesheet" href="assets/css/notifikasi.css?v=60">
-
-    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+    <link
+        rel="preload"
+        href="assets/css/performance.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/performance.css?v=2">
+    </noscript>
 
 </head>
 
@@ -674,9 +693,7 @@ if (!empty($user['foto_profil'])) {
 
                 </div>
 
-                <button
-                    type="button"
-                    class="btn-close"
+                <button type="button" class="btn-close" aria-label="Tutup"
                     data-bs-dismiss="modal">
                 </button>
 

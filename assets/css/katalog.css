@@ -303,11 +303,9 @@ img {
     padding: 12px;
     display: grid;
     grid-template-columns:
-        minmax(250px, 1.6fr)
+        minmax(280px, 1.8fr)
         minmax(170px, 1fr)
-        minmax(170px, 1fr)
-        auto
-        auto;
+        minmax(170px, 1fr);
     align-items: center;
     gap: 8px;
     border: 1px solid var(--border);
@@ -356,49 +354,87 @@ img {
     cursor: pointer;
 }
 
-.filter-submit {
-    height: 41px;
-    padding: 0 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    border: 0;
-    border-radius: 9px;
-    background: var(--green-dark);
-    color: var(--white);
-    font-size: 9px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s ease;
+
+
+
+.catalog-filter .filter-search input[type="search"] {
+    -webkit-appearance: none;
+    appearance: none;
 }
 
-.filter-submit:hover {
-    background: var(--green);
+.catalog-filter .filter-search input[type="search"]::-webkit-search-cancel-button {
+    opacity: 0.6;
 }
 
-.filter-reset {
-    height: 41px;
-    padding: 0 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+.catalog-search-loading {
+    pointer-events: none;
+}
+
+.catalog-skeleton-grid {
+    width: 100%;
+}
+
+.catalog-skeleton-card {
+    overflow: hidden;
     border: 1px solid var(--border);
-    border-radius: 9px;
+    border-radius: 16px;
     background: var(--white);
-    color: var(--muted);
-    font-size: 9px;
-    font-weight: 700;
-    transition:
-        border-color 0.2s ease,
-        background 0.2s ease,
-        color 0.2s ease;
 }
 
-.filter-reset:hover {
-    border-color: #bfd4ca;
-    background: var(--green-light);
-    color: var(--green);
+.catalog-skeleton-image,
+.catalog-skeleton-line {
+    background: linear-gradient(
+        90deg,
+        #eef3f0 0%,
+        #f8faf9 45%,
+        #eef3f0 100%
+    );
+    background-size: 220% 100%;
+    animation: catalog-skeleton 1.15s linear infinite;
+}
+
+.catalog-skeleton-image {
+    width: 100%;
+    height: 210px;
+}
+
+.catalog-skeleton-body {
+    padding: 18px;
+}
+
+.catalog-skeleton-line {
+    height: 9px;
+    margin-bottom: 10px;
+    border-radius: 999px;
+}
+
+.catalog-skeleton-line.short {
+    width: 38%;
+}
+
+.catalog-skeleton-line.medium {
+    width: 65%;
+}
+
+.catalog-skeleton-line.long {
+    width: 90%;
+}
+
+@keyframes catalog-skeleton {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -20% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .catalog-skeleton-image,
+    .catalog-skeleton-line {
+        animation: none;
+        background: #eef3f0;
+    }
 }
 
 .catalog-heading {
@@ -841,9 +877,7 @@ img {
     }
 
     .filter-search input,
-    .filter-select,
-    .filter-submit,
-    .filter-reset {
+    .filter-select {
         height: 38px;
     }
 
@@ -852,12 +886,89 @@ img {
         font-size: 8px;
     }
 
-    .filter-submit,
-    .filter-reset {
-        font-size: 8px;
-    }
+    
 
-    .catalog-heading {
+.catalog-filter .filter-search input[type="search"] {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.catalog-filter .filter-search input[type="search"]::-webkit-search-cancel-button {
+    opacity: 0.6;
+}
+
+.catalog-search-loading {
+    pointer-events: none;
+}
+
+.catalog-skeleton-grid {
+    width: 100%;
+}
+
+.catalog-skeleton-card {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--white);
+}
+
+.catalog-skeleton-image,
+.catalog-skeleton-line {
+    background: linear-gradient(
+        90deg,
+        #eef3f0 0%,
+        #f8faf9 45%,
+        #eef3f0 100%
+    );
+    background-size: 220% 100%;
+    animation: catalog-skeleton 1.15s linear infinite;
+}
+
+.catalog-skeleton-image {
+    width: 100%;
+    height: 210px;
+}
+
+.catalog-skeleton-body {
+    padding: 18px;
+}
+
+.catalog-skeleton-line {
+    height: 9px;
+    margin-bottom: 10px;
+    border-radius: 999px;
+}
+
+.catalog-skeleton-line.short {
+    width: 38%;
+}
+
+.catalog-skeleton-line.medium {
+    width: 65%;
+}
+
+.catalog-skeleton-line.long {
+    width: 90%;
+}
+
+@keyframes catalog-skeleton {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -20% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .catalog-skeleton-image,
+    .catalog-skeleton-line {
+        animation: none;
+        background: #eef3f0;
+    }
+}
+
+.catalog-heading {
         margin: 25px 0 15px;
     }
 

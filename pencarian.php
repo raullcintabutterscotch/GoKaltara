@@ -163,6 +163,12 @@ function fotoKuliner($foto, $thumbnail = false)
         href="assets/images/logo.svg"
         sizes="48x48"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -183,10 +189,24 @@ function fotoKuliner($foto, $thumbnail = false)
         rel="stylesheet"
         href="assets/css/notifikasi.css?v=60"
     >
-    
-    <link rel="stylesheet" href="assets/css/footer.css">
-
-    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+    <link
+        rel="preload"
+        href="assets/css/footer.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/footer.css?v=2">
+    </noscript>
+    <link
+        rel="preload"
+        href="assets/css/performance.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/performance.css?v=2">
+    </noscript>
 
 </head>
 
@@ -251,7 +271,7 @@ function fotoKuliner($foto, $thumbnail = false)
                 <a
                     href="notifikasi.php"
                     class="notification-nav"
-                >
+                 aria-label="Notifikasi">
                     <i class="bi bi-bell"></i>
                 
 

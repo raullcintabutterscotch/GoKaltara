@@ -291,6 +291,12 @@ $total_favorit =
         href="assets/images/logo.svg"
         sizes="48x48"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
 
     <link
         rel="stylesheet"
@@ -306,8 +312,15 @@ $total_favorit =
         rel="stylesheet"
         href="assets/css/notifikasi.css?v=60"
     >
-
-    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+    <link
+        rel="preload"
+        href="assets/css/performance.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/performance.css?v=2">
+    </noscript>
 
 </head>
 
@@ -372,7 +385,7 @@ $total_favorit =
             <a
                 href="notifikasi.php"
                 class="notification-nav"
-            >
+             aria-label="Notifikasi">
 
                 <i
                     class="bi bi-bell"
@@ -394,8 +407,7 @@ $total_favorit =
 
             <a
                 href="favorit.php"
-                class="favorite-nav active"
-            >
+                class="favorite-nav active" aria-label="Favorit" aria-current="page">
 
                 <i
                     class="bi bi-heart-fill"

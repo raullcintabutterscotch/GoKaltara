@@ -56,6 +56,167 @@ function fotoKuliner($foto, $thumbnail = false)
     );
 }
 
+
+function renderCatalogCards($query_hasil): void
+{
+    if (!$query_hasil || $query_hasil->num_rows === 0) {
+        echo '
+            <div class="catalog-empty">
+                <div class="catalog-empty-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h2>Kuliner Tidak Ditemukan</h2>
+                <p>Tidak ada kuliner yang sesuai dengan pencarian atau filter kamu.</p>
+                <a href="katalog.php">Tampilkan Semua Kuliner</a>
+            </div>
+        ';
+        return;
+    }
+
+    echo '<div class="catalog-grid">';
+
+    while ($data = $query_hasil->fetch_assoc()) {
+
+        $foto = fotoKuliner($data["foto"], true);
+
+        $rating = (float) ($data["average_rating"] ?? 0);
+        $total_rating = (int) ($data["total_rating"] ?? 0);
+
+        $deskripsi = strip_tags($data["deskripsi"] ?? "");
+
+        if (mb_strlen($deskripsi) > 95) {
+            $deskripsi = mb_strimwidth($deskripsi, 0, 95, "...");
+        }
+
+        $nama_kuliner = e($data["nama_kuliner"] ?? "Kuliner");
+        $nama_kategori = e($data["nama_kategori"] ?? "Kuliner");
+        $asal_daerah = e($data["asal_daerah"] ?? "-");
+        $deskripsi_html = e($deskripsi);
+        $detail_url = "detail.php?id=" . (int) $data["id_kuliner"];
+        $foto_html = e($foto);
+        $rating_value = number_format($rating, 1);
+
+        echo '
+            <article class="food-card">
+                <a href="' . $detail_url . '" class="food-image-wrap">
+                    <img
+                        src="' . $foto_html . '"
+                        alt="' . $nama_kuliner . '"
+                        loading="lazy"
+                        decoding="async"
+                    >
+                    <span class="food-category">
+                        ' . $nama_kategori . '
+                    </span>
+                </a>
+
+                <div class="food-card-body">
+                    <div class="food-location">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>' . $asal_daerah . '</span>
+                    </div>
+
+                    <h3>' . $nama_kuliner . '</h3>
+
+                    <p>' . $deskripsi_html . '</p>
+
+                    <div class="food-rating">
+                        <span class="rating-stars">';
+
+        for ($i = 1; $i <= 5; $i++) {
+            echo '<i class="bi ' . ($i <= round($rating) ? 'bi-star-fill' : 'bi-star') . '"></i>';
+        }
+
+        echo '
+                        </span>
+                        <strong>' . $rating_value . '</strong>
+                        <small>(' . $total_rating . ')</small>
+                    </div>
+
+                    <a href="' . $detail_url . '" class="detail-link">
+                        Lihat Detail
+                        <i class="bi bi-arrow-up-right"></i>
+                    </a>
+                </div>
+            </article>
+        ';
+    }
+
+    echo '</div>';
+}
+
+function renderCatalogPagination(
+    int $page,
+    int $total_pages,
+    string $q,
+    int $kategori_id,
+    string $daerah
+): void {
+    if ($total_pages <= 1) {
+        return;
+    }
+
+    $pagination_params = [];
+
+    if ($q !== "") {
+        $pagination_params["q"] = $q;
+    }
+
+    if ($kategori_id > 0) {
+        $pagination_params["kategori"] = $kategori_id;
+    }
+
+    if ($daerah !== "") {
+        $pagination_params["daerah"] = $daerah;
+    }
+
+    echo '<nav class="catalog-pagination" aria-label="Navigasi halaman katalog">';
+
+    if ($page > 1) {
+        $pagination_params["page"] = $page - 1;
+        $url = "katalog.php?" . http_build_query($pagination_params);
+        echo '<a href="' . e($url) . '" class="pagination-arrow" aria-label="Halaman sebelumnya"><i class="bi bi-chevron-left"></i></a>';
+    }
+
+    $start_page = max(1, $page - 2);
+    $end_page = min($total_pages, $page + 2);
+
+    if ($start_page > 1) {
+        $pagination_params["page"] = 1;
+        $url = "katalog.php?" . http_build_query($pagination_params);
+        echo '<a href="' . e($url) . '" class="pagination-number">1</a>';
+
+        if ($start_page > 2) {
+            echo '<span class="pagination-dots">...</span>';
+        }
+    }
+
+    for ($i = $start_page; $i <= $end_page; $i++) {
+        $pagination_params["page"] = $i;
+        $url = "katalog.php?" . http_build_query($pagination_params);
+        $active = $page === $i ? " active" : "";
+        echo '<a href="' . e($url) . '" class="pagination-number' . $active . '">' . $i . '</a>';
+    }
+
+    if ($end_page < $total_pages) {
+        if ($end_page < $total_pages - 1) {
+            echo '<span class="pagination-dots">...</span>';
+        }
+
+        $pagination_params["page"] = $total_pages;
+        $url = "katalog.php?" . http_build_query($pagination_params);
+        echo '<a href="' . e($url) . '" class="pagination-number">' . $total_pages . '</a>';
+    }
+
+    if ($page < $total_pages) {
+        $pagination_params["page"] = $page + 1;
+        $url = "katalog.php?" . http_build_query($pagination_params);
+        echo '<a href="' . e($url) . '" class="pagination-arrow" aria-label="Halaman berikutnya"><i class="bi bi-chevron-right"></i></a>';
+    }
+
+    echo '</nav>';
+}
+
 $query_kategori =
     $koneksi->query("
         SELECT
@@ -329,6 +490,39 @@ $query_hasil =
 
 $stmt->close();
 
+if (isset($_GET["ajax"]) && $_GET["ajax"] === "1") {
+
+    ob_start();
+    renderCatalogCards($query_hasil);
+    $cards_html = ob_get_clean();
+
+    ob_start();
+    renderCatalogPagination(
+        $page,
+        $total_pages,
+        $q,
+        $kategori_id,
+        $daerah
+    );
+    $pagination_html = ob_get_clean();
+
+    header("Content-Type: application/json; charset=UTF-8");
+
+    echo json_encode(
+        [
+            "success" => true,
+            "html" => $cards_html,
+            "pagination" => $pagination_html,
+            "total" => $total_data,
+            "page" => $page,
+            "total_pages" => $total_pages
+        ],
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+    );
+
+    exit;
+}
+
 $nama_tampilan =
     e($nama_user);
 
@@ -358,6 +552,12 @@ $nama_tampilan =
         href="assets/images/logo.svg"
         sizes="48x48"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
 
     <link
         rel="stylesheet"
@@ -374,10 +574,24 @@ $nama_tampilan =
     <link
         rel="stylesheet"
         href="assets/css/notifikasi.css?v=70">
-        
-        <link rel="stylesheet" href="assets/css/footer.css">
-
-    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+    <link
+        rel="preload"
+        href="assets/css/footer.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/footer.css?v=2">
+    </noscript>
+    <link
+        rel="preload"
+        href="assets/css/performance.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/performance.css?v=2">
+    </noscript>
 
 </head>
 
@@ -533,7 +747,9 @@ $nama_tampilan =
                 <form
                     action="katalog.php"
                     method="GET"
-                    class="catalog-filter">
+                    class="catalog-filter"
+                    id="catalogFilter"
+                    role="search">
 
                     <div class="filter-search">
 
@@ -541,17 +757,21 @@ $nama_tampilan =
                             class="bi bi-search"></i>
 
                         <input
-                            type="text"
+                            type="search"
                             name="q"
+                            id="catalogRealtimeSearch"
                             value="<?= e($q) ?>"
                             placeholder="Cari nama, daerah, atau bahan utama..."
-                            autocomplete="off">
+                            autocomplete="off"
+                            aria-label="Cari kuliner berdasarkan nama, daerah, atau bahan utama">
 
                     </div>
 
                     <select
                         name="kategori"
-                        class="filter-select">
+                        id="catalogCategoryFilter"
+                        class="filter-select"
+                        aria-label="Filter kategori">
 
                         <option value="">
                             Semua Kategori
@@ -588,7 +808,9 @@ $nama_tampilan =
 
                     <select
                         name="daerah"
-                        class="filter-select">
+                        id="catalogRegionFilter"
+                        class="filter-select"
+                        aria-label="Filter daerah">
 
                         <option value="">
                             Semua Daerah
@@ -625,24 +847,6 @@ $nama_tampilan =
 
                     </select>
 
-                    <button
-                        type="submit"
-                        class="filter-submit">
-
-                        <i class="bi bi-search"></i>
-
-                        Cari
-
-                    </button>
-
-                    <a
-                        href="katalog.php"
-                        class="filter-reset">
-
-                        Reset
-
-                    </a>
-
                 </form>
 
                 <div class="catalog-heading">
@@ -655,7 +859,9 @@ $nama_tampilan =
 
                         <h2>
 
-                            <?= $total_data ?>
+                            <span id="catalogCount">
+                                <?= $total_data ?>
+                            </span>
 
                             Kuliner
 
@@ -663,435 +869,38 @@ $nama_tampilan =
 
                     </div>
 
-                    <?php if (
-                        $q !== "" ||
-                        $kategori_id > 0 ||
-                        $daerah !== ""
-                    ): ?>
-
-                        <div class="active-filter-text">
-
-                            Filter aktif
-
-                        </div>
-
-                    <?php endif; ?>
+                    <div
+                        class="active-filter-text"
+                        id="catalogFilterStatus"
+                        <?= $q !== "" || $kategori_id > 0 || $daerah !== "" ? "" : "hidden" ?>
+                    >
+                        Filter aktif
+                    </div>
 
                 </div>
 
-                <?php if (
-                    $query_hasil &&
-                    $query_hasil->num_rows > 0
-                ): ?>
-
-                    <div class="catalog-grid">
-
-                        <?php while (
-                            $data =
-                            $query_hasil->fetch_assoc()
-                        ): ?>
-
-                            <?php
-
-                            $foto =
-                                fotoKuliner(
-                                    $data["foto"],
-                                    true
-                                );
-
-                            $rating =
-                                (float) (
-                                    $data["average_rating"] ?? 0
-                                );
-
-                            $total_rating =
-                                (int) (
-                                    $data["total_rating"] ?? 0
-                                );
-
-                            $deskripsi =
-                                strip_tags(
-                                    $data["deskripsi"] ?? ""
-                                );
-
-                            if (
-                                mb_strlen(
-                                    $deskripsi
-                                ) > 95
-                            ) {
-
-                                $deskripsi =
-                                    mb_strimwidth(
-                                        $deskripsi,
-                                        0,
-                                        95,
-                                        "..."
-                                    );
-                            }
-
-                            ?>
-
-                            <article
-                                class="food-card">
-
-                                <a
-                                    href="detail.php?id=<?= (int) $data["id_kuliner"] ?>"
-                                    class="food-image-wrap">
-
-                                    <img
-                                        src="<?= e($foto) ?>"
-                                        alt="<?= e(
-                                                    $data["nama_kuliner"]
-                                                ) ?>" loading="lazy" decoding="async">
-
-                                    <span
-                                        class="food-category">
-
-                                        <?= e(
-                                            $data["nama_kategori"] ??
-                                                "Kuliner"
-                                        ) ?>
-
-                                    </span>
-
-                                </a>
-
-                                <div
-                                    class="food-card-body">
-
-                                    <div
-                                        class="food-location">
-
-                                        <i
-                                            class="bi bi-geo-alt-fill"></i>
-
-                                        <span>
-
-                                            <?= e(
-                                                $data["asal_daerah"] ??
-                                                    "-"
-                                            ) ?>
-
-                                        </span>
-
-                                    </div>
-
-                                    <h3>
-
-                                        <?= e(
-                                            $data["nama_kuliner"]
-                                        ) ?>
-
-                                    </h3>
-
-                                    <p>
-
-                                        <?= e(
-                                            $deskripsi
-                                        ) ?>
-
-                                    </p>
-
-                                    <div
-                                        class="food-rating">
-
-                                        <span
-                                            class="rating-stars">
-
-                                            <?php for (
-                                                $i = 1;
-                                                $i <= 5;
-                                                $i++
-                                            ): ?>
-
-                                                <i
-                                                    class="bi <?= $i <= round($rating)
-                                                                    ? "bi-star-fill"
-                                                                    : "bi-star" ?>"></i>
-
-                                            <?php endfor; ?>
-
-                                        </span>
-
-                                        <strong>
-
-                                            <?= number_format(
-                                                $rating,
-                                                1
-                                            ) ?>
-
-                                        </strong>
-
-                                        <small>
-
-                                            (<?= $total_rating ?>)
-
-                                        </small>
-
-                                    </div>
-
-                                    <a
-                                        href="detail.php?id=<?= (int) $data["id_kuliner"] ?>"
-                                        class="detail-link">
-
-                                        Lihat Detail
-
-                                        <i
-                                            class="bi bi-arrow-up-right"></i>
-
-                                    </a>
-
-                                </div>
-
-                            </article>
-
-                        <?php endwhile; ?>
-
-                    </div>
-
-                <?php else: ?>
-
-                    <div
-                        class="catalog-empty">
-
-                        <div
-                            class="catalog-empty-icon">
-
-                            <i
-                                class="bi bi-search"></i>
-
-                        </div>
-
-                        <h2>
-                            Kuliner Tidak Ditemukan
-                        </h2>
-
-                        <p>
-                            Tidak ada kuliner yang sesuai dengan pencarian atau filter kamu.
-                        </p>
-
-                        <a
-                            href="katalog.php">
-                            Tampilkan Semua Kuliner
-                        </a>
-
-                    </div>
-
-                <?php endif; ?>
-
-                <?php if (
-                    $total_pages > 1
-                ): ?>
+                <div id="catalogResults">
 
                     <?php
-
-                    $pagination_params = [];
-
-                    if ($q !== "") {
-
-                        $pagination_params["q"] =
-                            $q;
-                    }
-
-                    if ($kategori_id > 0) {
-
-                        $pagination_params["kategori"] =
-                            $kategori_id;
-                    }
-
-                    if ($daerah !== "") {
-
-                        $pagination_params["daerah"] =
-                            $daerah;
-                    }
-
+                    renderCatalogCards($query_hasil);
                     ?>
 
-                    <nav
-                        class="catalog-pagination"
-                        aria-label="Navigasi halaman katalog">
+                </div>
 
-                        <?php if (
-                            $page > 1
-                        ): ?>
+                <div id="catalogPagination">
 
-                            <?php
+                    <?php
+                    renderCatalogPagination(
+                        $page,
+                        $total_pages,
+                        $q,
+                        $kategori_id,
+                        $daerah
+                    );
+                    ?>
 
-                            $pagination_params["page"] =
-                                $page - 1;
+                </div>
 
-                            $prev_url =
-                                "katalog.php?" .
-                                http_build_query(
-                                    $pagination_params
-                                );
-
-                            ?>
-
-                            <a
-                                href="<?= e($prev_url) ?>"
-                                class="pagination-arrow"
-                                aria-label="Halaman sebelumnya">
-
-                                <i
-                                    class="bi bi-chevron-left"></i>
-
-                            </a>
-
-                        <?php endif; ?>
-
-                        <?php
-
-                        $start_page =
-                            max(
-                                1,
-                                $page - 2
-                            );
-
-                        $end_page =
-                            min(
-                                $total_pages,
-                                $page + 2
-                            );
-
-                        if (
-                            $start_page > 1
-                        ):
-
-                            $pagination_params["page"] =
-                                1;
-
-                            $first_url =
-                                "katalog.php?" .
-                                http_build_query(
-                                    $pagination_params
-                                );
-
-                        ?>
-
-                            <a
-                                href="<?= e($first_url) ?>"
-                                class="pagination-number">
-                                1
-                            </a>
-
-                            <?php if (
-                                $start_page > 2
-                            ): ?>
-
-                                <span
-                                    class="pagination-dots">
-                                    ...
-                                </span>
-
-                            <?php endif; ?>
-
-                        <?php endif; ?>
-
-                        <?php for (
-                            $i = $start_page;
-                            $i <= $end_page;
-                            $i++
-                        ): ?>
-
-                            <?php
-
-                            $pagination_params["page"] =
-                                $i;
-
-                            $page_url =
-                                "katalog.php?" .
-                                http_build_query(
-                                    $pagination_params
-                                );
-
-                            ?>
-
-                            <a
-                                href="<?= e($page_url) ?>"
-                                class="pagination-number <?= $page === $i
-                                                                ? "active"
-                                                                : "" ?>">
-
-                                <?= $i ?>
-
-                            </a>
-
-                        <?php endfor; ?>
-
-                        <?php if (
-                            $end_page <
-                            $total_pages
-                        ): ?>
-
-                            <?php if (
-                                $end_page <
-                                $total_pages - 1
-                            ): ?>
-
-                                <span
-                                    class="pagination-dots">
-                                    ...
-                                </span>
-
-                            <?php endif; ?>
-
-                            <?php
-
-                            $pagination_params["page"] =
-                                $total_pages;
-
-                            $last_url =
-                                "katalog.php?" .
-                                http_build_query(
-                                    $pagination_params
-                                );
-
-                            ?>
-
-                            <a
-                                href="<?= e($last_url) ?>"
-                                class="pagination-number">
-
-                                <?= $total_pages ?>
-
-                            </a>
-
-                        <?php endif; ?>
-
-                        <?php if (
-                            $page <
-                            $total_pages
-                        ): ?>
-
-                            <?php
-
-                            $pagination_params["page"] =
-                                $page + 1;
-
-                            $next_url =
-                                "katalog.php?" .
-                                http_build_query(
-                                    $pagination_params
-                                );
-
-                            ?>
-
-                            <a
-                                href="<?= e($next_url) ?>"
-                                class="pagination-arrow"
-                                aria-label="Halaman berikutnya">
-
-                                <i
-                                    class="bi bi-chevron-right"></i>
-
-                            </a>
-
-                        <?php endif; ?>
-
-                    </nav>
-
-                <?php endif; ?>
 
             </div>
 
@@ -1197,6 +1006,8 @@ $nama_tampilan =
         <?php endif; ?>
 
     </nav>
+
+    <script src="assets/js/katalog.js?v=1" defer></script>
 
     <script
         src="assets/js/notifikasi.js?v=60"

@@ -36,6 +36,32 @@ $error =
 
 <head>
 
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Masuk ke GoKaltara Kuliner. Jelajahi katalog kuliner khas Kalimantan Utara."
+    >
+
+    <title>Masuk | GoKaltara Kuliner</title>
+
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="assets/images/logo.svg"
+    >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
+
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
@@ -46,11 +72,18 @@ $error =
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
     >
 
+    <link
+        rel="stylesheet"
+        href="assets/css/login.css?v=6"
+    >
+
 </head>
 
-<body>
+<body class="login-body">
 
-<div class="login-page">
+<a class="login-skip-link" href="#login-main">Lewati ke formulir masuk</a>
+
+<div class="login-page" id="login-main">
 
     <section class="login-visual">
 
@@ -118,7 +151,7 @@ $error =
 
             <?php if ($error === "1"): ?>
 
-                <div class="alert-soft mb-3">
+                <div class="alert-soft mb-3" role="alert" aria-live="polite">
                     Username atau password salah.
                 </div>
 
@@ -126,7 +159,7 @@ $error =
 
             <?php if ($error === "db"): ?>
 
-                <div class="alert-soft mb-3">
+                <div class="alert-soft mb-3" role="alert" aria-live="polite">
                     Database belum tersambung.
                 </div>
 

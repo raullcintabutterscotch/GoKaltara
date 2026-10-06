@@ -194,6 +194,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         href="../assets/images/logo.svg"
         sizes="48x48"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -211,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         rel="stylesheet"
         href="../assets/css/kuliner.css?v=4">
 
-    <link rel="stylesheet" href="../assets/css/performance.css?v=1">
+    <link rel="stylesheet" href="../assets/css/performance.css?v=2">
 
 </head>
 
@@ -778,7 +784,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <a
         href="tambah_kuliner.php"
-        class="mobile-nav-add">
+        class="mobile-nav-add" aria-label="Tambah data">
 
         <span>
             <i class="bi bi-plus-lg"></i>

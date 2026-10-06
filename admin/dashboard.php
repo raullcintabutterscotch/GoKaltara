@@ -200,6 +200,12 @@ $initial_admin =
         type="image/svg+xml"
         href="../assets/images/logo.svg"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -218,7 +224,7 @@ $initial_admin =
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="stylesheet" href="../assets/css/performance.css?v=1">
+    <link rel="stylesheet" href="../assets/css/performance.css?v=2">
 
 </head>
 
@@ -955,8 +961,7 @@ $initial_admin =
 
         <a
             href="tambah_kuliner.php"
-            class="mobile-nav-add"
-        >
+            class="mobile-nav-add" aria-label="Tambah data">
 
             <span>
                 <i class="bi bi-plus-lg"></i>

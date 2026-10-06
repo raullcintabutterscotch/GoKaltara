@@ -233,6 +233,19 @@ $query_kategori = $koneksi->query("
     </title>
 
     <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
+    <link
+        rel="preload"
+        as="image"
+        href="assets/images/carousel/Kepiting-Soka.webp"
+        fetchpriority="high"
+    >
+
+    <link
         rel="icon"
         href="assets/images/logo.svg"
         sizes="48x48"
@@ -250,21 +263,23 @@ $query_kategori = $koneksi->query("
 
     <link
         rel="stylesheet"
-        href="assets/css/index.css?v=10"
+        href="assets/css/index.css?v=11"
     >
+
+<?php if ($is_login): ?>
 
     <link
         rel="stylesheet"
         href="assets/css/notifikasi.css?v=60"
     >
-    
-    <link rel="stylesheet" href="assets/css/footer.css">
 
-    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+<?php endif; ?>
 
 </head>
 
 <body>
+
+<a class="skip-link" href="#main-content">Lewati ke konten utama</a>
 
 <nav class="public-navbar">
 
@@ -321,6 +336,7 @@ $query_kategori = $koneksi->query("
             <a
                     href="notifikasi.php"
                     class="notification-nav"
+                    aria-label="Notifikasi"
                 >
 
                     <i class="bi bi-bell"></i>
@@ -394,7 +410,7 @@ $query_kategori = $koneksi->query("
 
 </nav>
 
-<main>
+<main id="main-content">
 
 <section class="hero-section">
 
@@ -562,6 +578,7 @@ $query_kategori = $koneksi->query("
             <button
                 class="carousel-control-prev"
                 type="button"
+                aria-label="Slide sebelumnya"
                 data-bs-target="#heroCarousel"
                 data-bs-slide="prev"
             >
@@ -576,6 +593,7 @@ $query_kategori = $koneksi->query("
             <button
                 class="carousel-control-next"
                 type="button"
+                aria-label="Slide berikutnya"
                 data-bs-target="#heroCarousel"
                 data-bs-slide="next"
             >
@@ -677,6 +695,7 @@ $query_kategori = $koneksi->query("
         <div
             id="featuredGrid"
             class="row g-4"
+            aria-live="polite"
         >
 
             <?php renderFoodCards($koneksi, 0); ?>
@@ -816,11 +835,16 @@ $query_kategori = $koneksi->query("
     src="assets/js/index.js?v=10"
 ></script>
 
+<?php if ($is_login): ?>
+
     <script
         src="assets/js/notifikasi.js?v=60"
+        defer
     ></script>
 
-    <script src="assets/js/performance.js?v=1" defer></script>
+<?php endif; ?>
+
+    <script src="assets/js/performance.js?v=2" defer></script>
 
 </body>
 </html>

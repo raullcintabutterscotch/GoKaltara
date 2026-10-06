@@ -1347,15 +1347,16 @@ if ($is_login) {
         href="assets/images/logo.svg"
         sizes="48x48"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
 
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="assets/css/style.css"
     >
 
     <link
@@ -1367,10 +1368,24 @@ if ($is_login) {
         rel="stylesheet"
         href="assets/css/notifikasi.css?v=60"
     >
-    
-    <link rel="stylesheet" href="assets/css/footer.css?v=70">
-
-    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+    <link
+        rel="preload"
+        href="assets/css/footer.css?v=70"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/footer.css?v=70">
+    </noscript>
+    <link
+        rel="preload"
+        href="assets/css/performance.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/performance.css?v=2">
+    </noscript>
 
 </head>
 
@@ -1441,7 +1456,7 @@ if ($is_login) {
                 <a
                     href="notifikasi.php"
                     class="notification-nav"
-                >
+                 aria-label="Notifikasi">
 
                     <i class="bi bi-bell"></i>
 

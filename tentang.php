@@ -44,6 +44,12 @@ $nama_tampilan = htmlspecialchars(
         rel="icon"
         href="assets/images/logo.svg"
     >
+    <link
+        rel="preconnect"
+        href="https://cdn.jsdelivr.net"
+        crossorigin
+    >
+
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -64,8 +70,24 @@ $nama_tampilan = htmlspecialchars(
         rel="stylesheet"
         href="assets/css/notifikasi.css?v=60"
     >
-    <link rel="stylesheet" href="assets/css/footer.css">
-    <link rel="stylesheet" href="assets/css/performance.css?v=1">
+    <link
+        rel="preload"
+        href="assets/css/footer.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/footer.css?v=2">
+    </noscript>
+    <link
+        rel="preload"
+        href="assets/css/performance.css?v=2"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="assets/css/performance.css?v=2">
+    </noscript>
 
 </head>
 
@@ -130,7 +152,7 @@ $nama_tampilan = htmlspecialchars(
                 <a
                     href="notifikasi.php"
                     class="notification-nav"
-                >
+                 aria-label="Notifikasi">
                     <i class="bi bi-bell"></i>
                 
 
