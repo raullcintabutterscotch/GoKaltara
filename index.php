@@ -216,7 +216,7 @@ $query_kategori = $koneksi->query("
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
     <meta
         name="viewport"
@@ -228,9 +228,13 @@ $query_kategori = $koneksi->query("
         content="GoKaltara Kuliner, katalog kuliner khas Kalimantan Utara."
     >
 
-    <title>
-        GoKaltara Kuliner
-    </title>
+    <title>GoKaltara Kuliner</title>
+
+    <link
+        rel="icon"
+        href="assets/images/logo.svg"
+        sizes="48x48"
+    >
 
     <link
         rel="preconnect"
@@ -246,22 +250,28 @@ $query_kategori = $koneksi->query("
     >
 
     <link
-        rel="icon"
-        href="assets/images/logo.svg"
-        sizes="48x48"
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     >
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    >
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link
+        rel="stylesheet"
+        href="assets/css/index.css?v=11"
+    >
 
-    <link rel="stylesheet" href="assets/css/index.css?v=12">
+    <?php if ($is_login): ?>
 
-<?php if ($is_login): ?>
+        <link
+            rel="stylesheet"
+            href="assets/css/notifikasi.css?v=61"
+        >
 
-    <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
-
-<?php endif; ?>
+    <?php endif; ?>
 
 </head>
 
@@ -440,128 +450,137 @@ $query_kategori = $koneksi->query("
 
             <div class="carousel-inner">
 
-                <div class="carousel-item active">
+    <div class="carousel-item active">
 
-                    <div
-                        class="hero-slide hero-slide-1"
-                        style="background-image: url('assets/images/carousel/Kepiting-Soka.webp');"
-                    >
+        <div class="hero-slide hero-slide-1">
 
-                        <div class="hero-overlay"></div>
+            <img
+                src="assets/images/carousel/Kepiting-Soka.png"
+                alt="Kepiting Soka"
+                class="hero-slide-image"
+                width="1600"
+                height="700"
+                fetchpriority="high"
+                decoding="async"
+            >
 
-                        <div class="hero-content">
+            <div class="hero-overlay"></div>
 
-                            <span class="hero-kicker">
-                                Jelajah Rasa Kalimantan Utara
-                            </span>
+            <div class="hero-content">
 
-                            <h1>
-                                Kuliner Kaltara
-                                <br>
-                                Dalam Satu Tempat
-                            </h1>
+                <span class="hero-kicker">
+                    Jelajah Rasa Kalimantan Utara
+                </span>
 
-                            <p>
-                                Temukan makanan, minuman, kue tradisional,
-                                dan camilan khas dari berbagai wilayah
-                                Kalimantan Utara.
-                            </p>
+                <h1>
+                    Kuliner Kaltara
+                    <br>
+                    Dalam Satu Tempat
+                </h1>
 
-                            <a
-                                href="katalog.php"
-                                class="hero-button"
-                            >
-                                Jelajahi Katalog
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
+                <p>
+                    Temukan makanan, minuman, kue tradisional,
+                    dan camilan khas dari berbagai wilayah
+                    Kalimantan Utara.
+                </p>
 
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="carousel-item">
-
-                    <div
-                        class="hero-slide hero-slide-2"
-                        data-bg="assets/images/carousel/nasi-subut.webp"
-                    >
-
-                        <div class="hero-overlay"></div>
-
-                        <div class="hero-content">
-
-                            <span class="hero-kicker">
-                                Dari Bulungan hingga Nunukan
-                            </span>
-
-                            <h1>
-                                Kenali
-                                <br>
-                                Kekayaan Rasa Kaltara
-                            </h1>
-
-                            <p>
-                                Kenali asal daerah dan cerita di balik
-                                kuliner khas Kalimantan Utara.
-                            </p>
-
-                            <a
-                                href="pencarian.php"
-                                class="hero-button"
-                            >
-                                Cari Kuliner
-                                <i class="bi bi-search"></i>
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="carousel-item">
-
-                    <div
-                        class="hero-slide hero-slide-3"
-                        data-bg="assets/images/carousel/kue-lapis.webp"
-                    >
-
-                        <div class="hero-overlay"></div>
-
-                        <div class="hero-content">
-
-                            <span class="hero-kicker">
-                                Warisan Kuliner Daerah
-                            </span>
-
-                            <h1>
-                                Rasa,
-                                <br>
-                                Cerita, dan Budaya
-                            </h1>
-
-                            <p>
-                                Satu katalog untuk mengenalkan keberagaman
-                                kuliner Kalimantan Utara.
-                            </p>
-
-                            <a
-                                href="tentang.php"
-                                class="hero-button"
-                            >
-                                Tentang Aplikasi
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
+                <a
+                    href="katalog.php"
+                    class="hero-button"
+                >
+                    Jelajahi Katalog
+                    <i class="bi bi-arrow-right"></i>
+                </a>
 
             </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="carousel-item">
+
+        <div
+            class="hero-slide hero-slide-2"
+            data-bg="assets/images/carousel/nasi-subut.webp"
+        >
+
+            <div class="hero-overlay"></div>
+
+            <div class="hero-content">
+
+                <span class="hero-kicker">
+                    Dari Bulungan hingga Nunukan
+                </span>
+
+                <h1>
+                    Kenali
+                    <br>
+                    Kekayaan Rasa Kaltara
+                </h1>
+
+                <p>
+                    Kenali asal daerah dan cerita di balik
+                    kuliner khas Kalimantan Utara.
+                </p>
+
+                <a
+                    href="pencarian.php"
+                    class="hero-button"
+                >
+                    Cari Kuliner
+                    <i class="bi bi-search"></i>
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="carousel-item">
+
+        <div
+            class="hero-slide hero-slide-3"
+            data-bg="assets/images/carousel/kue-lapis.webp"
+        >
+
+            <div class="hero-overlay"></div>
+
+            <div class="hero-content">
+
+                <span class="hero-kicker">
+                    Warisan Kuliner Daerah
+                </span>
+
+                <h1>
+                    Rasa,
+                    <br>
+                    Cerita, dan Budaya
+                </h1>
+
+                <p>
+                    Satu katalog untuk mengenalkan keberagaman
+                    kuliner Kalimantan Utara.
+                </p>
+
+                <a
+                    href="tentang.php"
+                    class="hero-button"
+                >
+                    Tentang Aplikasi
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
             <button
                 class="carousel-control-prev"
@@ -814,20 +833,13 @@ $query_kategori = $koneksi->query("
     <?php endif; ?>
 </nav>
 
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
- defer></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+<script src="assets/js/index.js?v=10" defer></script>
 
-<script
-    src="assets/js/index.js?v=10"
- defer></script>
 
 <?php if ($is_login): ?>
 
-    <script
-        src="assets/js/notifikasi.js?v=60"
-        defer
-    ></script>
+<script src="assets/js/notifikasi.js?v=60" defer></script>
 
 <?php endif; ?>
 </body>

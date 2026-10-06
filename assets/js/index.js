@@ -1,86 +1,127 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const categoryButtons = document.querySelectorAll(".category-chip");
+    const carousel = document.getElementById("heroCarousel");
     const featuredGrid = document.getElementById("featuredGrid");
     const featuredTitle = document.getElementById("featuredTitle");
+    const categoryButtons = document.querySelectorAll(".category-chip");
 
-    if (!categoryButtons.length || !featuredGrid) {
-        return;
-    }
+    let controller = null;
 
-    let currentRequest = null;
-
-    const setActiveCategory = (button) => {
-        categoryButtons.forEach((item) => {
-            item.classList.remove("active");
+    if (carousel && window.bootstrap) {
+        const instance = bootstrap.Carousel.getOrCreateInstance(carousel, {
+            interval: 4500,
+            ride: "carousel",
+            pause: "hover",
+            touch: true,
+            wrap: true
         });
 
-        button.classList.add("active");
-    };
+        const loadUpcomingImages = () => {
+            const nextItems = carousel.querySelectorAll(
+                ".carousel-item:not(.active) [data-bg]"
+            );
+
+            nextItems.forEach((element, index) => {
+                if (index > 0) return;
+
+                const src = element.dataset.bg;
+
+                if (!src) return;
+
+                element.style.backgroundImage = `url("${src}")`;
+                element.removeAttribute("data-bg");
+            });
+        };
+
+        carousel.addEventListener("slid.bs.carousel", () => {
+            requestAnimationFrame(loadUpcomingImages);
+        });
+
+        requestAnimationFrame(loadUpcomingImages);
+
+        window.addEventListener("pageshow", () => {
+            instance.cycle();
+        });
+    }
 
     const setLoading = () => {
+        if (!featuredGrid) return;
+
         featuredGrid.classList.add("is-loading");
 
         featuredGrid.innerHTML = `
-            <div class="col-12">
-                <div class="category-loading">
-                    <span class="loading-spinner"></span>
-                    <p>Memuat kuliner...</p>
-                </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="food-skeleton"></div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="food-skeleton"></div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="food-skeleton"></div>
             </div>
         `;
     };
 
-    const loadCategory = async (kategoriId) => {
-        if (currentRequest) {
-            currentRequest.abort();
+    const loadCategory = async (categoryId) => {
+        if (!featuredGrid) return;
+
+        if (controller) {
+            controller.abort();
         }
 
-        currentRequest = new AbortController();
+        controller = new AbortController();
 
         setLoading();
 
         try {
-            const response = await fetch(
-                `index.php?ajax=kuliner&kategori=${encodeURIComponent(kategoriId)}`,
-                {
-                    method: "GET",
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    signal: currentRequest.signal
-                }
-            );
+            const url = new URL(window.location.href);
+
+            url.searchParams.set("ajax", "kuliner");
+            url.searchParams.set("kategori", categoryId);
+
+            const response = await fetch(url.toString(), {
+                method: "GET",
+                signal: controller.signal,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                cache: "no-store"
+            });
 
             if (!response.ok) {
-                throw new Error("Gagal mengambil data kuliner.");
+                throw new Error("Gagal mengambil data.");
             }
 
             const html = await response.text();
 
             featuredGrid.innerHTML = html;
-
             featuredGrid.classList.remove("is-loading");
 
-            requestAnimationFrame(() => {
-                featuredGrid.classList.add("category-updated");
-
-                setTimeout(() => {
-                    featuredGrid.classList.remove("category-updated");
-                }, 350);
-            });
-
-            if (kategoriId === "0") {
-                featuredTitle.textContent = "Kuliner Unggulan";
-            } else {
+            if (featuredTitle) {
                 const activeButton = document.querySelector(
-                    `.category-chip[data-kategori="${CSS.escape(kategoriId)}"]`
+                    ".category-chip.active"
                 );
 
-                if (activeButton) {
-                    featuredTitle.textContent =
-                        activeButton.textContent.trim();
-                }
+                featuredTitle.textContent =
+                    activeButton && categoryId !== "0"
+                        ? activeButton.textContent.trim()
+                        : "Kuliner Unggulan";
             }
+
+            featuredGrid.querySelectorAll("img").forEach((img) => {
+                img.loading = "lazy";
+                img.decoding = "async";
+            });
+
+            const historyUrl = new URL(window.location.href);
+
+            historyUrl.searchParams.delete("ajax");
+            historyUrl.searchParams.set("kategori", categoryId);
+
+            history.replaceState(
+                {},
+                "",
+                historyUrl.toString()
+            );
         } catch (error) {
             if (error.name === "AbortError") {
                 return;
@@ -91,11 +132,9 @@ document.addEventListener("DOMContentLoaded", () => {
             featuredGrid.innerHTML = `
                 <div class="col-12">
                     <div class="empty-state">
-                        <i class="bi bi-exclamation-circle"></i>
+                        <i class="bi bi-wifi-off"></i>
                         <h3>Data gagal dimuat</h3>
-                        <p>
-                            Silakan coba pilih kategori lagi.
-                        </p>
+                        <p>Silakan coba lagi.</p>
                     </div>
                 </div>
             `;
@@ -104,42 +143,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     categoryButtons.forEach((button) => {
         button.addEventListener("click", () => {
-            const kategoriId =
+            categoryButtons.forEach((item) => {
+                item.classList.remove("active");
+            });
+
+            button.classList.add("active");
+
+            const categoryId =
                 button.dataset.kategori || "0";
 
-            setActiveCategory(button);
-
-            loadCategory(kategoriId);
+            loadCategory(categoryId);
         });
     });
-});
 
-const prepareHeroSlide = (slide) => {
-    if (!slide) return;
-    const background = slide.getAttribute("data-bg");
-    if (!background || slide.dataset.bgLoaded === "1") return;
-    const image = new Image();
-    image.decoding = "async";
-    image.onload = () => {
-        slide.style.backgroundImage = `url("${background}")`;
-        slide.dataset.bgLoaded = "1";
-    };
-    image.src = background;
-};
+    if (featuredGrid) {
+        featuredGrid.querySelectorAll("img").forEach((img) => {
+            img.loading = "lazy";
+            img.decoding = "async";
 
-const prepareSecondaryHeroSlides = () => {
-    document.querySelectorAll(".hero-slide[data-bg]").forEach(prepareHeroSlide);
-};
+            if (!img.width) {
+                img.width = 1200;
+            }
 
-const heroCarousel = document.getElementById("heroCarousel");
-
-if (heroCarousel) {
-    heroCarousel.addEventListener("slide.bs.carousel", (event) => {
-        prepareHeroSlide(event.relatedTarget);
-    }, { passive: true });
-    if ("requestIdleCallback" in window) {
-        requestIdleCallback(prepareSecondaryHeroSlides, { timeout: 1800 });
-    } else {
-        setTimeout(prepareSecondaryHeroSlides, 1400);
+            if (!img.height) {
+                img.height = 800;
+            }
+        });
     }
-}
+});
