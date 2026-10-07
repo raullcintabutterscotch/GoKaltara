@@ -194,6 +194,8 @@ function gokaltara_blob_upload_file(
         $body,
         $content_type,
         [
+            'x-vercel-blob-access' => 'public',
+            'x-add-random-suffix' => '0',
             'x-cache-control-max-age' => '31536000'
         ]
     );
@@ -325,23 +327,47 @@ function gokaltara_image_url(
         }
 
         $thumb_url = gokaltara_blob_thumbnail_url($filename);
+
         return $thumb_url !== '' ? $thumb_url : $filename;
     }
 
     $filename = basename($filename);
     $stem = gokaltara_image_stem($filename);
+    $extension = gokaltara_image_extension($filename);
+    $image_root = __DIR__ . '/../assets/images';
 
     if ($thumbnail) {
-        return $assets_path . '/thumbs/' . rawurlencode($stem) . '.webp';
+        $thumb_filename = $stem . '.webp';
+        $thumb_path = $image_root . '/thumbs/' . $thumb_filename;
+
+        if (is_file($thumb_path)) {
+            return $assets_path . '/thumbs/' . rawurlencode($thumb_filename);
+        }
     }
 
-    $extension = gokaltara_image_extension($filename);
+    $webp_filename = $stem . '.webp';
+    $webp_path = $image_root . '/' . $webp_filename;
 
-    if ($extension !== 'webp') {
-        return $assets_path . '/' . rawurlencode($stem) . '.webp';
+    if (is_file($webp_path)) {
+        return $assets_path . '/' . rawurlencode($webp_filename);
     }
 
-    return $assets_path . '/' . rawurlencode($filename);
+    $original_path = $image_root . '/' . $filename;
+
+    if (is_file($original_path)) {
+        return $assets_path . '/' . rawurlencode($filename);
+    }
+
+    if ($extension !== '') {
+        $original_name = $stem . '.' . $extension;
+        $original_path = $image_root . '/' . $original_name;
+
+        if (is_file($original_path)) {
+            return $assets_path . '/' . rawurlencode($original_name);
+        }
+    }
+
+    return $assets_path . '/no-image.jpg';
 }
 
 function gokaltara_create_resized_webp(
@@ -555,16 +581,29 @@ function gokaltara_process_upload(
         ];
     }
 
-    if (!is_dir($target_dir) && !mkdir($target_dir, 0755, true)) {
+    $use_blob = gokaltara_blob_enabled();
+    $working_dir = $use_blob
+        ? rtrim(sys_get_temp_dir(), '/\\') . '/gokaltara-uploads'
+        : rtrim($target_dir, '/\\');
+
+    if (
+        !is_dir($working_dir) &&
+        !mkdir($working_dir, 0755, true) &&
+        !is_dir($working_dir)
+    ) {
         return [
             'success' => false,
             'message' => 'Folder penyimpanan gambar tidak dapat dibuat.'
         ];
     }
 
-    $thumb_dir = rtrim($target_dir, '/\\') . '/thumbs';
+    $thumb_dir = $working_dir . '/thumbs';
 
-    if (!is_dir($thumb_dir) && !mkdir($thumb_dir, 0755, true)) {
+    if (
+        !is_dir($thumb_dir) &&
+        !mkdir($thumb_dir, 0755, true) &&
+        !is_dir($thumb_dir)
+    ) {
         return [
             'success' => false,
             'message' => 'Folder thumbnail tidak dapat dibuat.'
@@ -580,7 +619,7 @@ function gokaltara_process_upload(
     $thumb_filename = $base_name . '.webp';
 
     $full_path =
-        rtrim($target_dir, '/\\') . '/' .
+        $working_dir . '/' .
         $filename;
 
     $thumb_path =

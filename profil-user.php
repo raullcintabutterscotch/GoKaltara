@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once "api/_auth.php";
 require_once "config/profile_images.php";
+require_once "config/image_optimizer.php";
 
 $id_user = requirePageLogin($koneksi);
 $is_login = true;
@@ -114,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt_cek->close();
 
-    $foto_lama = $user['foto_profil'] ?? '';
+    $foto_lama = (string) ($user['foto_profil'] ?? '');
     $foto_baru = $foto_lama;
     $foto_upload_baru = false;
 
@@ -122,9 +123,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         isset($_FILES['foto_profil']) &&
         ($_FILES['foto_profil']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
     ) {
-        $processed = gokaltara_save_profile_upload_direct(
+        $processed = gokaltara_process_upload(
             $_FILES['foto_profil'],
-            (int) $id_user
+            __DIR__ . '/assets/images/profil',
+            'profil',
+            3 * 1024 * 1024,
+            800,
+            240,
+            82,
+            78
         );
 
         if (!$processed['success']) {
@@ -135,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $foto_baru = $processed['filename'];
+        $foto_baru = (string) $processed['filename'];
         $foto_upload_baru = true;
     }
 
@@ -159,14 +166,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$stmt_update->execute()) {
 
         if ($foto_upload_baru) {
-            gokaltara_delete_profile_image_direct($foto_baru);
+            gokaltara_delete_optimized_image(
+                $foto_baru,
+                __DIR__ . '/assets/images/profil'
+            );
         }
 
         echo json_encode([
             'success' => false,
             'message' => 'Profil gagal diperbarui.'
         ]);
-
         exit;
     }
 
@@ -174,10 +183,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (
         $foto_upload_baru &&
-        !empty($foto_lama)
+        $foto_lama !== '' &&
+        $foto_lama !== $foto_baru
     ) {
-
-        gokaltara_delete_profile_image_direct((string) $foto_lama);
+        gokaltara_delete_optimized_image(
+            (string) $foto_lama,
+            __DIR__ . '/assets/images/profil'
+        );
     }
 
     $_SESSION['login'] = true;
@@ -276,13 +288,11 @@ if (!empty($user['foto_profil'])) {
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 
-    <link rel="stylesheet" href="assets/css/profil-user.css?v=6">
+    <link rel="stylesheet" href="assets/css/profil-user.css?v=8">
 
     <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
     <noscript>
         </noscript>
-
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
 
 </head>
 
@@ -444,6 +454,15 @@ if (!empty($user['foto_profil'])) {
                     class="notification-badge"
                     hidden
                 >0</span>
+            </a>
+
+            <a
+                href="logout.php"
+                class="mobile-profile-logout"
+                aria-label="Logout"
+                title="Logout"
+            >
+                <i class="bi bi-box-arrow-right"></i>
             </a>
 
             <a
@@ -843,13 +862,11 @@ if (!empty($user['foto_profil'])) {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 
-<script src="assets/js/profile-live.js?v=1" defer></script>
-<script src="assets/js/profil-user.js?v=6" defer></script>
+<script src="assets/js/profile-live.js?v=2" defer></script>
+<script src="assets/js/profil-user.js?v=8" defer></script>
 <?php if ($is_login): ?>
     <script src="assets/js/notifikasi.js?v=60" defer></script>
 <?php endif; ?>
-    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
-    <script src="assets/js/lenis.js?v=1" defer></script>
 
 </body>
 </html>

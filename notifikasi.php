@@ -804,11 +804,9 @@ $notifications =
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-    <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
+    <link rel="stylesheet" href="assets/css/notifikasi.css?v=62">
     <noscript>
         </noscript>
-
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
 
 </head>
 
@@ -928,8 +926,6 @@ $notifications =
 <script
     src="assets/js/notifikasi.js?v=50"
  defer></script>
-    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
-    <script src="assets/js/lenis.js?v=1" defer></script>
 
 </body>
 

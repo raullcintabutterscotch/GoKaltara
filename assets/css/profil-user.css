@@ -943,3 +943,32 @@ select {
     outline: 3px solid rgba(165, 58, 47, .15);
     outline-offset: 2px;
 }
+
+
+.mobile-profile-logout {
+    display: none;
+}
+
+@media (max-width: 991.98px) {
+    .mobile-profile-logout {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ead5d1;
+        border-radius: 10px;
+        background: #fff8f7;
+        color: #a53a2f;
+        font-size: 15px;
+        transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .mobile-profile-logout:hover,
+    .mobile-profile-logout:focus-visible {
+        color: #8f2d24;
+        border-color: #e2bbb5;
+        background: #fff0ee;
+    }
+}

@@ -260,8 +260,14 @@ $query_kategori = $koneksi->query("
     >
 
     <link
+        rel="preload"
+        href="assets/css/index.css?v=13"
+        as="style"
+    >
+
+    <link
         rel="stylesheet"
-        href="assets/css/index.css?v=12"
+        href="assets/css/index.css?v=13"
     >
 
     <?php if ($is_login): ?>
@@ -272,8 +278,6 @@ $query_kategori = $koneksi->query("
         >
 
     <?php endif; ?>
-
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
 
 </head>
 
@@ -844,8 +848,6 @@ $query_kategori = $koneksi->query("
 <script src="assets/js/notifikasi.js?v=60" defer></script>
 
 <?php endif; ?>
-    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
-    <script src="assets/js/lenis.js?v=1" defer></script>
 
 </body>
 </html>

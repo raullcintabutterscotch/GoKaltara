@@ -57,15 +57,13 @@ $nama_tampilan = htmlspecialchars(
 
     <link rel="stylesheet" href="assets/css/tentang.css?v=4">
 
-    <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
+    <link rel="stylesheet" href="assets/css/notifikasi.css?v=62">
     <link rel="stylesheet" href="assets/css/footer.css?v=2">
     <noscript>
         <link rel="stylesheet" href="assets/css/footer.css?v=2">
     </noscript>
     <noscript>
         </noscript>
-
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
 
 </head>
 
@@ -508,11 +506,12 @@ $nama_tampilan = htmlspecialchars(
     <?php endif; ?>
 </nav>
 
+<?php if ($is_login): ?>
     <script
         src="assets/js/notifikasi.js?v=60"
-     defer></script>
-    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
-    <script src="assets/js/lenis.js?v=1" defer></script>
+        defer
+    ></script>
+<?php endif; ?>
 
 </body>
 </html>

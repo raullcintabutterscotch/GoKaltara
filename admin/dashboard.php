@@ -213,11 +213,9 @@ $initial_admin =
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-        <link rel="stylesheet" href="../assets/css/dashboard.css?v=5">
+        <link rel="stylesheet" href="../assets/css/dashboard.css?v=7">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-
-        <link rel="stylesheet" href="../assets/css/lenis.css?v=1">
 
 </head>
 
@@ -410,11 +408,13 @@ $initial_admin =
 
                 </div>
 
-                <a
-                    href="profil.php"
-                    class="mobile-header-profile"
-                    title="Profil"
-                >
+                <div class="mobile-header-actions">
+
+                    <a
+                        href="profil.php"
+                        class="mobile-header-profile"
+                        title="Profil"
+                    >
 
                     <?php if ($foto_profil !== ""): ?>
 
@@ -434,6 +434,17 @@ $initial_admin =
                     <?php endif; ?>
 
                 </a>
+
+                    <a
+                        href="../logout.php"
+                        class="mobile-header-logout"
+                        aria-label="Logout"
+                        title="Logout"
+                    >
+                        <i class="bi bi-box-arrow-right"></i>
+                    </a>
+
+                </div>
 
             </div>
 
@@ -1174,10 +1185,8 @@ $initial_admin =
         });
 </script>
 
-    <script src="../assets/js/profile-live.js?v=1" defer></script>
+    <script src="../assets/js/profile-live.js?v=2" defer></script>
     <script src="../assets/js/dashboard.js" defer></script>
-    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
-    <script src="../assets/js/lenis.js?v=1" defer></script>
 
 </body>
 

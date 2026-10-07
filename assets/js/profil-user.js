@@ -376,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 formData.append(
                     "foto_profil",
                     croppedBlob,
-                    "profil.jpg"
+                    "profil.webp"
                 );
             }
 

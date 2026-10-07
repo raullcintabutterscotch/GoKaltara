@@ -302,14 +302,12 @@ $total_favorit =
 
     <link rel="stylesheet" href="assets/css/favorit.css?v=11">
 
-    <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
+    <link rel="stylesheet" href="assets/css/notifikasi.css?v=62">
     
     <link rel="stylesheet" href="assets/css/footer.css">
     
     <noscript>
         </noscript>
-
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
 
 </head>
 
@@ -865,8 +863,6 @@ $total_favorit =
 <?php if ($is_login): ?>
     <script src="assets/js/notifikasi.js?v=60" defer></script>
 <?php endif; ?>
-    <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" defer></script>
-    <script src="assets/js/lenis.js?v=1" defer></script>
 
 </body>
 </html>
