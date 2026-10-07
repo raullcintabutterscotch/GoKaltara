@@ -123,6 +123,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     >
     <link rel="stylesheet" href="./assets/css/login.css?v=8">
 
+<link rel="stylesheet" href="assets/css/lenis.css?v=1">
+
 </head>
 
 <body class="login-body signup-body">
@@ -338,6 +340,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </section>
 
 </div>
+<script src="assets/js/lenis.js?v=2" defer></script>
+
 </body>
 
 </html>

@@ -57,47 +57,6 @@ function gokaltara_profile_image_url_direct(
     }
 
     if (preg_match('#^https?://#i', $filename)) {
-        if (!$thumbnail) {
-            return $filename;
-        }
-
-        $parsed = parse_url($filename);
-
-        if (is_array($parsed)) {
-            $host = (string) ($parsed['host'] ?? '');
-            $path = (string) ($parsed['path'] ?? '');
-            $query = isset($parsed['query']) ? '?' . $parsed['query'] : '';
-
-            if ($host !== '' && $path !== '') {
-                $segments = array_values(
-                    array_filter(
-                        explode('/', trim($path, '/')),
-                        static function ($part): bool {
-                            return $part !== '';
-                        }
-                    )
-                );
-
-                if ($segments) {
-                    $blobFilename = array_pop($segments);
-                    $segments[] = 'thumbs';
-                    $segments[] = $blobFilename;
-
-                    $scheme = (string) ($parsed['scheme'] ?? 'https');
-                    $fragment = isset($parsed['fragment'])
-                        ? '#' . $parsed['fragment']
-                        : '';
-
-                    return
-                        $scheme . '://' .
-                        $host . '/' .
-                        implode('/', array_map('rawurlencode', $segments)) .
-                        $query .
-                        $fragment;
-                }
-            }
-        }
-
         return $filename;
     }
 

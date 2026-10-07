@@ -68,6 +68,8 @@ $error =
 
     <link rel="stylesheet" href="assets/css/login.css?v=3">
 
+<link rel="stylesheet" href="assets/css/lenis.css?v=1">
+
 </head>
 
 <body class="login-body">
@@ -240,6 +242,8 @@ $error =
     </section>
 
 </div>
+
+<script src="assets/js/lenis.js?v=2" defer></script>
 
 </body>
 </html>

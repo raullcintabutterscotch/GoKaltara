@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 require_once "../api/_auth.php";
-require_once "../config/profile_images.php";
-require_once "../config/image_optimizer.php";
 
 $id_user = requireAdminPage($koneksi);
 
@@ -56,6 +54,164 @@ function profileJson(array $data): never
     exit;
 }
 
+function getProfileImageUrl(string $value): string
+{
+    $value = trim($value);
+
+    if ($value === "") {
+        return "";
+    }
+
+    if (filter_var($value, FILTER_VALIDATE_URL)) {
+        return $value;
+    }
+
+    return "../assets/images/profil/" .
+        rawurlencode(
+            basename($value)
+        );
+}
+
+function uploadProfileToBlob(
+    array $file,
+    int $id_user
+): array {
+
+    $uploadUrl = trim(
+        (string) getenv("BLOB_UPLOAD_URL")
+    );
+
+    $secret = trim(
+        (string) getenv("BLOB_UPLOAD_SECRET")
+    );
+
+    if ($uploadUrl === "") {
+        return [
+            "success" => false,
+            "message" => "BLOB_UPLOAD_URL belum diatur."
+        ];
+    }
+
+    if ($secret === "") {
+        return [
+            "success" => false,
+            "message" => "BLOB_UPLOAD_SECRET belum diatur."
+        ];
+    }
+
+    if (
+        !isset($file["tmp_name"]) ||
+        !is_uploaded_file($file["tmp_name"])
+    ) {
+        return [
+            "success" => false,
+            "message" => "File upload tidak valid."
+        ];
+    }
+
+    $tmp = $file["tmp_name"];
+
+    $fileName = basename(
+        (string) ($file["name"] ?? "profile")
+    );
+
+    $timestamp = (string) time();
+
+    $payload =
+        $id_user .
+        "|" .
+        $timestamp .
+        "|" .
+        $fileName;
+
+    $signature = hash_hmac(
+        "sha256",
+        $payload,
+        $secret
+    );
+
+    $content = file_get_contents($tmp);
+
+    if ($content === false) {
+        return [
+            "success" => false,
+            "message" => "File tidak dapat dibaca."
+        ];
+    }
+
+    $ch = curl_init($uploadUrl);
+
+    if ($ch === false) {
+        return [
+            "success" => false,
+            "message" => "Curl tidak tersedia."
+        ];
+    }
+
+    curl_setopt_array(
+        $ch,
+        [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $content,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_TIMEOUT => 45,
+            CURLOPT_HTTPHEADER => [
+                "Content-Type: application/octet-stream",
+                "Content-Length: " . strlen($content),
+                "X-User-ID: " . $id_user,
+                "X-Timestamp: " . $timestamp,
+                "X-File-Name: " . $fileName,
+                "X-Signature: " . $signature
+            ]
+        ]
+    );
+
+    $response = curl_exec($ch);
+
+    $httpCode = (int) curl_getinfo(
+        $ch,
+        CURLINFO_HTTP_CODE
+    );
+
+    $curlError = curl_error($ch);
+
+    curl_close($ch);
+
+    if ($response === false || $curlError !== "") {
+        return [
+            "success" => false,
+            "message" => "Koneksi upload gagal."
+        ];
+    }
+
+    $data = json_decode(
+        (string) $response,
+        true
+    );
+
+    if (
+        $httpCode < 200 ||
+        $httpCode >= 300 ||
+        !is_array($data) ||
+        empty($data["success"]) ||
+        empty($data["url"])
+    ) {
+        return [
+            "success" => false,
+            "message" =>
+                $data["message"] ??
+                "Vercel Blob gagal menyimpan foto."
+        ];
+    }
+
+    return [
+        "success" => true,
+        "url" => (string) $data["url"]
+    ];
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $nama_lengkap = trim(
@@ -66,9 +222,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         (string) ($_POST["username"] ?? "")
     );
 
-    $level = trim(
-        (string) ($_POST["level"] ?? "admin")
-    );
+    $level = "admin";
 
     if ($nama_lengkap === "") {
         profileJson([
@@ -95,13 +249,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         profileJson([
             "success" => false,
             "message" => "Username minimal 3 karakter."
-        ]);
-    }
-
-    if (!in_array($level, ["admin", "user"], true)) {
-        profileJson([
-            "success" => false,
-            "message" => "Role tidak valid."
         ]);
     }
 
@@ -146,7 +293,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     );
 
     $foto_baru = $foto_lama;
-    $foto_upload_baru = false;
+
+    $hasNewPhoto = false;
 
     if (
         isset($_FILES["foto_profil"]) &&
@@ -155,26 +303,60 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ?? UPLOAD_ERR_NO_FILE
         ) !== UPLOAD_ERR_NO_FILE
     ) {
-        $processed = gokaltara_process_upload(
-            $_FILES["foto_profil"],
-            __DIR__ . "/../assets/images/profil",
-            "profil",
-            3 * 1024 * 1024,
-            800,
-            240,
-            82,
-            78
-        );
 
-        if (!$processed["success"]) {
+        $file = $_FILES["foto_profil"];
+
+        if (
+            (int) $file["error"] !==
+            UPLOAD_ERR_OK
+        ) {
             profileJson([
                 "success" => false,
-                "message" => $processed["message"] ?? "Foto profil gagal diproses."
+                "message" => "Upload foto gagal."
             ]);
         }
 
-        $foto_baru = (string) $processed["filename"];
-        $foto_upload_baru = true;
+        if (
+            (int) $file["size"] >
+            3 * 1024 * 1024
+        ) {
+            profileJson([
+                "success" => false,
+                "message" => "Ukuran foto maksimal 3 MB."
+            ]);
+        }
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+
+        $mime = $finfo->file(
+            $file["tmp_name"]
+        );
+
+        $allowed = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (!in_array($mime, $allowed, true)) {
+            profileJson([
+                "success" => false,
+                "message" => "Format foto harus JPG, PNG, atau WEBP."
+            ]);
+        }
+
+        $upload = uploadProfileToBlob(
+            $file,
+            $id_user
+        );
+
+        if (!$upload["success"]) {
+            profileJson($upload);
+        }
+
+        $foto_baru = (string) $upload["url"];
+
+        $hasNewPhoto = true;
     }
 
     $stmt_update = $koneksi->prepare("
@@ -206,13 +388,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!$stmt_update->execute()) {
         $stmt_update->close();
 
-        if ($foto_upload_baru) {
-            gokaltara_delete_optimized_image(
-                $foto_baru,
-                __DIR__ . "/../assets/images/profil"
-            );
-        }
-
         profileJson([
             "success" => false,
             "message" => "Profil gagal disimpan."
@@ -220,13 +395,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     $stmt_update->close();
-
-    if ($foto_upload_baru && $foto_lama !== "" && $foto_lama !== $foto_baru) {
-        gokaltara_delete_optimized_image(
-            $foto_lama,
-            __DIR__ . "/../assets/images/profil"
-        );
-    }
 
     $_SESSION["login"] = true;
     $_SESSION["id_user"] = $id_user;
@@ -243,7 +411,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "level" => $level,
         "foto_profil" => $foto_baru,
         "foto_profil_url" =>
-            gokaltara_profile_image_url_direct($foto_baru, false)
+            getProfileImageUrl($foto_baru)
     ]);
 }
 
@@ -266,9 +434,8 @@ $foto_profil = trim(
 );
 
 $foto_profil_url =
-    gokaltara_profile_image_url_direct(
-        $foto_profil,
-        false
+    getProfileImageUrl(
+        $foto_profil
     );
 
 $initial_admin = strtoupper(
@@ -336,12 +503,17 @@ $initial_admin = strtoupper(
 
     <link
         rel="stylesheet"
-        href="../assets/css/dashboard.css?v=32"
+        href="../assets/css/dashboard.css?v=30"
     >
 
     <link
         rel="stylesheet"
-        href="../assets/css/profil.css?v=62"
+        href="../assets/css/profil.css?v=60"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/lenis.css?v=1"
     >
 
 </head>
@@ -503,39 +675,6 @@ $initial_admin = strtoupper(
     </aside>
 
     <main class="main-content">
-
-        <header class="mobile-admin-header">
-
-            <a
-                href="dashboard.php"
-                class="mobile-admin-brand"
-            >
-
-                <img
-                    src="../assets/images/logo.svg"
-                    alt="GoKaltara Kuliner"
-                    width="40"
-                    height="40"
-                >
-
-                <span>
-                    Profil Admin
-                </span>
-
-            </a>
-
-            <a
-                href="../logout.php"
-                class="mobile-logout-button"
-                aria-label="Logout"
-                title="Logout"
-            >
-
-                <i class="bi bi-box-arrow-right"></i>
-
-            </a>
-
-        </header>
 
         <div class="container-fluid px-0">
 
@@ -743,53 +882,14 @@ $initial_admin = strtoupper(
                                 Role
                             </label>
 
-                            <select
+                            <input
+                                type="hidden"
                                 id="level"
-                                class="profile-form-control"
+                                value="admin"
                             >
 
-                                <option
-                                    value="admin"
-                                    <?= $level_admin === "admin"
-                                        ? "selected"
-                                        : "" ?>
-                                >
-                                    Administrator
-                                </option>
-
-                                <option
-                                    value="user"
-                                    <?= $level_admin === "user"
-                                        ? "selected"
-                                        : "" ?>
-                                >
-                                    User
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                        <div class="account-status">
-
-                            <div>
-
-                                <div class="status-label">
-                                    Status Akun
-                                </div>
-
-                                <div class="status-caption">
-                                    Akun aktif dan siap digunakan.
-                                </div>
-
-                            </div>
-
-                            <div class="status-value">
-
-                                <i class="bi bi-circle-fill"></i>
-
-                                Aktif
-
+                            <div class="profile-role-static">
+                                Administrator
                             </div>
 
                         </div>
@@ -814,6 +914,14 @@ $initial_admin = strtoupper(
                                 Simpan Perubahan
 
                             </button>
+
+                            <a
+                                href="../logout.php"
+                                class="profile-logout-button profile-mobile-logout"
+                            >
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Logout</span>
+                            </a>
 
                         </div>
 
@@ -970,6 +1078,30 @@ $initial_admin = strtoupper(
 
 </div>
 
+<nav class="admin-mobile-bottom-nav" aria-label="Navigasi admin">
+
+    <a href="dashboard.php" class="admin-mobile-nav-link">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>Dashboard</span>
+    </a>
+
+    <a href="kuliner.php" class="admin-mobile-nav-link">
+        <i class="bi bi-fork-knife"></i>
+        <span>Data Kuliner</span>
+    </a>
+
+    <a href="kategori.php" class="admin-mobile-nav-link">
+        <i class="bi bi-tags-fill"></i>
+        <span>Kategori</span>
+    </a>
+
+    <a href="tambah_kuliner.php" class="admin-mobile-nav-link">
+        <i class="bi bi-plus-circle-fill"></i>
+        <span>Tambah</span>
+    </a>
+
+</nav>
+
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     defer
@@ -981,7 +1113,12 @@ $initial_admin = strtoupper(
 ></script>
 
 <script
-    src="../assets/js/profil.js?v=62"
+    src="../assets/js/profil.js?v=61"
+    defer
+></script>
+
+<script
+    src="../assets/js/lenis.js?v=2"
     defer
 ></script>
 

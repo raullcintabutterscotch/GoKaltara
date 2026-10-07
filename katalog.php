@@ -565,13 +565,15 @@ $nama_tampilan =
 
     <link rel="stylesheet" href="assets/css/pagination.css?v=40">
 
-    <link rel="stylesheet" href="assets/css/notifikasi.css?v=62">
+    <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
     <link rel="stylesheet" href="assets/css/footer.css?v=2">
     <noscript>
         <link rel="stylesheet" href="assets/css/footer.css?v=2">
     </noscript>
     <noscript>
         </noscript>
+
+    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
 
 </head>
 
@@ -990,6 +992,7 @@ $nama_tampilan =
 <?php if ($is_login): ?>
     <script src="assets/js/notifikasi.js?v=60" defer></script>
 <?php endif; ?>
+    <script src="assets/js/lenis.js?v=1" defer></script>
 
 </body>
 

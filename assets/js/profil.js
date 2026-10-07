@@ -381,16 +381,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     );
 
-    levelInput.addEventListener(
-        "change",
-        () => {
-            liveRole.textContent =
-                levelInput.value === "admin"
-                    ? "Administrator"
-                    : "User";
-        }
-    );
-
     saveButton.addEventListener(
         "click",
         async () => {
@@ -401,8 +391,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const username =
                 usernameInput.value.trim();
 
-            const level =
-                levelInput.value;
+            const level = "admin";
 
             if (nama.length < 3) {
                 showAlert(
@@ -488,10 +477,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 liveUsername.textContent =
                     `@${data.username}`;
 
-                liveRole.textContent =
-                    data.level === "admin"
-                        ? "Administrator"
-                        : "User";
+                liveRole.textContent = "Administrator";
 
                 if (
                     data.foto_profil_url

@@ -880,7 +880,8 @@ img {
             90deg,
             rgba(18, 61, 50, 0.96),
             rgba(18, 61, 50, 0.6)
-        );
+        ),
+        url("../images/banner2.jpg") center / cover;
 }
 
 .about-hero-content {

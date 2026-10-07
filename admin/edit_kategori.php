@@ -118,20 +118,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../assets/css/dashboard.css?v=7">
+    <link rel="stylesheet" href="../assets/css/dashboard.css?v=5">
     <link rel="stylesheet" href="../assets/css/kategori.css">
+        <link rel="stylesheet" href="../assets/css/lenis.css?v=1">
 
 </head>
 <body>
-
-<a
-    href="../logout.php"
-    class="mobile-admin-logout-global"
-    aria-label="Logout"
-    title="Logout"
->
-    <i class="bi bi-box-arrow-right"></i>
-</a>
     <div>
         <aside class="sidebar">
             <div>
@@ -271,5 +263,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <span>Profil</span>
         </a>
 </nav>
+
+    <script src="../assets/js/profile-live.js?v=1" defer></script>
+    <script src="../assets/js/dashboard.js" defer></script>
+    <script src="../assets/js/lenis.js?v=1" defer></script>
+
 </body>
 </html>

@@ -1012,3 +1012,37 @@
     }
 
 }
+
+.notification-nav,
+.public-navbar .notification-nav,
+.notification-nav i,
+.public-navbar .notification-nav i,
+.notification-nav .bi-bell,
+.notification-nav .bi-bell-fill {
+    color: var(--notif-green) !important;
+}
+
+.notification-nav:hover,
+.public-navbar .notification-nav:hover,
+.notification-nav:hover i,
+.public-navbar .notification-nav:hover i {
+    color: var(--notif-green-dark) !important;
+}
+
+.notification-nav {
+    position: relative !important;
+    overflow: visible !important;
+    isolation: isolate;
+}
+
+.notification-nav > .notification-badge {
+    position: absolute !important;
+    top: -4px !important;
+    right: -4px !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    z-index: 20 !important;
+    pointer-events: none !important;
+}
