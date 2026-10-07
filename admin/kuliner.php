@@ -121,9 +121,9 @@ if ($query) {
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../assets/css/dashboard.css?v=5">
+    <link rel="stylesheet" href="../assets/css/dashboard.css?v=6">
     <link rel="stylesheet" href="../assets/css/kuliner.css">
-        <link rel="stylesheet" href="../assets/css/lenis.css?v=1">
+        <link rel="stylesheet" href="../assets/css/lenis.css?v=2" media="(min-width: 992px)">
 
 </head>
 <body>
@@ -188,10 +188,16 @@ if ($query) {
                         <h1 class="dashboard-title">Data Kuliner</h1>
                         <p class="dashboard-subtitle">Kelola seluruh data kuliner khas Kalimantan Utara.</p>
                     </div>
-                    <a href="tambah_kuliner.php" class="website-button page-action-button">
-                        <i class="bi bi-plus-lg me-2"></i>
-                        Tambah Kuliner
-                    </a>
+                    <div class="topbar-actions">
+                        <a href="tambah_kuliner.php" class="website-button page-action-button">
+                            <i class="bi bi-plus-lg me-2"></i>
+                            Tambah Kuliner
+                        </a>
+                        <a href="profil.php" class="profile-top-button">
+                            <i class="bi bi-person-circle"></i>
+                            Profil
+                        </a>
+                    </div>
                 </div>
 
                 <?php if ($flash_success !== ""): ?>
@@ -308,32 +314,35 @@ if ($query) {
         </main>
     </div>
 
-    <nav class="mobile-bottom-nav">
-        <a href="dashboard.php" class="mobile-nav-link">
-            <i class="bi bi-grid-1x2-fill"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="kuliner.php" class="mobile-nav-link active">
-            <i class="bi bi-fork-knife"></i>
-            <span>Kuliner</span>
-        </a>
-        <a href="tambah_kuliner.php" class="mobile-nav-add" aria-label="Tambah data">
-            <span><i class="bi bi-plus-lg"></i></span>
-        </a>
-        <a href="kategori.php" class="mobile-nav-link">
-            <i class="bi bi-tags-fill"></i>
-            <span>Kategori</span>
-        </a>
-        <a href="profil.php" class="mobile-nav-link">
-            <i class="bi bi-person-circle"></i>
-            <span>Profil</span>
-        </a>
+    
+<nav class="mobile-bottom-nav" aria-label="Navigasi admin">
+    <a href="dashboard.php" class="mobile-nav-link">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>Dashboard</span>
+    </a>
+
+    <a href="kuliner.php" class="mobile-nav-link active">
+        <i class="bi bi-fork-knife"></i>
+        <span>Kuliner</span>
+    </a>
+
+    <a href="tambah_kuliner.php" class="mobile-nav-add" aria-label="Tambah data">
+        <span><i class="bi bi-plus-lg"></i></span>
+    </a>
+
+    <a href="kategori.php" class="mobile-nav-link">
+        <i class="bi bi-tags-fill"></i>
+        <span>Kategori</span>
+    </a>
+
+    <a href="profil.php" class="mobile-nav-link">
+        <i class="bi bi-person-circle"></i>
+        <span>Profil</span>
+    </a>
 </nav>
 
-    <script src="../assets/js/profile-live.js?v=1" defer></script>
-    <script src="../assets/js/dashboard.js" defer></script>
     <script src="../assets/js/kuliner.js" defer></script>
-    <script src="../assets/js/lenis.js?v=1" defer></script>
+    <script src="../assets/js/lenis.js?v=3" defer></script>
 
 </body>
 </html>

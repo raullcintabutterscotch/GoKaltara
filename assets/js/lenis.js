@@ -5,6 +5,10 @@
         return;
     }
 
+    if (window.matchMedia && !window.matchMedia("(min-width: 992px)").matches) {
+        return;
+    }
+
     function initLenis() {
         if (typeof Lenis !== "function") {
             return;
@@ -48,9 +52,9 @@
 
     function schedule() {
         if ("requestIdleCallback" in window) {
-            window.requestIdleCallback(loadLenis, { timeout: 1800 });
+            window.requestIdleCallback(loadLenis, { timeout: 2400 });
         } else {
-            window.setTimeout(loadLenis, 900);
+            window.setTimeout(loadLenis, 1200);
         }
     }
 

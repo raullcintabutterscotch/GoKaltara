@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once "../api/_auth.php";
+require_once "../config/profile_images.php";
 
 $id_user = requireAdminPage($koneksi);
 
@@ -54,163 +55,6 @@ function profileJson(array $data): never
     exit;
 }
 
-function getProfileImageUrl(string $value): string
-{
-    $value = trim($value);
-
-    if ($value === "") {
-        return "";
-    }
-
-    if (filter_var($value, FILTER_VALIDATE_URL)) {
-        return $value;
-    }
-
-    return "../assets/images/profil/" .
-        rawurlencode(
-            basename($value)
-        );
-}
-
-function uploadProfileToBlob(
-    array $file,
-    int $id_user
-): array {
-
-    $uploadUrl = trim(
-        (string) getenv("BLOB_UPLOAD_URL")
-    );
-
-    $secret = trim(
-        (string) getenv("BLOB_UPLOAD_SECRET")
-    );
-
-    if ($uploadUrl === "") {
-        return [
-            "success" => false,
-            "message" => "BLOB_UPLOAD_URL belum diatur."
-        ];
-    }
-
-    if ($secret === "") {
-        return [
-            "success" => false,
-            "message" => "BLOB_UPLOAD_SECRET belum diatur."
-        ];
-    }
-
-    if (
-        !isset($file["tmp_name"]) ||
-        !is_uploaded_file($file["tmp_name"])
-    ) {
-        return [
-            "success" => false,
-            "message" => "File upload tidak valid."
-        ];
-    }
-
-    $tmp = $file["tmp_name"];
-
-    $fileName = basename(
-        (string) ($file["name"] ?? "profile")
-    );
-
-    $timestamp = (string) time();
-
-    $payload =
-        $id_user .
-        "|" .
-        $timestamp .
-        "|" .
-        $fileName;
-
-    $signature = hash_hmac(
-        "sha256",
-        $payload,
-        $secret
-    );
-
-    $content = file_get_contents($tmp);
-
-    if ($content === false) {
-        return [
-            "success" => false,
-            "message" => "File tidak dapat dibaca."
-        ];
-    }
-
-    $ch = curl_init($uploadUrl);
-
-    if ($ch === false) {
-        return [
-            "success" => false,
-            "message" => "Curl tidak tersedia."
-        ];
-    }
-
-    curl_setopt_array(
-        $ch,
-        [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $content,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_TIMEOUT => 45,
-            CURLOPT_HTTPHEADER => [
-                "Content-Type: application/octet-stream",
-                "Content-Length: " . strlen($content),
-                "X-User-ID: " . $id_user,
-                "X-Timestamp: " . $timestamp,
-                "X-File-Name: " . $fileName,
-                "X-Signature: " . $signature
-            ]
-        ]
-    );
-
-    $response = curl_exec($ch);
-
-    $httpCode = (int) curl_getinfo(
-        $ch,
-        CURLINFO_HTTP_CODE
-    );
-
-    $curlError = curl_error($ch);
-
-    curl_close($ch);
-
-    if ($response === false || $curlError !== "") {
-        return [
-            "success" => false,
-            "message" => "Koneksi upload gagal."
-        ];
-    }
-
-    $data = json_decode(
-        (string) $response,
-        true
-    );
-
-    if (
-        $httpCode < 200 ||
-        $httpCode >= 300 ||
-        !is_array($data) ||
-        empty($data["success"]) ||
-        empty($data["url"])
-    ) {
-        return [
-            "success" => false,
-            "message" =>
-                $data["message"] ??
-                "Vercel Blob gagal menyimpan foto."
-        ];
-    }
-
-    return [
-        "success" => true,
-        "url" => (string) $data["url"]
-    ];
-}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -288,75 +132,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ]);
     }
 
-    $foto_lama = trim(
-        (string) ($user["foto_profil"] ?? "")
-    );
-
+    $foto_lama = trim((string) ($user["foto_profil"] ?? ""));
     $foto_baru = $foto_lama;
-
-    $hasNewPhoto = false;
+    $foto_upload_baru = false;
 
     if (
         isset($_FILES["foto_profil"]) &&
-        (int) (
-            $_FILES["foto_profil"]["error"]
-            ?? UPLOAD_ERR_NO_FILE
-        ) !== UPLOAD_ERR_NO_FILE
+        (int) ($_FILES["foto_profil"]["error"] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
     ) {
+        $processed = gokaltara_save_profile_upload_direct($_FILES["foto_profil"], (int) $id_user);
 
-        $file = $_FILES["foto_profil"];
-
-        if (
-            (int) $file["error"] !==
-            UPLOAD_ERR_OK
-        ) {
+        if (!$processed["success"]) {
             profileJson([
                 "success" => false,
-                "message" => "Upload foto gagal."
+                "message" => $processed["message"] ?? "Foto profil gagal diproses."
             ]);
         }
 
-        if (
-            (int) $file["size"] >
-            3 * 1024 * 1024
-        ) {
-            profileJson([
-                "success" => false,
-                "message" => "Ukuran foto maksimal 3 MB."
-            ]);
-        }
-
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-
-        $mime = $finfo->file(
-            $file["tmp_name"]
-        );
-
-        $allowed = [
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        ];
-
-        if (!in_array($mime, $allowed, true)) {
-            profileJson([
-                "success" => false,
-                "message" => "Format foto harus JPG, PNG, atau WEBP."
-            ]);
-        }
-
-        $upload = uploadProfileToBlob(
-            $file,
-            $id_user
-        );
-
-        if (!$upload["success"]) {
-            profileJson($upload);
-        }
-
-        $foto_baru = (string) $upload["url"];
-
-        $hasNewPhoto = true;
+        $foto_baru = (string) ($processed["filename"] ?? "");
+        $foto_upload_baru = $foto_baru !== "";
     }
 
     $stmt_update = $koneksi->prepare("
@@ -396,6 +190,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $stmt_update->close();
 
+    if ($foto_upload_baru && $foto_lama !== "") {
+        gokaltara_delete_profile_image_direct($foto_lama);
+    }
+
     $_SESSION["login"] = true;
     $_SESSION["id_user"] = $id_user;
     $_SESSION["username"] = $username;
@@ -411,7 +209,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         "level" => $level,
         "foto_profil" => $foto_baru,
         "foto_profil_url" =>
-            getProfileImageUrl($foto_baru)
+            ($foto_baru !== "" ? gokaltara_profile_image_url_direct($foto_baru, false) : ""),
+        "foto_profil_thumbnail_url" =>
+            ($foto_baru !== "" ? gokaltara_profile_image_url_direct($foto_baru, true) : "")
     ]);
 }
 
@@ -434,8 +234,9 @@ $foto_profil = trim(
 );
 
 $foto_profil_url =
-    getProfileImageUrl(
-        $foto_profil
+    gokaltara_profile_image_url_direct(
+        $foto_profil,
+        false
     );
 
 $initial_admin = strtoupper(
@@ -503,17 +304,17 @@ $initial_admin = strtoupper(
 
     <link
         rel="stylesheet"
-        href="../assets/css/dashboard.css?v=30"
+        href="../assets/css/dashboard.css?v=31"
     >
 
     <link
         rel="stylesheet"
-        href="../assets/css/profil.css?v=60"
+        href="../assets/css/profil.css?v=62"
     >
 
     <link
         rel="stylesheet"
-        href="../assets/css/lenis.css?v=1"
+        href="../assets/css/lenis.css?v=2" media="(min-width: 992px)"
     >
 
 </head>
@@ -1079,7 +880,6 @@ $initial_admin = strtoupper(
 </div>
 
 <nav class="admin-mobile-bottom-nav" aria-label="Navigasi admin">
-
     <a href="dashboard.php" class="admin-mobile-nav-link">
         <i class="bi bi-grid-1x2-fill"></i>
         <span>Dashboard</span>
@@ -1087,7 +887,11 @@ $initial_admin = strtoupper(
 
     <a href="kuliner.php" class="admin-mobile-nav-link">
         <i class="bi bi-fork-knife"></i>
-        <span>Data Kuliner</span>
+        <span>Kuliner</span>
+    </a>
+
+    <a href="tambah_kuliner.php" class="admin-mobile-nav-add" aria-label="Tambah kuliner">
+        <span><i class="bi bi-plus-lg"></i></span>
     </a>
 
     <a href="kategori.php" class="admin-mobile-nav-link">
@@ -1095,11 +899,10 @@ $initial_admin = strtoupper(
         <span>Kategori</span>
     </a>
 
-    <a href="tambah_kuliner.php" class="admin-mobile-nav-link">
-        <i class="bi bi-plus-circle-fill"></i>
-        <span>Tambah</span>
+    <a href="profil.php" class="admin-mobile-nav-link active">
+        <i class="bi bi-person-circle"></i>
+        <span>Profil</span>
     </a>
-
 </nav>
 
 <script
@@ -1113,12 +916,12 @@ $initial_admin = strtoupper(
 ></script>
 
 <script
-    src="../assets/js/profil.js?v=61"
+    src="../assets/js/profil.js?v=62"
     defer
 ></script>
 
 <script
-    src="../assets/js/lenis.js?v=2"
+    src="../assets/js/lenis.js?v=3"
     defer
 ></script>
 

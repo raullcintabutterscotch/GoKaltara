@@ -810,3 +810,18 @@ img {
     }
 
 }
+
+
+.mobile-public-link i {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.mobile-public-link span {
+    line-height: 1.1;
+}

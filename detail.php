@@ -1357,17 +1357,13 @@ if ($is_login) {
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-    <link rel="stylesheet" href="assets/css/detail.css?v=4">
-
-    <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
+    <link rel="stylesheet" href="assets/css/detail.css?v=5">
+    <?php if ($is_login): ?>
+        <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
+    <?php endif; ?>
     <link rel="stylesheet" href="assets/css/footer.css?v=70">
-    <noscript>
-        <link rel="stylesheet" href="assets/css/footer.css?v=70">
-    </noscript>
-    <noscript>
-        </noscript>
 
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
+    <link rel="stylesheet" href="assets/css/lenis.css?v=2" media="(min-width: 992px)">
 
 </head>
 
@@ -2506,11 +2502,11 @@ if ($is_login) {
     </a>
 
     <a
-        href="notifikasi.php"
+        href="tentang.php"
         class="mobile-public-link"
     >
-        <i class="bi bi-bell-fill"></i>
-        <span>Notif</span>
+        <i class="bi bi-info-circle-fill"></i>
+        <span>Tentang</span>
     </a>
 
     <?php if ($is_login): ?>

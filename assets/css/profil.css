@@ -1018,26 +1018,31 @@ select {
 
 @media (max-width: 991.98px) {
     .profile-button-row {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
+        display: grid;
+        grid-template-columns: 1fr;
         gap: 9px;
     }
 
     .profile-button-row .profile-save-button {
         order: 1;
+        min-height: 48px;
+        border-radius: 12px;
     }
 
     .profile-button-row .profile-mobile-logout {
         order: 2;
         display: inline-flex;
-        min-height: 44px;
+        min-height: 46px;
         width: 100%;
         margin: 0;
+        border-radius: 12px;
     }
 
     .profile-button-row .profile-cancel-button {
         order: 3;
+        min-height: 46px;
+        width: 100%;
+        border-radius: 12px;
     }
 
     .admin-mobile-bottom-nav {
@@ -1049,7 +1054,7 @@ select {
         min-height: 68px;
         padding: 7px 8px max(7px, env(safe-area-inset-bottom));
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 4px;
         align-items: center;
         background: rgba(255, 255, 255, .98);
@@ -1108,5 +1113,56 @@ select {
 
     .admin-mobile-nav-link i {
         font-size: 16px;
+    }
+}
+
+
+@media (max-width: 991.98px) {
+    .admin-mobile-nav-add {
+        width: 46px;
+        height: 46px;
+        justify-self: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--green);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(29, 98, 80, .18);
+    }
+
+    .admin-mobile-nav-add:hover,
+    .admin-mobile-nav-add:focus-visible {
+        background: var(--green-dark);
+        color: #fff;
+    }
+
+    .admin-mobile-nav-add span {
+        width: 46px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .admin-mobile-nav-add i {
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .admin-mobile-bottom-nav {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 4px;
+    }
+}
+
+
+@media (min-width: 992px) {
+    .profile-button-row .profile-save-button {
+        min-width: 190px;
+    }
+
+    .profile-button-row .profile-cancel-button {
+        min-width: 110px;
     }
 }

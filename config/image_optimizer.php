@@ -328,20 +328,35 @@ function gokaltara_image_url(
         return $thumb_url !== '' ? $thumb_url : $filename;
     }
 
-    $filename = basename($filename);
+    $filename = basename(str_replace('\\', '/', $filename));
     $stem = gokaltara_image_stem($filename);
-
-    if ($thumbnail) {
-        return $assets_path . '/thumbs/' . rawurlencode($stem) . '.webp';
-    }
-
     $extension = gokaltara_image_extension($filename);
 
-    if ($extension !== 'webp') {
-        return $assets_path . '/' . rawurlencode($stem) . '.webp';
+    $disk_base = __DIR__ . '/../assets/images';
+    $full_candidates = array_values(array_unique([
+        $filename,
+        $stem . '.webp',
+        $stem . '.jpg',
+        $stem . '.jpeg',
+        $stem . '.png'
+    ]));
+
+    if ($thumbnail) {
+        $thumb_name = $stem . '.webp';
+        $thumb_disk = $disk_base . '/thumbs/' . $thumb_name;
+
+        if (is_file($thumb_disk)) {
+            return $assets_path . '/thumbs/' . rawurlencode($thumb_name);
+        }
     }
 
-    return $assets_path . '/' . rawurlencode($filename);
+    foreach ($full_candidates as $candidate) {
+        if (is_file($disk_base . '/' . $candidate)) {
+            return $assets_path . '/' . rawurlencode($candidate);
+        }
+    }
+
+    return $assets_path . '/no-image.jpg';
 }
 
 function gokaltara_create_resized_webp(

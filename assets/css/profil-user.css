@@ -960,3 +960,51 @@ select {
         gap: 0;
     }
 }
+
+
+.profile-user-mobile-logout {
+    display: none;
+}
+
+@media (min-width: 992px) {
+    .profile-button-row .profile-save-button {
+        min-width: 190px;
+    }
+
+    .profile-button-row .profile-cancel-button {
+        min-width: 110px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .profile-button-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+
+    .profile-button-row .profile-save-button {
+        order: 1;
+        width: 100%;
+        min-height: 48px;
+        border-radius: 12px;
+    }
+
+    .profile-user-mobile-logout {
+        order: 2;
+        display: inline-flex;
+        width: 100%;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 12px;
+    }
+
+    .profile-button-row .profile-cancel-button {
+        order: 3;
+        width: 100%;
+        min-height: 46px;
+        border-radius: 12px;
+    }
+}

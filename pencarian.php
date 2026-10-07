@@ -174,17 +174,13 @@ function fotoKuliner($foto, $thumbnail = false)
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-    <link rel="stylesheet" href="assets/css/pencarian.css?v=4">
-
-    <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
+    <link rel="stylesheet" href="assets/css/pencarian.css?v=5">
+    <?php if ($is_login): ?>
+        <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
+    <?php endif; ?>
     <link rel="stylesheet" href="assets/css/footer.css?v=2">
-    <noscript>
-        <link rel="stylesheet" href="assets/css/footer.css?v=2">
-    </noscript>
-    <noscript>
-        </noscript>
 
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
+    <link rel="stylesheet" href="assets/css/lenis.css?v=2" media="(min-width: 992px)">
 
 </head>
 
@@ -764,7 +760,7 @@ function fotoKuliner($foto, $thumbnail = false)
                 <i class="bi bi-person-fill"></i>
 
                 <span>
-                    Profile
+                    Profil
                 </span>
 
             </a>

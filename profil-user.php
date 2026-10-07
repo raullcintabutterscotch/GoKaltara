@@ -276,13 +276,13 @@ if (!empty($user['foto_profil'])) {
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 
-    <link rel="stylesheet" href="assets/css/profil-user.css?v=6">
+    <link rel="stylesheet" href="assets/css/profil-user.css?v=7">
 
     <link rel="stylesheet" href="assets/css/notifikasi.css?v=61">
     <noscript>
         </noscript>
 
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
+    <link rel="stylesheet" href="assets/css/lenis.css?v=2" media="(min-width: 992px)">
 
 </head>
 
@@ -628,6 +628,13 @@ if (!empty($user['foto_profil'])) {
                         Simpan Perubahan
 
                     </button>
+
+                    <a
+                        href="logout.php"
+                        class="profile-logout-button profile-user-mobile-logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Logout</span>
+                    </a>
 
                 </div>
 

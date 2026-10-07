@@ -137,7 +137,9 @@ function renderFoodCards($koneksi, $kategori_id = 0)
                             src="' . e($foto) . '"
                             alt="' . e($data['nama_kuliner']) . '"
                             loading="lazy"
-                            decoding="async">
+                            decoding="async"
+                            width="640"
+                            height="430">
 
                         <span class="food-category">
                             ' . e($data['nama_kategori'] ?: 'Kuliner') . '
@@ -261,7 +263,7 @@ $query_kategori = $koneksi->query("
 
     <link
         rel="stylesheet"
-        href="assets/css/index.css?v=12"
+        href="assets/css/index.css?v=13"
     >
 
     <?php if ($is_login): ?>
@@ -273,7 +275,7 @@ $query_kategori = $koneksi->query("
 
     <?php endif; ?>
 
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
+    <link rel="stylesheet" href="assets/css/lenis.css?v=2" media="(min-width: 992px)">
 
 </head>
 

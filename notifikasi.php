@@ -808,7 +808,7 @@ $notifications =
     <noscript>
         </noscript>
 
-    <link rel="stylesheet" href="assets/css/lenis.css?v=1">
+    <link rel="stylesheet" href="assets/css/lenis.css?v=2" media="(min-width: 992px)">
 
 </head>
 
@@ -928,7 +928,7 @@ $notifications =
 <script
     src="assets/js/notifikasi.js?v=50"
  defer></script>
-    <script src="assets/js/lenis.js?v=1" defer></script>
+    <script src="assets/js/lenis.js?v=3" defer></script>
 
 </body>
 
